@@ -13,11 +13,13 @@ const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const REDIRECT_URI = process.env.REDIRECT_URI;
 const WEBHOOK = process.env.WEBHOOK;
 
-app.get('/', (req, res) => {
-  res.send('OAuth2 Backend WHT - Online ✅');
-});
+app.get('/', async (req, res) => {
+  const code = req.query.code;
 
-app.post('/', async (req, res) => {
+  if (!code) {
+    return res.send('OAuth2 Backend WHT - Online ✅');
+  }
+
   try {
     let form = new FormData();
     form.append('client_id', CLIENT_ID);
@@ -25,7 +27,7 @@ app.post('/', async (req, res) => {
     form.append('grant_type', 'authorization_code');
     form.append('redirect_uri', REDIRECT_URI);
     form.append('scope', 'identify guilds.join');
-    form.append('code', req.body);
+    form.append('code', code);
 
     const tokenRes = await fetch('https://discord.com/api/oauth2/token', {
       method: 'POST',
@@ -40,32 +42,30 @@ app.post('/', async (req, res) => {
     const user = userRes.data;
     const avatarURL = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=4096`;
 
-    // Envia webhook
     await fetch(WEBHOOK, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         embeds: [{
           color: 3092790,
-          title: `${user.username}#${user.discriminator} - ${user.id}`,
+          title: `${user.username} - ${user.id}`,
           thumbnail: { url: avatarURL },
-          description: `\`\`\`diff\n- New User\n\n- Pseudo: ${user.username}#${user.discriminator}\n\n- ID: ${user.id}\`\`\``
+          description: `\`\`\`diff\n+ New User\n\n+ Username: ${user.username}\n\n+ ID: ${user.id}\`\`\``
         }]
       })
     });
 
-    res.json({
-      success: true,
-      userID: user.id,
-      username: `${user.username}#${user.discriminator}`,
-      avatarURL,
-      access_token: tokenData.access_token,
-      refresh_token: tokenData.refresh_token,
-    });
+    res.send(`
+      <html><body style="background:#2b2d31;color:white;font-family:sans-serif;text-align:center;padding:50px">
+        <h1>✅ Verificado com sucesso!</h1>
+        <p>Olá, <b>${user.username}</b>! Sua conta foi verificada.</p>
+        <p>Você já pode fechar essa página.</p>
+      </body></html>
+    `);
 
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Erro interno' });
+    res.status(500).send('Erro ao processar verificação.');
   }
 });
 
