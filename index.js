@@ -26,7 +26,7 @@ const redis = new Redis({
 
 const CLIENT_ID     = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
-const REDIRECT_URI  = 'https://verificar-2-kdksa6xlw-pregadolucas1-4494s-projects.vercel.app/';
+const REDIRECT_URI  = process.env.REDIRECT_URI;
 const BOT_TOKEN     = process.env.BOT_TOKEN;
 const GUILD_ID      = process.env.GUILD_ID;
 const CARGO_ID      = process.env.CARGO_ID;
