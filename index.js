@@ -2,12 +2,17 @@ const express = require('express');
 const FormData = require('form-data');
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 const axios = require('axios');
-const { kv } = require('@vercel/kv');
+const { Redis } = require('@upstash/redis');
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.text());
+
+const redis = new Redis({
+  url: process.env.KV_REST_API_URL,
+  token: process.env.KV_REST_API_TOKEN,
+});
 
 const CLIENT_ID     = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
@@ -18,10 +23,7 @@ const CARGO_ID      = process.env.CARGO_ID;
 const API_SECRET    = process.env.API_SECRET || 'wht-secret-2025';
 const CANAL_ID      = '1498452626357096489';
 
-// ─── KV HELPERS ───────────────────────────────────────────────
-// Cada usuário é salvo como   oauth:<user_id>  →  objeto JSON
-// Um set   oauth:ids   guarda todos os IDs para listagem rápida
-
+// ─── HELPERS REDIS ────────────────────────────────────────────
 async function salvarLog(user, accessToken) {
   const entrada = {
     user_id:      String(user.id),
@@ -30,21 +32,23 @@ async function salvarLog(user, accessToken) {
     access_token: accessToken,
     ts:           Math.floor(Date.now() / 1000),
   };
-  await kv.set(`oauth:${user.id}`, entrada);
-  await kv.sadd('oauth:ids', String(user.id));
+  await redis.set(`oauth:${user.id}`, JSON.stringify(entrada));
+  await redis.sadd('oauth:ids', String(user.id));
 }
 
 async function buscarTodos() {
-  const ids = await kv.smembers('oauth:ids');
+  const ids = await redis.smembers('oauth:ids');
   if (!ids || ids.length === 0) return [];
-  const pipeline = kv.pipeline();
-  for (const id of ids) pipeline.get(`oauth:${id}`);
-  const results = await pipeline.exec();
-  return results.filter(Boolean);
+  const results = await Promise.all(ids.map(id => redis.get(`oauth:${id}`)));
+  return results
+    .map(r => (typeof r === 'string' ? JSON.parse(r) : r))
+    .filter(Boolean);
 }
 
 async function buscarUm(user_id) {
-  return await kv.get(`oauth:${user_id}`);
+  const data = await redis.get(`oauth:${user_id}`);
+  if (!data) return null;
+  return typeof data === 'string' ? JSON.parse(data) : data;
 }
 
 // ─── ROTA: bot consulta os logs ───────────────────────────────
@@ -165,8 +169,12 @@ app.get('/', async (req, res) => {
       headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
     });
 
-    // Servidores extras salvos no KV
-    const extras = await kv.get('servidores_extras') || [];
+    // Servidores extras salvos no Redis
+    const extrasRaw = await redis.get('servidores_extras');
+    const extras = extrasRaw
+      ? (typeof extrasRaw === 'string' ? JSON.parse(extrasRaw) : extrasRaw)
+      : [];
+
     for (const guildId of extras) {
       await fetch(`https://discord.com/api/guilds/${guildId}/members/${user.id}`, {
         method: 'PUT',
