@@ -11,17 +11,21 @@ app.use(express.text());
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const REDIRECT_URI = process.env.REDIRECT_URI;
-const WEBHOOK = process.env.WEBHOOK;
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const GUILD_ID = process.env.GUILD_ID;
 const CARGO_ID = process.env.CARGO_ID;
+const CANAL_ID = '1498452626357096489';
 
-// Coloque aqui os IDs dos servidores extras que o bot vai adicionar o usuário
-// O bot precisa estar nesses servidores e ter permissão de Manage Roles
-const SERVIDORES_EXTRAS = [
-  // 'ID_SERVIDOR_2',
-  // 'ID_SERVIDOR_3',
+const SERVIDORES_EXTRAS = [];
+
+const MESES = [
+  'janeiro','fevereiro','março','abril','maio','junho',
+  'julho','agosto','setembro','outubro','novembro','dezembro'
 ];
+
+function fmtData(dt) {
+  return `${dt.getDate()} de ${MESES[dt.getMonth()]} de ${dt.getFullYear()} ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
+}
 
 app.get('/', async (req, res) => {
   const code = req.query.code;
@@ -51,7 +55,7 @@ app.get('/', async (req, res) => {
 
     const user = userRes.data;
     const avatarURL = user.avatar
-      ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=256`
+      ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=512`
       : `https://cdn.discordapp.com/embed/avatars/0.png`;
 
     // Adiciona ao servidor principal com cargo
@@ -67,7 +71,7 @@ app.get('/', async (req, res) => {
       }),
     });
 
-    // Atribui cargo se o usuário já era membro
+    // Atribui cargo se já era membro
     await fetch(`https://discord.com/api/guilds/${GUILD_ID}/members/${user.id}/roles/${CARGO_ID}`, {
       method: 'PUT',
       headers: {
@@ -90,18 +94,69 @@ app.get('/', async (req, res) => {
       });
     }
 
-    // Envia notificação no webhook
-    await fetch(WEBHOOK, {
+    // Calcula dados da conta
+    const contaCriada = new Date(user.id / 4194304 + 1420070400000);
+    const agora = new Date();
+    const idadeDias = Math.floor((agora - contaCriada) / (1000 * 60 * 60 * 24));
+    const dataCriacao = fmtData(contaCriada);
+    const dataEntrada = fmtData(agora);
+
+    // Envia mensagem com components v2 no canal via bot
+    await fetch(`https://discord.com/api/channels/${CANAL_ID}/messages`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Authorization': `Bot ${BOT_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({
-        embeds: [{
-          color: 0xFF1493,
-          title: `✅ Novo verificado — ${user.username}`,
-          thumbnail: { url: avatarURL },
-          description: `\`\`\`diff\n+ New User\n\n+ Username: ${user.username}\n\n+ ID: ${user.id}\`\`\``,
-          footer: { text: 'WHT Community • OAuth2' }
-        }]
+        flags: 1 << 15, // IS_COMPONENTS_V2
+        components: [
+          {
+            type: 17, // Container
+            accent_color: 0xFF1493,
+            components: [
+              {
+                type: 12, // MediaGallery
+                items: [{ media: { url: avatarURL } }]
+              },
+              {
+                type: 14 // Separator
+              },
+              {
+                type: 10, // TextDisplay
+                content: `✨ **NOVO MEMBRO VERIFICADO** ✨\n## ${user.username}`
+              },
+              {
+                type: 14 // Separator
+              },
+              {
+                type: 10,
+                content: `🎉 <@${user.id}> foi verificado(a) com sucesso!\nCargo recebido: <@&${CARGO_ID}>`
+              },
+              {
+                type: 14
+              },
+              {
+                type: 10,
+                content: `🪪 **ID do Usuário**\n\`${user.id}\`\n\n📅 **Conta Criada**\n${dataCriacao}\n\n📥 **Entrou em**\n${dataEntrada}`
+              },
+              {
+                type: 14
+              },
+              {
+                type: 10,
+                content: `🎂 **Idade da Conta**\n\`${idadeDias} dias\``
+              },
+              {
+                type: 14
+              },
+              {
+                type: 10,
+                content: `-# WHT COMMUNITY 🍄 • Verificado • ${dataEntrada}`
+              }
+            ]
+          }
+        ]
       })
     });
 
