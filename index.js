@@ -1,13 +1,23 @@
 const express = require('express');
 const FormData = require('form-data');
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
-const axios = require('axios');
 const { Redis } = require('@upstash/redis');
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.text());
+
+console.log('🔧 Iniciando backend...');
+console.log('KV_REST_API_URL:', process.env.KV_REST_API_URL ? '✅ definida' : '❌ FALTANDO');
+console.log('KV_REST_API_TOKEN:', process.env.KV_REST_API_TOKEN ? '✅ definida' : '❌ FALTANDO');
+console.log('CLIENT_ID:', process.env.CLIENT_ID ? '✅ definida' : '❌ FALTANDO');
+console.log('CLIENT_SECRET:', process.env.CLIENT_SECRET ? '✅ definida' : '❌ FALTANDO');
+console.log('REDIRECT_URI:', process.env.REDIRECT_URI || '❌ FALTANDO');
+console.log('BOT_TOKEN:', process.env.BOT_TOKEN ? '✅ definida' : '❌ FALTANDO');
+console.log('GUILD_ID:', process.env.GUILD_ID || '❌ FALTANDO');
+console.log('CARGO_ID:', process.env.CARGO_ID || '❌ FALTANDO');
+console.log('API_SECRET:', process.env.API_SECRET || '(usando padrão wht-secret-2025)');
 
 const redis = new Redis({
   url: process.env.KV_REST_API_URL,
@@ -135,7 +145,10 @@ app.get('/', async (req, res) => {
   const code = req.query.code;
   if (!code) return res.send('OAuth2 Backend WHT - Online ✅');
 
+  console.log('📥 Recebeu code OAuth2:', code.substring(0, 10) + '...');
+
   try {
+    console.log('🔑 Trocando code por token...');
     let form = new FormData();
     form.append('client_id', CLIENT_ID);
     form.append('client_secret', CLIENT_SECRET);
@@ -146,41 +159,60 @@ app.get('/', async (req, res) => {
 
     const tokenRes  = await fetch('https://discord.com/api/oauth2/token', { method: 'POST', body: form });
     const tokenData = await tokenRes.json();
+    console.log('🔑 Token response status:', tokenRes.status);
+    console.log('🔑 Token data:', JSON.stringify(tokenData));
 
-    const userRes = await axios.get('https://discord.com/api/users/@me', {
+    if (tokenData.error) {
+      console.error('❌ Erro no token:', tokenData.error, tokenData.error_description);
+      return res.status(400).send(`Erro OAuth2: ${tokenData.error} - ${tokenData.error_description}`);
+    }
+
+    console.log('👤 Buscando dados do usuário...');
+    const userRes = await fetch('https://discord.com/api/users/@me', {
       headers: { authorization: `${tokenData.token_type} ${tokenData.access_token}` }
     });
+    const user = await userRes.json();
+    
+    console.log('👤 Usuário:', user.username, user.id);
 
-    const user = userRes.data;
-    await salvarLog(user, tokenData.access_token);
+    try {
+      await salvarLog(user, tokenData.access_token);
+      console.log('💾 Log salvo no Redis');
+    } catch (err) {
+      console.log('[Aviso] Falha ao salvar no Redis:', err.message);
+    }
 
     const avatarURL = user.avatar
       ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=512`
       : `https://cdn.discordapp.com/embed/avatars/0.png`;
 
-    await fetch(`https://discord.com/api/guilds/${GUILD_ID}/members/${user.id}`, {
-      method: 'PUT',
-      headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ access_token: tokenData.access_token, roles: [CARGO_ID] }),
-    });
-
-    await fetch(`https://discord.com/api/guilds/${GUILD_ID}/members/${user.id}/roles/${CARGO_ID}`, {
-      method: 'PUT',
-      headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
-    });
-
-    // Servidores extras salvos no Redis
-    const extrasRaw = await redis.get('servidores_extras');
-    const extras = extrasRaw
-      ? (typeof extrasRaw === 'string' ? JSON.parse(extrasRaw) : extrasRaw)
-      : [];
-
-    for (const guildId of extras) {
-      await fetch(`https://discord.com/api/guilds/${guildId}/members/${user.id}`, {
+    try {
+      console.log('➕ Adicionando ao servidor principal...');
+      const addResp = await fetch(`https://discord.com/api/guilds/${GUILD_ID}/members/${user.id}`, {
         method: 'PUT',
         headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ access_token: tokenData.access_token }),
+        body: JSON.stringify({ access_token: tokenData.access_token, roles: [CARGO_ID] }),
       });
+      console.log('➕ Add member status:', addResp.status);
+    } catch (err) {
+      console.log('[Aviso] Falha ao adicionar ao servidor:', err.message);
+    }
+
+    try {
+      const extrasRaw = await redis.get('servidores_extras');
+      const extras = extrasRaw
+        ? (typeof extrasRaw === 'string' ? JSON.parse(extrasRaw) : extrasRaw)
+        : [];
+
+      for (const guildId of extras) {
+        await fetch(`https://discord.com/api/guilds/${guildId}/members/${user.id}`, {
+          method: 'PUT',
+          headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ access_token: tokenData.access_token }),
+        });
+      }
+    } catch (err) {
+      console.log('[Aviso] Falha nos servidores extras:', err.message);
     }
 
     const contaCriada = new Date(user.id / 4194304 + 1420070400000);
@@ -189,29 +221,55 @@ app.get('/', async (req, res) => {
     const dataCriacao = fmtData(contaCriada);
     const dataEntrada = fmtData(agora);
 
-    await fetch(`https://discord.com/api/channels/${CANAL_ID}/messages`, {
-      method: 'POST',
-      headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        flags: 1 << 15,
-        components: [{
-          type: 17, accent_color: 0xFF1493,
-          components: [
-            { type: 12, items: [{ media: { url: avatarURL } }] },
-            { type: 14 },
-            { type: 10, content: `✨ **NOVO MEMBRO VERIFICADO** ✨\n## ${user.username}` },
-            { type: 14 },
-            { type: 10, content: `🎉 <@${user.id}> foi verificado(a) com sucesso!\nCargo recebido: <@&${CARGO_ID}>` },
-            { type: 14 },
-            { type: 10, content: `🪪 **ID do Usuário**\n\`${user.id}\`\n\n📅 **Conta Criada**\n${dataCriacao}\n\n📥 **Entrou em**\n${dataEntrada}` },
-            { type: 14 },
-            { type: 10, content: `🎂 **Idade da Conta**\n\`${idadeDias} dias\`` },
-            { type: 14 },
-            { type: 10, content: `-# WHT COMMUNITY 🍄 • Verificado • ${dataEntrada}` }
-          ]
-        }]
-      })
-    });
+    try {
+      console.log('📨 Enviando mensagem no Discord...');
+      await fetch(`https://discord.com/api/channels/${CANAL_ID}/messages`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          embeds: [{
+            color: 0xFF1493,
+            title: '✨ NOVO MEMBRO VERIFICADO ✨',
+            description: `## ${user.username}`,
+            fields: [
+              {
+                name: '🎉 Verificação',
+                value: `<@${user.id}> foi verificado(a) com sucesso!\nCargo recebido: <@&${CARGO_ID}>`,
+                inline: false
+              },
+              {
+                name: '🪪 ID do Usuário',
+                value: `\`${user.id}\``,
+                inline: true
+              },
+              {
+                name: '🎂 Idade da Conta',
+                value: `\`${idadeDias} dias\``,
+                inline: true
+              },
+              {
+                name: '📅 Conta Criada',
+                value: dataCriacao,
+                inline: true
+              },
+              {
+                name: '📥 Entrou em',
+                value: dataEntrada,
+                inline: true
+              }
+            ],
+            thumbnail: { url: avatarURL },
+            footer: {
+              text: `WHT COMMUNITY 🍄 • Verificado • ${dataEntrada}`
+            }
+          }]
+        })
+      });
+    } catch (err) {
+      console.log('[Aviso] Falha ao enviar mensagem:', err.message);
+    }
+
+    console.log('✅ Verificação concluída para', user.username);
 
     res.send(`<!DOCTYPE html>
 <html lang="pt-BR">
@@ -265,7 +323,8 @@ app.get('/', async (req, res) => {
 </html>`);
 
   } catch (err) {
-    console.error(err);
+    console.error('❌ ERRO GERAL:', err.message);
+    console.error('❌ STACK:', err.stack);
     res.status(500).send('Erro ao processar verificação.');
   }
 });
