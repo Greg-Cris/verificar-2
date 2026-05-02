@@ -11,7 +11,7 @@ app.use(express.text());
 console.log('🔧 Iniciando backend...');
 console.log('KV_REST_API_URL:', process.env.KV_REST_API_URL ? '✅ definida' : '❌ FALTANDO');
 console.log('KV_REST_API_TOKEN:', process.env.KV_REST_API_TOKEN ? '✅ definida' : '❌ FALTANDO');
-console.log('CLIENT_ID:', process.env.CLIENT_ID ? '✅ definida' : '❌ FALTANDO');
+console.log('CLIENT_ID:', process.env.CLIENT_ID ? `✅ definida (${process.env.CLIENT_ID.substring(0, 10)}...)` : '❌ FALTANDO');
 console.log('CLIENT_SECRET:', process.env.CLIENT_SECRET ? '✅ definida' : '❌ FALTANDO');
 console.log('REDIRECT_URI:', process.env.REDIRECT_URI || '❌ FALTANDO');
 console.log('BOT_TOKEN:', process.env.BOT_TOKEN ? '✅ definida' : '❌ FALTANDO');
@@ -146,6 +146,16 @@ app.get('/', async (req, res) => {
   if (!code) return res.send('OAuth2 Backend WHT - Online ✅');
 
   console.log('📥 Recebeu code OAuth2:', code.substring(0, 10) + '...');
+  
+  if (!CLIENT_ID || !CLIENT_SECRET) {
+    return res.status(400).send(`
+      <h1>ERRO: Variáveis de ambiente FALTANDO!</h1>
+      <p><strong>CLIENT_ID:</strong> ${CLIENT_ID ? '✅ OK' : '❌ FALTANDO'}</p>
+      <p><strong>CLIENT_SECRET:</strong> ${CLIENT_SECRET ? '✅ OK' : '❌ FALTANDO'}</p>
+      <p><strong>REDIRECT_URI:</strong> ${REDIRECT_URI || '❌ FALTANDO'}</p>
+      <p>Configure essas variáveis no Vercel e faça o redeploy!</p>
+    `);
+  }
 
   try {
     console.log('🔑 Trocando code por token...');
