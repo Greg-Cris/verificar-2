@@ -16,7 +16,8 @@ const BOT_TOKEN = process.env.BOT_TOKEN;
 const GUILD_ID = process.env.GUILD_ID;
 const CARGO_ID = process.env.CARGO_ID;
 
-// IDs dos servidores extras que o bot vai adicionar o usuário
+// Coloque aqui os IDs dos servidores extras que o bot vai adicionar o usuário
+// O bot precisa estar nesses servidores e ter permissão de Manage Roles
 const SERVIDORES_EXTRAS = [
   // 'ID_SERVIDOR_2',
   // 'ID_SERVIDOR_3',
@@ -66,7 +67,7 @@ app.get('/', async (req, res) => {
       }),
     });
 
-    // Atribui cargo se já era membro
+    // Atribui cargo se o usuário já era membro
     await fetch(`https://discord.com/api/guilds/${GUILD_ID}/members/${user.id}/roles/${CARGO_ID}`, {
       method: 'PUT',
       headers: {
@@ -89,7 +90,7 @@ app.get('/', async (req, res) => {
       });
     }
 
-    // Webhook
+    // Envia notificação no webhook
     await fetch(WEBHOOK, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -104,6 +105,7 @@ app.get('/', async (req, res) => {
       })
     });
 
+    // Página de sucesso
     res.send(`<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
