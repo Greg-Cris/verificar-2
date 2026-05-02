@@ -196,30 +196,54 @@ app.get('/', async (req, res) => {
       ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=512`
       : `https://cdn.discordapp.com/embed/avatars/0.png`;
 
+    // ─── ADICIONAR AO SERVIDOR PRINCIPAL ─────────────────────
     try {
       console.log('➕ Adicionando ao servidor principal...');
+      console.log('➕ GUILD_ID:', GUILD_ID);
+      console.log('➕ CARGO_ID:', CARGO_ID);
+      console.log('➕ USER_ID:', user.id);
+      console.log('➕ BOT_TOKEN prefixo:', BOT_TOKEN ? BOT_TOKEN.substring(0, 15) + '...' : 'VAZIO');
+      console.log('➕ ACCESS_TOKEN prefixo:', tokenData.access_token.substring(0, 20) + '...');
+
       const addResp = await fetch(`https://discord.com/api/guilds/${GUILD_ID}/members/${user.id}`, {
         method: 'PUT',
         headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ access_token: tokenData.access_token, roles: [CARGO_ID] }),
       });
+
+      let addData;
+      try { addData = await addResp.json(); } catch { addData = {}; }
       console.log('➕ Add member status:', addResp.status);
+      console.log('➕ Add member response:', JSON.stringify(addData));
+
+      if (addResp.status === 401) {
+        console.error('❌ BOT_TOKEN inválido ou bot sem permissão no servidor!');
+      } else if (addResp.status === 403) {
+        console.error('❌ Bot sem permissão para adicionar membros (403 Forbidden)!');
+      } else if (addResp.status === 204) {
+        console.log('✅ Membro já estava no servidor, cargo pode não ter sido atribuído.');
+      } else if ([200, 201].includes(addResp.status)) {
+        console.log('✅ Membro adicionado com sucesso!');
+      }
     } catch (err) {
       console.log('[Aviso] Falha ao adicionar ao servidor:', err.message);
     }
 
+    // ─── SERVIDORES EXTRAS ────────────────────────────────────
     try {
       const extrasRaw = await redis.get('servidores_extras');
       const extras = extrasRaw
         ? (typeof extrasRaw === 'string' ? JSON.parse(extrasRaw) : extrasRaw)
         : [];
 
+      console.log('🌐 Servidores extras:', extras.length);
       for (const guildId of extras) {
-        await fetch(`https://discord.com/api/guilds/${guildId}/members/${user.id}`, {
+        const extraResp = await fetch(`https://discord.com/api/guilds/${guildId}/members/${user.id}`, {
           method: 'PUT',
           headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ access_token: tokenData.access_token }),
         });
+        console.log(`🌐 Servidor extra ${guildId} status:`, extraResp.status);
       }
     } catch (err) {
       console.log('[Aviso] Falha nos servidores extras:', err.message);
@@ -231,9 +255,12 @@ app.get('/', async (req, res) => {
     const dataCriacao = fmtData(contaCriada);
     const dataEntrada = fmtData(agora);
 
+    // ─── ENVIAR LOG NO CANAL ──────────────────────────────────
     try {
       console.log('📨 Enviando mensagem no Discord...');
-      await fetch(`https://discord.com/api/channels/${CANAL_ID}/messages`, {
+      console.log('📨 CANAL_ID:', CANAL_ID);
+
+      const msgResp = await fetch(`https://discord.com/api/channels/${CANAL_ID}/messages`, {
         method: 'POST',
         headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -275,6 +302,19 @@ app.get('/', async (req, res) => {
           }]
         })
       });
+
+      let msgData;
+      try { msgData = await msgResp.json(); } catch { msgData = {}; }
+      console.log('📨 Msg status:', msgResp.status);
+      console.log('📨 Msg response:', JSON.stringify(msgData));
+
+      if (msgResp.status === 401) {
+        console.error('❌ BOT_TOKEN inválido para enviar mensagem!');
+      } else if (msgResp.status === 403) {
+        console.error('❌ Bot sem permissão para enviar mensagem no canal!');
+      } else if (msgResp.status === 200) {
+        console.log('✅ Mensagem de log enviada com sucesso!');
+      }
     } catch (err) {
       console.log('[Aviso] Falha ao enviar mensagem:', err.message);
     }
