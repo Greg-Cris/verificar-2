@@ -75,6 +75,8 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .btn-ghost:hover{background:var(--bg3);color:var(--text)}
 .btn-danger{background:rgba(237,66,69,.12);color:#f56264;border:1px solid rgba(237,66,69,.2)}
 .btn-danger:hover{background:rgba(237,66,69,.22)}
+.btn-success{background:rgba(59,165,92,.15);color:#3dbe6c;border:1px solid rgba(59,165,92,.25)}
+.btn-success:hover{background:rgba(59,165,92,.25)}
 .btn-sm{padding:4px 10px;font-size:11px}
 
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -87,7 +89,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
 
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:100;opacity:0;pointer-events:none;transition:opacity .2s}
 .modal-overlay.open{opacity:1;pointer-events:all}
-.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:24px;width:540px;max-width:95vw;transform:translateY(8px);transition:transform .2s}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:24px;width:600px;max-width:95vw;max-height:90vh;overflow-y:auto;transform:translateY(8px);transition:transform .2s}
 .modal-overlay.open .modal{transform:translateY(0)}
 .modal-title{font-size:15px;font-weight:600;color:#fff;margin-bottom:4px}
 .modal-sub{font-size:12px;color:var(--muted);margin-bottom:20px}
@@ -105,6 +107,26 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .token-mono{font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--bg3);padding:2px 8px;border-radius:4px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block}
 .avatar-row{display:flex;align-items:center;gap:8px}
 
+/* Bot cards */
+.bots-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
+.bot-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:border-color .2s}
+.bot-card:hover{border-color:var(--border2)}
+.bot-card-header{padding:14px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border)}
+.bot-color-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.bot-card-name{font-size:13px;font-weight:600;color:#fff;flex:1}
+.bot-card-body{padding:14px 16px}
+.bot-info-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:12px}
+.bot-info-label{color:var(--muted)}
+.bot-info-value{font-family:var(--mono);font-size:11px;color:var(--text);background:var(--bg3);padding:2px 8px;border-radius:4px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bot-card-footer{padding:10px 16px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:center;justify-content:flex-end}
+.oauth-url-wrap{padding:10px 16px;border-top:1px solid var(--border);background:var(--bg3)}
+.oauth-url-label{font-size:10px;color:var(--dim);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+.oauth-url-input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--muted);font-size:10px;font-family:var(--mono);outline:none;cursor:text}
+
+/* Color picker row */
+.color-row{display:flex;align-items:center;gap:10px}
+.color-preview{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);flex-shrink:0;cursor:pointer}
+
 ::-webkit-scrollbar{width:5px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
@@ -112,14 +134,11 @@ tr:hover td{background:rgba(255,255,255,.02)}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 .pulse{animation:pulse 2s infinite}
 
-/* Loading spinner */
 .spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--pink);border-radius:50%;animation:spin .6s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* Empty state */
 .empty-state{padding:40px;text-align:center;color:var(--muted);font-size:12px}
 
-/* Alert */
 .alert{padding:10px 14px;border-radius:8px;font-size:12px;margin-bottom:12px}
 .alert.error{background:rgba(237,66,69,.1);border:1px solid rgba(237,66,69,.2);color:#f56264}
 .alert.success{background:rgba(59,165,92,.1);border:1px solid rgba(59,165,92,.2);color:#3dbe6c}
@@ -147,6 +166,10 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <button class="nav-item" onclick="showPage('tokens')">
       <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M0 8a4 4 0 014-4h8a4 4 0 110 8H4a4 4 0 01-4-4zm4-3a3 3 0 100 6h8a3 3 0 100-6H4zm0 1.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zm8 1.5a1 1 0 11-2 0 1 1 0 012 0zm-3 0a1 1 0 11-2 0 1 1 0 012 0z"/></svg>
       Tokens
+    </button>
+    <button class="nav-item" onclick="showPage('bots')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M6 12.5a.5.5 0 01.5-.5h3a.5.5 0 010 1h-3a.5.5 0 01-.5-.5zM3 8.062C3 6.76 4.235 5.765 5.53 5.886a26.58 26.58 0 004.94 0C11.765 5.765 13 6.76 13 8.062v1.157a.933.933 0 01-.765.935c-.845.147-2.34.346-4.235.346-1.895 0-3.39-.2-4.235-.346A.933.933 0 013 9.219V8.062zm4.542-.827a.25.25 0 00-.217.068l-.92.9a24.767 24.767 0 01-1.871-.183.25.25 0 00-.068.495c.55.076 1.232.149 2.02.193a.25.25 0 00.189-.071l.754-.736.847 1.71a.25.25 0 00.404.062l.932-.97a25.286 25.286 0 001.922-.188.25.25 0 00-.068-.495c-.538.074-1.207.145-1.98.189a.25.25 0 00-.166.076l-.754.785-.842-1.7a.25.25 0 00-.183-.13z"/><path d="M8 1a2.5 2.5 0 01.025 4.999C9.5 6.042 11 7.1 11 8.5V9h1a1 1 0 010 2H4a1 1 0 110-2h1v-.5c0-1.4 1.5-2.458 2.975-2.501A2.5 2.5 0 018 1zm0 1a1.5 1.5 0 100 3 1.5 1.5 0 000-3z"/></svg>
+      Bots
     </button>
     <button class="nav-item" onclick="showPage('servidores')">
       <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M1.5 0A1.5 1.5 0 000 1.5v2A1.5 1.5 0 001.5 5h13A1.5 1.5 0 0016 3.5v-2A1.5 1.5 0 0014.5 0h-13zm1 3a.5.5 0 110-1 .5.5 0 010 1zm3.5 0a.5.5 0 11-1 0 .5.5 0 011 0zM1.5 6A1.5 1.5 0 000 7.5v2A1.5 1.5 0 001.5 11h13A1.5 1.5 0 0016 9.5v-2A1.5 1.5 0 0014.5 6h-13zm1 3a.5.5 0 110-1 .5.5 0 010 1zm3.5 0a.5.5 0 11-1 0 .5.5 0 011 0zM0 13.5A1.5 1.5 0 011.5 12h13a1.5 1.5 0 011.5 1.5v2a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 010 15.5v-2zm2.5 1a.5.5 0 110-1 .5.5 0 010 1zm3.5 0a.5.5 0 11-1 0 .5.5 0 011 0z"/></svg>
@@ -202,6 +225,20 @@ tr:hover td{background:rgba(255,255,255,.02)}
     </div>
   </div>
 
+  <!-- Bots resumo no dashboard -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-head">
+      <div class="card-title">Bots Ativos</div>
+      <button class="btn btn-ghost btn-sm" onclick="showPage('bots')">Gerenciar →</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Bot</th><th>Tokens</th><th>Guild ID</th><th>Origem</th></tr></thead>
+        <tbody id="dash-bots-table"><tr><td colspan="4" class="empty-state"><span class="spinner"></span> Carregando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
   <div class="card">
     <div class="card-head">
       <div class="card-title">Membros Recentes</div>
@@ -246,6 +283,17 @@ tr:hover td{background:rgba(255,255,255,.02)}
   </div>
 </div>
 
+<!-- BOTS PAGE -->
+<div id="page-bots" style="display:none">
+  <div class="page-header" style="display:flex;align-items:center;justify-content:space-between">
+    <div><div class="page-title">Gerenciar Bots</div><div class="page-sub">Bots OAuth2 cadastrados no sistema</div></div>
+    <button class="btn btn-primary" onclick="openAddBot()">+ Novo Bot</button>
+  </div>
+
+  <div id="bots-alert"></div>
+  <div id="bots-list"><div class="empty-state"><span class="spinner"></span> Carregando...</div></div>
+</div>
+
 <!-- SERVIDORES PAGE -->
 <div id="page-servidores" style="display:none">
   <div class="page-header" style="display:flex;align-items:center;justify-content:space-between">
@@ -269,6 +317,12 @@ tr:hover td{background:rgba(255,255,255,.02)}
       <div class="form-group" style="margin-bottom:12px">
         <label class="form-label">Guild ID do Servidor de Destino</label>
         <input class="form-input" placeholder="Ex: 1234567890123456789" id="move-guild-id"/>
+      </div>
+      <div class="form-group" style="margin-bottom:12px">
+        <label class="form-label">Bot a utilizar (opcional)</label>
+        <select class="form-input form-select" id="move-bot-id">
+          <option value="">— Automático (primeiro bot disponível) —</option>
+        </select>
       </div>
       <div style="background:var(--bg3);border-radius:8px;padding:12px;margin-bottom:12px;font-size:12px;color:var(--muted)">
         <div style="display:flex;justify-content:space-between;margin-bottom:4px">
@@ -299,6 +353,64 @@ tr:hover td{background:rgba(255,255,255,.02)}
 
 </div><!-- /main -->
 </div><!-- /shell -->
+
+<!-- MODAL: Add/Edit Bot -->
+<div class="modal-overlay" id="modal-bot">
+  <div class="modal">
+    <div class="modal-title" id="modal-bot-title">Novo Bot</div>
+    <div class="modal-sub" id="modal-bot-sub">Preencha os dados do bot Discord para OAuth2</div>
+    <div id="modal-bot-alert"></div>
+
+    <input type="hidden" id="bot-edit-id"/>
+
+    <div class="form-grid" style="margin-bottom:12px">
+      <div class="form-group" style="grid-column:1/-1">
+        <label class="form-label">Nome do Bot *</label>
+        <input class="form-input" placeholder="Ex: WHT Verificação" id="bot-name"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Client ID *</label>
+        <input class="form-input" placeholder="Application ID do Discord" id="bot-client-id"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Client Secret *</label>
+        <input class="form-input" type="password" placeholder="Client Secret do Discord" id="bot-client-secret"/>
+      </div>
+      <div class="form-group" style="grid-column:1/-1">
+        <label class="form-label">Redirect URI *</label>
+        <input class="form-input" placeholder="Ex: https://seusite.com/rbot1" id="bot-redirect-uri"/>
+      </div>
+      <div class="form-group" style="grid-column:1/-1">
+        <label class="form-label">Bot Token *</label>
+        <input class="form-input" type="password" placeholder="Token do bot Discord" id="bot-token"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Guild ID *</label>
+        <input class="form-input" placeholder="ID do servidor principal" id="bot-guild-id"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Cargo ID (opcional)</label>
+        <input class="form-input" placeholder="ID do cargo a atribuir" id="bot-cargo-id"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Cor (hex)</label>
+        <div class="color-row">
+          <input type="color" id="bot-cor-picker" value="#ff1493" style="width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:none;cursor:pointer;padding:2px"/>
+          <input class="form-input" placeholder="#ff1493" id="bot-cor" value="#ff1493" oninput="syncColorPicker(this.value)"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">URL da Imagem (opcional)</label>
+        <input class="form-input" placeholder="https://..." id="bot-imagem-url"/>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-bot')">Cancelar</button>
+      <button class="btn btn-primary" id="btn-save-bot" onclick="saveBot()">Salvar Bot</button>
+    </div>
+  </div>
+</div>
 
 <!-- MODAL: Add Server -->
 <div class="modal-overlay" id="modal-add-server">
@@ -336,6 +448,16 @@ function getPass() {
   return params.get('pass') || '';
 }
 
+function syncColorPicker(val) {
+  if (/^#[0-9a-fA-F]{6}$/.test(val)) {
+    document.getElementById('bot-cor-picker').value = val;
+  }
+}
+
+document.getElementById('bot-cor-picker').addEventListener('input', function() {
+  document.getElementById('bot-cor').value = this.value;
+});
+
 // ─── API ─────────────────────────────────────────────────
 const PASS = getPass();
 
@@ -351,6 +473,7 @@ async function apiFetch(path, opts = {}) {
 let statsData = null;
 let servidoresData = [];
 let allTokens = [];
+let allBots = [];
 
 // ─── LOAD STATS ──────────────────────────────────────────
 async function loadStats() {
@@ -359,7 +482,6 @@ async function loadStats() {
     statsData = data;
     allTokens = data.usuarios || [];
 
-    // Dashboard stats
     document.getElementById('stat-tokens').textContent = data.total_tokens.toLocaleString();
     document.getElementById('stat-tokens-sub').textContent = `${data.com_token} com token`;
     document.getElementById('stat-valid').textContent = data.com_token.toLocaleString();
@@ -367,24 +489,41 @@ async function loadStats() {
     document.getElementById('stat-guilds').textContent = data.servidores_extras.toLocaleString();
     document.getElementById('stat-today').textContent = data.verificados_hoje.toLocaleString();
 
-    // Tokens page stats
     document.getElementById('tok-total').textContent = data.total_tokens.toLocaleString();
     document.getElementById('tok-valid').textContent = data.com_token.toLocaleString();
     document.getElementById('tok-invalid').textContent = data.sem_token.toLocaleString();
     document.getElementById('tok-badge').textContent = `${data.total_tokens} total`;
 
-    // Mover count
     document.getElementById('mover-count').textContent = data.com_token.toLocaleString();
 
-    // Render tables
     renderDashRecent(allTokens.slice(-5).reverse());
     renderTokensTable(allTokens);
+
+    // Bots resumo no dashboard
+    if (data.bots) renderDashBots(data.bots);
 
     document.getElementById('sys-status').textContent = 'Sistema online';
   } catch (err) {
     document.getElementById('sys-status').textContent = 'Erro ao carregar';
     console.error(err);
   }
+}
+
+// ─── DASHBOARD BOTS TABLE ────────────────────────────────
+function renderDashBots(bots) {
+  const tb = document.getElementById('dash-bots-table');
+  if (!bots || bots.length === 0) {
+    tb.innerHTML = '<tr><td colspan="4" class="empty-state">Nenhum bot configurado</td></tr>';
+    return;
+  }
+  tb.innerHTML = bots.map(b => `
+    <tr>
+      <td><strong style="color:#fff">${esc(b.name)}</strong> <span class="token-mono" style="margin-left:4px">${esc(b.id)}</span></td>
+      <td><span style="color:var(--pink);font-family:var(--mono);font-weight:600">${(b.tokens||0).toLocaleString()}</span></td>
+      <td><span class="token-mono">${esc(b.guild_id||'—')}</span></td>
+      <td><span class="badge ${b.source==='redis'?'blue':'amber'}">${b.source==='redis'?'Painel':'ENV'}</span></td>
+    </tr>
+  `).join('');
 }
 
 // ─── DASHBOARD RECENTES ──────────────────────────────────
@@ -417,7 +556,6 @@ function renderTokensTable(users) {
     tb.innerHTML = '<tr><td colspan="4" class="empty-state">Nenhum usuário encontrado</td></tr>';
     return;
   }
-  // Sort by ts desc
   const sorted = [...users].sort((a,b) => (b.ts||0) - (a.ts||0));
   tb.innerHTML = sorted.map(u => `
     <tr>
@@ -448,8 +586,208 @@ function filterTokens(q) {
   }, 250);
 }
 
-function loadTokens() {
-  loadStats();
+function loadTokens() { loadStats(); }
+
+// ─── BOTS ────────────────────────────────────────────────
+async function loadBots() {
+  const c = document.getElementById('bots-list');
+  c.innerHTML = '<div class="empty-state"><span class="spinner"></span> Carregando...</div>';
+  try {
+    const data = await apiFetch('/api/admin/bots');
+    allBots = data.bots || [];
+    renderBots();
+    populateBotsSelect();
+  } catch (err) {
+    c.innerHTML = `<div class="empty-state" style="color:var(--red)">Erro: ${esc(err.message)}</div>`;
+  }
+}
+
+function renderBots() {
+  const c = document.getElementById('bots-list');
+  if (allBots.length === 0) {
+    c.innerHTML = '<div class="empty-state">Nenhum bot cadastrado.<br/>Clique em "+ Novo Bot" para começar.</div>';
+    return;
+  }
+  c.innerHTML = `<div class="bots-grid">${allBots.map(b => `
+    <div class="bot-card">
+      <div class="bot-card-header">
+        <div class="bot-color-dot" style="background:${esc(b.cor||'#ff1493')}"></div>
+        <div class="bot-card-name">${esc(b.name)}</div>
+        <span class="badge ${b.source==='redis'?'blue':'amber'} btn-sm">${b.source==='redis'?'Painel':'ENV'}</span>
+      </div>
+      <div class="bot-card-body">
+        <div class="bot-info-row">
+          <span class="bot-info-label">🆔 ID</span>
+          <span class="bot-info-value">${esc(b.id)}</span>
+        </div>
+        <div class="bot-info-row">
+          <span class="bot-info-label">🔑 Client ID</span>
+          <span class="bot-info-value">${esc(b.client_id)}</span>
+        </div>
+        <div class="bot-info-row">
+          <span class="bot-info-label">🏠 Guild ID</span>
+          <span class="bot-info-value">${esc(b.guild_id||'—')}</span>
+        </div>
+        <div class="bot-info-row">
+          <span class="bot-info-label">🎫 Tokens</span>
+          <span style="color:var(--pink);font-family:var(--mono);font-size:13px;font-weight:600">${(b.tokens||0).toLocaleString()}</span>
+        </div>
+      </div>
+      <div class="oauth-url-wrap">
+        <div class="oauth-url-label">URL OAuth2</div>
+        <input class="oauth-url-input" readonly value="${esc(b.oauth_url)}" onclick="this.select()" title="Clique para selecionar"/>
+      </div>
+      <div class="bot-card-footer">
+        <button class="btn btn-success btn-sm" onclick="copyOAuth('${esc(b.oauth_url)}')">📋 Copiar URL</button>
+        ${b.source==='redis' ? `
+          <button class="btn btn-ghost btn-sm" onclick="openEditBot('${esc(b.id)}')">✏️ Editar</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteBot('${esc(b.id)}','${esc(b.name)}')">✕ Remover</button>
+        ` : `<span style="font-size:11px;color:var(--dim)">Configurado via ENV</span>`}
+      </div>
+    </div>
+  `).join('')}</div>`;
+}
+
+function copyOAuth(url) {
+  navigator.clipboard.writeText(url).then(() => {
+    showBotsAlert('success', '✅ URL copiada para a área de transferência!');
+    setTimeout(() => { document.getElementById('bots-alert').innerHTML = ''; }, 3000);
+  });
+}
+
+function showBotsAlert(type, msg) {
+  document.getElementById('bots-alert').innerHTML = `<div class="alert ${type}">${msg}</div>`;
+}
+
+function populateBotsSelect() {
+  const sel = document.getElementById('move-bot-id');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">— Automático (primeiro bot disponível) —</option>';
+  allBots.forEach(b => {
+    const opt = document.createElement('option');
+    opt.value = b.id;
+    opt.textContent = `${b.name} (${b.id})`;
+    sel.appendChild(opt);
+  });
+  if (cur) sel.value = cur;
+}
+
+// ─── MODAL BOT ────────────────────────────────────────────
+function openAddBot() {
+  document.getElementById('modal-bot-title').textContent = 'Novo Bot';
+  document.getElementById('modal-bot-sub').textContent = 'Preencha os dados do bot Discord para OAuth2';
+  document.getElementById('modal-bot-alert').innerHTML = '';
+  document.getElementById('bot-edit-id').value = '';
+  document.getElementById('bot-name').value = '';
+  document.getElementById('bot-client-id').value = '';
+  document.getElementById('bot-client-secret').value = '';
+  document.getElementById('bot-redirect-uri').value = '';
+  document.getElementById('bot-token').value = '';
+  document.getElementById('bot-guild-id').value = '';
+  document.getElementById('bot-cargo-id').value = '';
+  document.getElementById('bot-cor').value = '#ff1493';
+  document.getElementById('bot-cor-picker').value = '#ff1493';
+  document.getElementById('bot-imagem-url').value = '';
+  document.getElementById('btn-save-bot').textContent = 'Salvar Bot';
+  document.getElementById('modal-bot').classList.add('open');
+}
+
+function openEditBot(id) {
+  const bot = allBots.find(b => b.id === id);
+  if (!bot) return;
+  document.getElementById('modal-bot-title').textContent = 'Editar Bot';
+  document.getElementById('modal-bot-sub').textContent = `Editando: ${bot.name}`;
+  document.getElementById('modal-bot-alert').innerHTML = '';
+  document.getElementById('bot-edit-id').value = id;
+  document.getElementById('bot-name').value = bot.name || '';
+  document.getElementById('bot-client-id').value = bot.client_id || '';
+  document.getElementById('bot-client-secret').value = '';
+  document.getElementById('bot-redirect-uri').value = bot.redirect_uri || '';
+  document.getElementById('bot-token').value = '';
+  document.getElementById('bot-guild-id').value = bot.guild_id || '';
+  document.getElementById('bot-cargo-id').value = bot.cargo_id || '';
+  const cor = bot.cor || '#ff1493';
+  document.getElementById('bot-cor').value = cor;
+  document.getElementById('bot-cor-picker').value = cor;
+  document.getElementById('bot-imagem-url').value = bot.imagem_url || '';
+  document.getElementById('btn-save-bot').textContent = 'Atualizar Bot';
+  document.getElementById('modal-bot').classList.add('open');
+}
+
+async function saveBot() {
+  const editId = document.getElementById('bot-edit-id').value;
+  const alertEl = document.getElementById('modal-bot-alert');
+  const btn = document.getElementById('btn-save-bot');
+
+  const payload = {
+    name:         document.getElementById('bot-name').value.trim(),
+    client_id:    document.getElementById('bot-client-id').value.trim(),
+    client_secret:document.getElementById('bot-client-secret').value.trim(),
+    redirect_uri: document.getElementById('bot-redirect-uri').value.trim(),
+    bot_token:    document.getElementById('bot-token').value.trim(),
+    guild_id:     document.getElementById('bot-guild-id').value.trim(),
+    cargo_id:     document.getElementById('bot-cargo-id').value.trim(),
+    cor:          document.getElementById('bot-cor').value.trim() || '#ff1493',
+    imagem_url:   document.getElementById('bot-imagem-url').value.trim(),
+  };
+
+  // Validação básica
+  const requiredNew = ['name','client_id','client_secret','redirect_uri','bot_token','guild_id'];
+  const requiredEdit = ['name','client_id','redirect_uri','guild_id'];
+  const required = editId ? requiredEdit : requiredNew;
+
+  for (const f of required) {
+    if (!payload[f]) {
+      alertEl.innerHTML = `<div class="alert error">Campo obrigatório: ${f}</div>`;
+      return;
+    }
+  }
+
+  // Remove campos vazios na edição (não sobrescreve secrets)
+  if (editId) {
+    if (!payload.client_secret) delete payload.client_secret;
+    if (!payload.bot_token) delete payload.bot_token;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Salvando...';
+
+  try {
+    if (editId) {
+      await apiFetch(`/api/admin/bots/${editId}`, {
+        method: 'PUT',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(payload),
+      });
+    } else {
+      await apiFetch('/api/admin/bots', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(payload),
+      });
+    }
+    closeModal('modal-bot');
+    await loadBots();
+    showBotsAlert('success', editId ? '✅ Bot atualizado com sucesso!' : '✅ Bot cadastrado com sucesso!');
+    setTimeout(() => { document.getElementById('bots-alert').innerHTML = ''; }, 4000);
+  } catch (err) {
+    alertEl.innerHTML = `<div class="alert error">Erro: ${esc(err.message)}</div>`;
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = editId ? 'Atualizar Bot' : 'Salvar Bot';
+  }
+}
+
+async function deleteBot(id, name) {
+  if (!confirm(`Remover o bot "${name}" (${id})? Esta ação não pode ser desfeita.`)) return;
+  try {
+    await apiFetch(`/api/admin/bots/${id}`, { method: 'DELETE' });
+    await loadBots();
+    showBotsAlert('success', `✅ Bot "${name}" removido.`);
+    setTimeout(() => { document.getElementById('bots-alert').innerHTML = ''; }, 4000);
+  } catch (err) {
+    showBotsAlert('error', `Erro ao remover: ${esc(err.message)}`);
+  }
 }
 
 // ─── SERVIDORES ──────────────────────────────────────────
@@ -516,7 +854,6 @@ async function addServer() {
     alertEl.innerHTML = '';
     closeModal('modal-add-server');
     loadServidores();
-    // Update stat
     const cur = parseInt(document.getElementById('stat-guilds').textContent) || 0;
     document.getElementById('stat-guilds').textContent = (cur + 1).toString();
   } catch (err) {
@@ -540,6 +877,7 @@ async function removerServer(gid) {
 // ─── MOVER ───────────────────────────────────────────────
 async function iniciarMover() {
   const gid = document.getElementById('move-guild-id').value.trim();
+  const botId = document.getElementById('move-bot-id').value;
   const alertEl = document.getElementById('mover-alert');
   const btn = document.getElementById('btn-mover');
   const card = document.getElementById('move-progress-card');
@@ -557,10 +895,13 @@ async function iniciarMover() {
   card.style.display = 'none';
 
   try {
+    const body = { guild_id: gid };
+    if (botId) body.bot_id = botId;
+
     const result = await apiFetch('/api/admin/mover-todos', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({guild_id: gid})
+      body: JSON.stringify(body)
     });
 
     document.getElementById('move-ok').textContent = (result.ok || 0).toLocaleString();
@@ -581,9 +922,11 @@ function showPage(page) {
   document.querySelectorAll('[id^="page-"]').forEach(p => p.style.display = 'none');
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + page).style.display = 'block';
-  const navMap = {dashboard:0,tokens:1,servidores:2,mover:3};
+  const navMap = {dashboard:0, tokens:1, bots:2, servidores:3, mover:4};
   document.querySelectorAll('.nav-item')[navMap[page]]?.classList.add('active');
   if (page === 'servidores') loadServidores();
+  if (page === 'bots') loadBots();
+  if (page === 'mover' && allBots.length === 0) loadBots();
 }
 
 // ─── MODALS ──────────────────────────────────────────────
@@ -603,7 +946,6 @@ document.addEventListener('keydown', e => {
 
 // ─── INIT ────────────────────────────────────────────────
 loadStats();
-// Auto-refresh every 30s
 setInterval(loadStats, 30000);
 </script>
 </body>
