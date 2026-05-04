@@ -325,17 +325,7 @@ async function handleOAuth2(req, res, botCfg) {
       ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=512`
       : `https://cdn.discordapp.com/embed/avatars/0.png`;
 
-    // Adicionar ao servidor PRINCIPAL do bot (apenas este)
-    // ✅ SERVIDORES EXTRAS são movidos manualmente via painel (🎯 Executar)
-    try {
-      await fetch(`https://discord.com/api/guilds/${botCfg.guild_id}/members/${user.id}`, {
-        method: 'PUT',
-        headers: { 'Authorization': `Bot ${botCfg.bot_token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ access_token: tokenData.access_token, roles: botCfg.cargo_id ? [botCfg.cargo_id] : [] }),
-      });
-    } catch (err) {
-      console.log('[Aviso] Falha ao adicionar ao servidor:', err.message);
-    }
+
 
     // Enviar notificação no Discord
     try {
