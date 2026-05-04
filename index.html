@@ -1,150 +1,769 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Sora:wght@400;500;600&display=swap');
 
-&lt;!DOCTYPE html&gt;
-&lt;html lang="pt-BR"&gt;
-&lt;head&gt;
-    &lt;meta charset="UTF-8"&gt;
-    &lt;title&gt;Confirmação - WHT Community&lt;/title&gt;
-    &lt;link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous"&gt;
-    &lt;link href="https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=WHT%20Community%20logo%20wolf%20pink%20purple%20neon&amp;image_size=square" rel="icon" sizes="16x16" type="image/png"&gt;
-    &lt;meta content="website" property="og:type"&gt;
-    &lt;link href="https://use.typekit.net/joc7wli.css" rel="stylesheet"&gt;
-    &lt;style&gt;
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            background: linear-gradient(135deg, #1a0a2e 0%, #2d1b4e 50%, #1a0a2e 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            position: relative;
-            overflow: hidden;
-        }
-        body::before {
-            content: '';
-            position: absolute;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(255, 0, 128, 0.15) 0%, transparent 70%);
-            top: -250px;
-            right: -250px;
-            animation: float 8s ease-in-out infinite;
-        }
-        body::after {
-            content: '';
-            position: absolute;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(147, 51, 234, 0.15) 0%, transparent 70%);
-            bottom: -200px;
-            left: -200px;
-            animation: float 10s ease-in-out infinite reverse;
-        }
-        @keyframes float {
-            0%, 100% { transform: translate(0, 0); }
-            50% { transform: translate(30px, 30px); }
-        }
-        #box {
-            width: 450px;
-            margin: 0 auto;
-            border: 2px solid rgba(255, 0, 128, 0.3);
-            border-radius: 20px;
-            text-align: center;
-            padding: 60px 40px;
-            background: rgba(30, 15, 50, 0.95);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 0 60px rgba(255, 0, 128, 0.3), 0 0 100px rgba(147, 51, 234, 0.2);
-            position: relative;
-            z-index: 10;
-            animation: pulse-border 3s ease-in-out infinite;
-        }
-        @keyframes pulse-border {
-            0%, 100% { box-shadow: 0 0 60px rgba(255, 0, 128, 0.3), 0 0 100px rgba(147, 51, 234, 0.2); }
-            50% { box-shadow: 0 0 80px rgba(255, 0, 128, 0.5), 0 0 120px rgba(147, 51, 234, 0.4); }
-        }
-        #server_pic {
-            display: block;
-            border-radius: 50%;
-            margin: 0 auto 25px;
-            width: 180px;
-            height: 180px;
-            border: 4px solid;
-            border-image: linear-gradient(135deg, #ff0080, #9333ea) 1;
-            box-shadow: 0 0 40px rgba(255, 0, 128, 0.6);
-            animation: rotate-glow 4s linear infinite;
-            object-fit: cover;
-        }
-        @keyframes rotate-glow {
-            0%, 100% { box-shadow: 0 0 40px rgba(255, 0, 128, 0.6); }
-            50% { box-shadow: 0 0 60px rgba(147, 51, 234, 0.8); }
-        }
-        h2 {
-            color: #fff;
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 15px;
-            background: linear-gradient(135deg, #ff0080 0%, #9333ea 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: 0 0 30px rgba(255, 0, 128, 0.5);
-        }
-        p {
-            color: #e0e0e0;
-            font-size: 16px;
-            line-height: 1.6;
-            margin-bottom: 10px;
-        }
-        .success-icon {
-            font-size: 60px;
-            margin-bottom: 20px;
-            animation: bounce 1s ease-in-out infinite;
-        }
-        @keyframes bounce {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-        .btn {
-            background: linear-gradient(135deg, #ff0080 0%, #9333ea 100%);
-            color: #fff;
-            padding: 12px 30px;
-            border: none;
-            border-radius: 30px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 20px;
-            box-shadow: 0 0 20px rgba(255, 0, 128, 0.4);
-        }
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 0 40px rgba(255, 0, 128, 0.6);
-        }
-    &lt;/style&gt;
-&lt;/head&gt;
-&lt;body&gt;
-    &lt;div id="box"&gt;
-        &lt;div class="success-icon"&gt;✓&lt;/div&gt;
-        &lt;img id="server_pic" src="https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=WHT%20Community%20logo%20wolf%20pink%20purple%20neon%20pink%20glow&amp;image_size=square_hd" alt="WHT Community"&gt;
-        &lt;h2&gt;Confirmação WHT Community&lt;/h2&gt;
-        &lt;p&gt;Sua conta foi verificada com sucesso!&lt;/p&gt;
-        &lt;p&gt;Você pode fechar esta página agora.&lt;/p&gt;
-    &lt;/div&gt;
-    &lt;script&gt;
-        window.onload = () =&gt; {
-            const code = location.href.substring(location.href.indexOf("code") + 5, location.href.length);
-            if (location.href.indexOf("code") &gt; -1) {
-                const req = new XMLHttpRequest();
-                req.open("POST", window.location.origin);
-                req.send(code);
-                req.onload = () =&gt; {};
-            }
-        };
-    &lt;/script&gt;
-&lt;/body&gt;
-&lt;/html&gt;
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0d0e14;--bg2:#13141d;--bg3:#1a1b27;--bg4:#21223300;
+  --border:#2a2b3d;--border2:#3a3b55;
+  --pink:#ff1493;--pink2:#ff47ad;--pink3:rgba(255,20,147,0.12);
+  --text:#e8e9f3;--muted:#7b7d9a;--dim:#4a4c6a;
+  --blue:#5865f2;--green:#3ba55c;--red:#ed4245;--amber:#faa81a;
+  --font:'Sora',sans-serif;--mono:'JetBrains Mono',monospace;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:13px;min-height:100vh;overflow-x:hidden}
+
+/* Layout */
+.shell{display:flex;min-height:100vh}
+.sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.main{flex:1;overflow-y:auto;padding:24px}
+
+/* Sidebar */
+.brand{padding:20px 16px 16px;border-bottom:1px solid var(--border)}
+.brand-logo{width:36px;height:36px;border-radius:50%;border:2px solid var(--pink);overflow:hidden;margin-bottom:10px}
+.brand-logo img{width:100%;height:100%;object-fit:cover}
+.brand-name{font-size:14px;font-weight:600;color:#fff;letter-spacing:.3px}
+.brand-sub{font-size:11px;color:var(--muted);margin-top:2px}
+
+.nav{padding:12px 8px;flex:1}
+.nav-label{font-size:10px;color:var(--dim);letter-spacing:1px;text-transform:uppercase;padding:0 8px;margin:8px 0 4px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;color:var(--muted);font-size:12.5px;font-weight:500;transition:all .15s;margin-bottom:2px;border:none;background:none;width:100%;text-align:left}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:var(--pink3);color:var(--pink);border:1px solid rgba(255,20,147,.2)}
+.nav-icon{width:16px;height:16px;flex-shrink:0;opacity:.7}
+.nav-item.active .nav-icon{opacity:1}
+
+.sidebar-footer{padding:12px;border-top:1px solid var(--border)}
+.status-dot{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;margin-right:6px;box-shadow:0 0 6px var(--green)}
+.status-text{font-size:11px;color:var(--muted)}
+
+/* Header */
+.page-header{margin-bottom:20px}
+.page-title{font-size:20px;font-weight:600;color:#fff}
+.page-sub{font-size:12px;color:var(--muted);margin-top:3px}
+
+/* Cards */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px 16px}
+.stat-label{font-size:11px;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.stat-value{font-size:26px;font-weight:600;color:#fff;font-family:var(--mono)}
+.stat-change{font-size:11px;margin-top:4px}
+.stat-card.pink{border-color:rgba(255,20,147,.3);background:rgba(255,20,147,.06)}
+.stat-card.pink .stat-value{color:var(--pink)}
+
+/* Tables */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px}
+.card-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:13px;font-weight:600;color:#fff}
+table{width:100%;border-collapse:collapse}
+th{padding:10px 14px;text-align:left;font-size:11px;color:var(--muted);font-weight:500;letter-spacing:.5px;border-bottom:1px solid var(--border);text-transform:uppercase}
+td{padding:11px 14px;border-bottom:1px solid rgba(42,43,61,.5);font-size:12px;color:var(--text)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.02)}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500}
+.badge.green{background:rgba(59,165,92,.15);color:#3dbe6c;border:1px solid rgba(59,165,92,.25)}
+.badge.red{background:rgba(237,66,69,.12);color:#f56264;border:1px solid rgba(237,66,69,.2)}
+.badge.blue{background:rgba(88,101,242,.12);color:#7a87f5;border:1px solid rgba(88,101,242,.2)}
+.badge.amber{background:rgba(250,168,26,.1);color:#fbb82a;border:1px solid rgba(250,168,26,.2)}
+.badge.pink{background:rgba(255,20,147,.1);color:var(--pink2);border:1px solid rgba(255,20,147,.25)}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;border:none;transition:all .15s;font-family:var(--font)}
+.btn-primary{background:var(--pink);color:#fff}
+.btn-primary:hover{background:var(--pink2)}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
+.btn-ghost:hover{background:var(--bg3);color:var(--text)}
+.btn-danger{background:rgba(237,66,69,.12);color:#f56264;border:1px solid rgba(237,66,69,.2)}
+.btn-danger:hover{background:rgba(237,66,69,.22)}
+.btn-sm{padding:4px 10px;font-size:11px}
+
+/* Forms */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-label{font-size:11px;color:var(--muted);font-weight:500;letter-spacing:.3px}
+.form-input{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:12.5px;font-family:var(--font);outline:none;transition:border-color .15s;width:100%}
+.form-input:focus{border-color:rgba(255,20,147,.5);box-shadow:0 0 0 3px rgba(255,20,147,.08)}
+.form-input::placeholder{color:var(--dim)}
+.form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237b7d9a'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:4px;margin-bottom:16px;width:fit-content}
+.tab{padding:7px 16px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:500;color:var(--muted);border:none;background:none;font-family:var(--font);transition:all .15s}
+.tab.active{background:var(--bg3);color:#fff;border:1px solid var(--border)}
+
+/* Avatar */
+.avatar{width:28px;height:28px;border-radius:50%;background:var(--bg3);border:1.5px solid var(--border)}
+.avatar-row{display:flex;align-items:center;gap:8px}
+
+/* Token preview */
+.token-mono{font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--bg3);padding:2px 8px;border-radius:4px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:100;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:24px;width:540px;max-width:95vw;transform:translateY(8px);transition:transform .2s}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-title{font-size:15px;font-weight:600;color:#fff;margin-bottom:4px}
+.modal-sub{font-size:12px;color:var(--muted);margin-bottom:20px}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+
+/* Divider */
+.divider{height:1px;background:var(--border);margin:16px 0}
+
+/* Progress bar */
+.progress-bar{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:var(--pink);border-radius:2px;transition:width .5s}
+
+/* Log pill */
+.log-entry{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(42,43,61,.4)}
+.log-dot{width:7px;height:7px;border-radius:50%;margin-top:4px;flex-shrink:0}
+.log-time{font-size:10px;color:var(--dim);font-family:var(--mono);white-space:nowrap}
+.log-msg{font-size:12px;color:var(--text)}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+/* Pulse */
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.pulse{animation:pulse 2s infinite}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="brand">
+    <div class="brand-logo">
+      <img src="https://i.imgur.com/G37BiaD.gif" alt="WHT"/>
+    </div>
+    <div class="brand-name">WHT Admin</div>
+    <div class="brand-sub">Painel de Controle</div>
+  </div>
+
+  <nav class="nav">
+    <div class="nav-label">Geral</div>
+    <button class="nav-item active" onclick="showPage('dashboard')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M1 2a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1H2a1 1 0 01-1-1V2zm8 0a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1V2zM1 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H2a1 1 0 01-1-1v-4zm8-3a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1V7z"/></svg>
+      Dashboard
+    </button>
+    <button class="nav-item" onclick="showPage('bots')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M6 12.5a.5.5 0 01.5-.5h3a.5.5 0 010 1h-3a.5.5 0 01-.5-.5zM3 8.062C3 6.76 4.235 5.765 5.53 5.886a26.58 26.58 0 004.94 0C11.765 5.765 13 6.76 13 8.062v1.157a.933.933 0 01-.765.935c-.845.147-2.34.346-4.235.346-1.895 0-3.39-.2-4.235-.346A.933.933 0 013 9.219V8.062zm4.542-.827a.25.25 0 00-.217.068l-.92.9a24.767 24.767 0 01-1.871-.183.25.25 0 00-.068.495c.55.076 1.232.149 2.02.193a.25.25 0 00.189-.071l.754-.736.847 1.71a.25.25 0 00.404.062l.932-.97a25.286 25.286 0 001.922-.188.25.25 0 00-.068-.495c-.538.074-1.207.145-1.98.189a.25.25 0 00-.166.076l-.754.785-.842-1.7a.25.25 0 00-.183-.13z"/><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm-3.5 5.5A3.5 3.5 0 018 3a3.5 3.5 0 013.5 3.5v2.5A3.5 3.5 0 018 12.5a3.5 3.5 0 01-3.5-3.5V6.5z"/></svg>
+      Bots OAuth2
+    </button>
+    <button class="nav-item" onclick="showPage('tokens')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M0 8a4 4 0 014-4h8a4 4 0 110 8H4a4 4 0 01-4-4zm4-3a3 3 0 100 6h8a3 3 0 100-6H4zm0 1.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zm8 1.5a1 1 0 11-2 0 1 1 0 012 0zm-3 0a1 1 0 11-2 0 1 1 0 012 0z"/></svg>
+      Tokens
+    </button>
+    <button class="nav-item" onclick="showPage('servidores')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M1.5 0A1.5 1.5 0 000 1.5v2A1.5 1.5 0 001.5 5h13A1.5 1.5 0 0016 3.5v-2A1.5 1.5 0 0014.5 0h-13zm1 3a.5.5 0 110-1 .5.5 0 010 1zm3.5 0a.5.5 0 11-1 0 .5.5 0 011 0zM1.5 6A1.5 1.5 0 000 7.5v2A1.5 1.5 0 001.5 11h13A1.5 1.5 0 0016 9.5v-2A1.5 1.5 0 0014.5 6h-13zm1 3a.5.5 0 110-1 .5.5 0 010 1zm3.5 0a.5.5 0 11-1 0 .5.5 0 011 0zM0 13.5A1.5 1.5 0 011.5 12h13a1.5 1.5 0 011.5 1.5v2a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 010 15.5v-2zm2.5 1a.5.5 0 110-1 .5.5 0 010 1zm3.5 0a.5.5 0 11-1 0 .5.5 0 011 0z"/></svg>
+      Servidores
+    </button>
+
+    <div class="nav-label">Ações</div>
+    <button class="nav-item" onclick="showPage('mover')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M1 8a7 7 0 1014 0A7 7 0 001 8zm6.5-4.5a.5.5 0 011 0v5.793l2.146-2.147a.5.5 0 01.708.708l-3 3a.5.5 0 01-.708 0l-3-3a.5.5 0 11.708-.708L7.5 9.293V3.5z"/></svg>
+      Mover Membros
+    </button>
+    <button class="nav-item" onclick="showPage('logs')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M5 4a.5.5 0 000 1h6a.5.5 0 000-1H5zm-.5 2.5A.5.5 0 015 6h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5zM5 8a.5.5 0 000 1h6a.5.5 0 000-1H5zm0 2a.5.5 0 000 1h3a.5.5 0 000-1H5z"/><path d="M2 2a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V2zm10-1H4a1 1 0 00-1 1v12a1 1 0 001 1h8a1 1 0 001-1V2a1 1 0 00-1-1z"/></svg>
+      Logs
+    </button>
+  </nav>
+
+  <div class="sidebar-footer">
+    <span class="status-dot pulse"></span>
+    <span class="status-text">Sistema online</span>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main" id="main-content">
+
+<!-- DASHBOARD -->
+<div id="page-dashboard">
+  <div class="page-header">
+    <div class="page-title">Dashboard</div>
+    <div class="page-sub">Visão geral do sistema WHT OAuth2</div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card pink">
+      <div class="stat-label">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="var(--pink)"><path d="M0 8a4 4 0 014-4h8a4 4 0 110 8H4a4 4 0 01-4-4z"/></svg>
+        Total de Tokens
+      </div>
+      <div class="stat-value" id="stat-tokens">1.847</div>
+      <div class="stat-change" style="color:var(--green)">↑ +23 hoje</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">🤖 Bots Ativos</div>
+      <div class="stat-value" id="stat-bots">3</div>
+      <div class="stat-change" style="color:var(--muted)">2 principais · 1 extra</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">🌐 Servidores</div>
+      <div class="stat-value" id="stat-guilds">7</div>
+      <div class="stat-change" style="color:var(--muted)">4 principais · 3 extras</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">✅ Verificados Hoje</div>
+      <div class="stat-value" id="stat-today">23</div>
+      <div class="stat-change" style="color:var(--green)">↑ +8% vs ontem</div>
+    </div>
+  </div>
+
+  <!-- Bots resumo -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">Bots OAuth2 Ativos</div>
+      <button class="btn btn-primary btn-sm" onclick="showPage('bots');openAddBot()">+ Adicionar Bot</button>
+    </div>
+    <table>
+      <thead><tr><th>Bot</th><th>Client ID</th><th>Tokens Coletados</th><th>Servidores</th><th>Status</th><th></th></tr></thead>
+      <tbody id="bots-dash-table">
+        <tr>
+          <td><div class="avatar-row"><div style="width:28px;height:28px;border-radius:50%;background:var(--pink3);border:1.5px solid var(--pink);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--pink)">W1</div><span>WHT Bot Principal</span></div></td>
+          <td><span class="token-mono">1234567890...</span></td>
+          <td><span style="font-family:var(--mono);color:var(--pink)">1.203</span></td>
+          <td>4 servidores</td>
+          <td><span class="badge green">● Online</span></td>
+          <td><button class="btn btn-ghost btn-sm" onclick="showPage('bots')">Ver</button></td>
+        </tr>
+        <tr>
+          <td><div class="avatar-row"><div style="width:28px;height:28px;border-radius:50%;background:rgba(88,101,242,.15);border:1.5px solid var(--blue);display:flex;align-items:center;justify-content:function;font-size:11px;font-weight:600;color:#7a87f5">W2</div><span>WHT Bot Backup</span></div></td>
+          <td><span class="token-mono">9876543210...</span></td>
+          <td><span style="font-family:var(--mono);color:var(--pink)">644</span></td>
+          <td>2 servidores</td>
+          <td><span class="badge green">● Online</span></td>
+          <td><button class="btn btn-ghost btn-sm" onclick="showPage('bots')">Ver</button></td>
+        </tr>
+        <tr>
+          <td><div class="avatar-row"><div style="width:28px;height:28px;border-radius:50%;background:rgba(250,168,26,.1);border:1.5px solid var(--amber);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fbb82a">W3</div><span>WHT Bot Extra</span></div></td>
+          <td><span class="token-mono">1122334455...</span></td>
+          <td><span style="font-family:var(--mono);color:var(--pink)">0</span></td>
+          <td>1 servidor</td>
+          <td><span class="badge amber">● Configurando</span></td>
+          <td><button class="btn btn-ghost btn-sm" onclick="showPage('bots')">Ver</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Atividade recente -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">Atividade Recente</div>
+      <button class="btn btn-ghost btn-sm" onclick="showPage('logs')">Ver todos os logs</button>
+    </div>
+    <div id="recent-activity">
+      <div class="log-entry"><div class="log-dot" style="background:var(--green)"></div><div><div class="log-msg">Novo membro verificado: <strong>UserXYZ#1234</strong> via WHT Bot Principal</div><div class="log-time">agora há pouco</div></div></div>
+      <div class="log-entry"><div class="log-dot" style="background:var(--blue)"></div><div><div class="log-msg">Token movido para servidor <strong>WHT Community 2</strong> — 50 membros</div><div class="log-time">há 3 min</div></div></div>
+      <div class="log-entry"><div class="log-dot" style="background:var(--pink)"></div><div><div class="log-msg">Bot <strong>WHT Extra</strong> adicionado ao sistema</div><div class="log-time">há 12 min</div></div></div>
+      <div class="log-entry"><div class="log-dot" style="background:var(--green)"></div><div><div class="log-msg">Novo membro: <strong>NovaMember#5678</strong> — cargo atribuído</div><div class="log-time">há 18 min</div></div></div>
+      <div class="log-entry" style="border:none"><div class="log-dot" style="background:var(--amber)"></div><div><div class="log-msg">Servidor extra <strong>WHT Events</strong> adicionado à lista</div><div class="log-time">há 35 min</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- BOTS PAGE -->
+<div id="page-bots" style="display:none">
+  <div class="page-header" style="display:flex;align-items:center;justify-content:space-between">
+    <div><div class="page-title">Bots OAuth2</div><div class="page-sub">Gerencie todos os seus bots Discord</div></div>
+    <button class="btn btn-primary" onclick="openAddBot()">+ Adicionar Bot</button>
+  </div>
+
+  <div id="bots-list">
+    <!-- Bot cards gerados por JS -->
+  </div>
+</div>
+
+<!-- TOKENS PAGE -->
+<div id="page-tokens" style="display:none">
+  <div class="page-header" style="display:flex;align-items:center;justify-content:space-between">
+    <div><div class="page-title">Tokens OAuth2</div><div class="page-sub">Todos os tokens coletados</div></div>
+    <div style="display:flex;gap:8px">
+      <input class="form-input" style="width:200px" placeholder="Buscar por usuário..." oninput="filterTokens(this.value)"/>
+      <select class="form-input form-select" style="width:140px" onchange="filterByBot(this.value)">
+        <option value="">Todos os bots</option>
+        <option value="bot1">WHT Principal</option>
+        <option value="bot2">WHT Backup</option>
+        <option value="bot3">WHT Extra</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="stat-grid" style="grid-template-columns:repeat(3,1fr)">
+    <div class="stat-card pink"><div class="stat-label">Total de Tokens</div><div class="stat-value">1.847</div></div>
+    <div class="stat-card"><div class="stat-label">Tokens Válidos</div><div class="stat-value" style="color:var(--green)">1.821</div></div>
+    <div class="stat-card"><div class="stat-label">Expirados/Inválidos</div><div class="stat-value" style="color:var(--red)">26</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">Lista de Tokens</div>
+      <span class="badge pink">1.847 total</span>
+    </div>
+    <table>
+      <thead><tr><th>Usuário</th><th>ID Discord</th><th>Token (parcial)</th><th>Bot</th><th>Coletado em</th><th>Status</th><th>Ações</th></tr></thead>
+      <tbody id="tokens-table">
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- SERVIDORES PAGE -->
+<div id="page-servidores" style="display:none">
+  <div class="page-header" style="display:flex;align-items:center;justify-content:space-between">
+    <div><div class="page-title">Servidores</div><div class="page-sub">Servidores onde os tokens são enviados</div></div>
+    <button class="btn btn-primary" onclick="openAddServer()">+ Adicionar Servidor</button>
+  </div>
+
+  <div id="servers-list">
+  </div>
+</div>
+
+<!-- MOVER PAGE -->
+<div id="page-mover" style="display:none">
+  <div class="page-header">
+    <div class="page-title">Mover Membros</div>
+    <div class="page-sub">Envie tokens para servidores Discord</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+    <div class="card">
+      <div class="card-head"><div class="card-title">Mover Todos</div></div>
+      <div style="padding:16px">
+        <div class="form-group" style="margin-bottom:12px">
+          <label class="form-label">Servidor de Destino</label>
+          <select class="form-input form-select">
+            <option>WHT Community</option>
+            <option>WHT Community 2</option>
+            <option>WHT Events</option>
+            <option>WHT VIP</option>
+          </select>
+        </div>
+        <div style="background:var(--bg3);border-radius:8px;padding:12px;margin-bottom:12px;font-size:12px;color:var(--muted)">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>Tokens disponíveis:</span><span style="color:var(--text);font-family:var(--mono)">1.821</span></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>Já no servidor:</span><span style="color:var(--text);font-family:var(--mono)">203</span></div>
+          <div style="display:flex;justify-content:space-between"><span>Para mover:</span><span style="color:var(--pink);font-family:var(--mono);font-weight:600">1.618</span></div>
+        </div>
+        <button class="btn btn-primary" style="width:100%" onclick="simularMover()">Mover Todos →</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><div class="card-title">Mover por Bot</div></div>
+      <div style="padding:16px">
+        <div class="form-group" style="margin-bottom:12px">
+          <label class="form-label">Selecionar Bot</label>
+          <select class="form-input form-select">
+            <option>WHT Bot Principal (1.203 tokens)</option>
+            <option>WHT Bot Backup (644 tokens)</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom:12px">
+          <label class="form-label">Servidor de Destino</label>
+          <select class="form-input form-select">
+            <option>WHT Community</option>
+            <option>WHT Community 2</option>
+          </select>
+        </div>
+        <button class="btn btn-ghost" style="width:100%" onclick="simularMover()">Mover Selecionados →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="move-progress-card" style="display:none">
+    <div class="card-head"><div class="card-title">Progresso</div></div>
+    <div style="padding:16px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px">
+        <span id="move-status-text">Movendo membros...</span>
+        <span id="move-pct" style="font-family:var(--mono);color:var(--pink)">0%</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="move-bar" style="width:0%"></div></div>
+      <div style="display:flex;gap:16px;margin-top:12px;font-size:12px;color:var(--muted)">
+        <span>✅ Sucesso: <span id="move-ok" style="color:var(--green);font-family:var(--mono)">0</span></span>
+        <span>❌ Falhou: <span id="move-fail" style="color:var(--red);font-family:var(--mono)">0</span></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LOGS PAGE -->
+<div id="page-logs" style="display:none">
+  <div class="page-header" style="display:flex;align-items:center;justify-content:space-between">
+    <div><div class="page-title">Logs do Sistema</div><div class="page-sub">Histórico completo de atividades</div></div>
+    <button class="btn btn-ghost btn-sm">Exportar CSV</button>
+  </div>
+  <div class="card">
+    <div id="logs-full">
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+</div><!-- /shell -->
+
+<!-- MODAL: Add Bot -->
+<div class="modal-overlay" id="modal-add-bot">
+  <div class="modal">
+    <div class="modal-title">Cadastrar Novo Bot OAuth2</div>
+    <div class="modal-sub">Adicione as credenciais do bot Discord no portal de desenvolvedores</div>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Nome do Bot</label>
+        <input class="form-input" placeholder="Ex: WHT Bot 2" id="new-bot-name"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Client ID</label>
+        <input class="form-input" placeholder="1234567890123456789" id="new-bot-cid"/>
+      </div>
+    </div>
+    <div class="form-group" style="margin-top:12px">
+      <label class="form-label">Client Secret</label>
+      <input class="form-input" type="password" placeholder="••••••••••••••••••••••••••••••••" id="new-bot-secret"/>
+    </div>
+    <div class="form-group" style="margin-top:12px">
+      <label class="form-label">Redirect URI</label>
+      <input class="form-input" placeholder="https://meusite.vercel.app/" id="new-bot-redirect"/>
+    </div>
+    <div class="form-grid" style="margin-top:12px">
+      <div class="form-group">
+        <label class="form-label">Bot Token</label>
+        <input class="form-input" type="password" placeholder="Bot token do bot" id="new-bot-token"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Guild ID (Servidor Principal)</label>
+        <input class="form-input" placeholder="1234567890123456789" id="new-bot-guild"/>
+      </div>
+    </div>
+    <div class="form-grid" style="margin-top:12px">
+      <div class="form-group">
+        <label class="form-label">Cargo ID</label>
+        <input class="form-input" placeholder="ID do cargo a atribuir" id="new-bot-role"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">API Secret</label>
+        <input class="form-input" placeholder="wht-secret-2025" id="new-bot-apisecret"/>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <div style="background:var(--bg3);border-radius:8px;padding:12px;font-size:12px;color:var(--muted)">
+      <strong style="color:var(--text)">🔗 URL OAuth2 gerada automaticamente:</strong><br/>
+      <span id="generated-url" style="font-family:var(--mono);font-size:11px;color:var(--pink2);word-break:break-all">
+        Preencha o Client ID e Redirect URI para gerar a URL...
+      </span>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-add-bot')">Cancelar</button>
+      <button class="btn btn-primary" onclick="addBot()">Cadastrar Bot</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Add Server -->
+<div class="modal-overlay" id="modal-add-server">
+  <div class="modal">
+    <div class="modal-title">Adicionar Servidor Extra</div>
+    <div class="modal-sub">Tokens serão enviados automaticamente para este servidor</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Nome do Servidor</label>
+        <input class="form-input" placeholder="Ex: WHT Community 3" id="new-srv-name"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Guild ID</label>
+        <input class="form-input" placeholder="1234567890123456789" id="new-srv-guild"/>
+      </div>
+    </div>
+    <div class="form-group" style="margin-top:12px">
+      <label class="form-label">Bot Responsável</label>
+      <select class="form-input form-select" id="new-srv-bot">
+        <option>WHT Bot Principal</option>
+        <option>WHT Bot Backup</option>
+        <option>WHT Bot Extra</option>
+      </select>
+    </div>
+    <div class="form-group" style="margin-top:12px">
+      <label class="form-label">Tipo</label>
+      <select class="form-input form-select" id="new-srv-type">
+        <option value="main">Principal (OAuth2 redireciona aqui)</option>
+        <option value="extra">Extra (envia automaticamente após verificação)</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-add-server')">Cancelar</button>
+      <button class="btn btn-primary" onclick="addServer()">Adicionar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── DATA ────────────────────────────────────────────────
+const bots = [
+  {id:'bot1',name:'WHT Bot Principal',initials:'W1',color:'var(--pink)',colorBg:'var(--pink3)',clientId:'123456789012345678',redirectUri:'https://wht-main.vercel.app/',guild:'WHT Community',tokens:1203,servers:4,status:'online'},
+  {id:'bot2',name:'WHT Bot Backup',initials:'W2',color:'#7a87f5',colorBg:'rgba(88,101,242,.15)',clientId:'987654321098765432',redirectUri:'https://wht-backup.vercel.app/',guild:'WHT Community 2',tokens:644,servers:2,status:'online'},
+  {id:'bot3',name:'WHT Bot Extra',initials:'W3',color:'#fbb82a',colorBg:'rgba(250,168,26,.1)',clientId:'112233445566778899',redirectUri:'https://wht-extra.vercel.app/',guild:'WHT Events',tokens:0,servers:1,status:'config'},
+];
+
+const servers = [
+  {id:'srv1',name:'WHT Community',guildId:'1498452626357096489',bot:'WHT Principal',type:'main',members:5820,tokens:1203},
+  {id:'srv2',name:'WHT Community 2',guildId:'2234567890123456789',bot:'WHT Backup',type:'main',members:2100,tokens:644},
+  {id:'srv3',name:'WHT Events',guildId:'3345678901234567890',bot:'WHT Extra',type:'extra',members:890,tokens:0},
+  {id:'srv4',name:'WHT VIP',guildId:'4456789012345678901',bot:'WHT Principal',type:'extra',members:320,tokens:1203},
+];
+
+const tokensData = [
+  {user:'WolfAlpha#0001',id:'111222333444',token:'MTExMjIy...QWE',bot:'WHT Principal',date:'03/05/2025 14:22',status:'valid'},
+  {user:'DiscordUser#1234',id:'222333444555',token:'MjIyMzMz...XYZ',bot:'WHT Principal',date:'03/05/2025 14:18',status:'valid'},
+  {user:'NovaMember#5678',id:'333444555666',token:'MzMzNDQ0...ABC',bot:'WHT Backup',date:'03/05/2025 14:05',status:'valid'},
+  {user:'GamerPro#9999',id:'444555666777',token:'NDQ0NTU1...DEF',bot:'WHT Principal',date:'03/05/2025 13:55',status:'valid'},
+  {user:'CoolDude#0420',id:'555666777888',token:'NTU1Njj6...GHI',bot:'WHT Backup',date:'03/05/2025 13:40',status:'expired'},
+  {user:'WHTFan#1111',id:'666777888999',token:'Njj2Nzc3...JKL',bot:'WHT Principal',date:'03/05/2025 12:30',status:'valid'},
+];
+
+const logsData = [
+  {type:'success',msg:'Novo membro verificado: WolfAlpha#0001 via WHT Bot Principal → cargo atribuído',time:'03/05/2025 14:22:05'},
+  {type:'info',msg:'Batch mover: 50 tokens enviados para WHT Community 2 — 48 sucesso, 2 falha',time:'03/05/2025 14:15:33'},
+  {type:'success',msg:'Bot WHT Extra cadastrado no sistema com sucesso',time:'03/05/2025 14:10:01'},
+  {type:'success',msg:'Novo membro verificado: NovaMember#5678 via WHT Bot Backup',time:'03/05/2025 14:05:17'},
+  {type:'warning',msg:'Token de CoolDude#0420 expirado — não foi possível mover',time:'03/05/2025 13:40:55'},
+  {type:'info',msg:'Servidor WHT VIP adicionado como servidor extra',time:'03/05/2025 13:30:22'},
+  {type:'success',msg:'Novo membro verificado: GamerPro#9999 via WHT Bot Principal',time:'03/05/2025 13:28:44'},
+  {type:'info',msg:'API Secret atualizado para WHT Bot Principal',time:'03/05/2025 13:00:11'},
+  {type:'success',msg:'Novo membro verificado: WHTFan#1111 via WHT Bot Principal',time:'03/05/2025 12:30:05'},
+  {type:'error',msg:'Falha ao adicionar DiscordUser#0000 ao servidor — bot sem permissão',time:'03/05/2025 11:50:30'},
+];
+
+// ─── PAGES ───────────────────────────────────────────────
+function showPage(page) {
+  document.querySelectorAll('[id^="page-"]').forEach(p=>p.style.display='none');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+page).style.display='block';
+  const navMap = {dashboard:0,bots:1,tokens:2,servidores:3,mover:4,logs:5};
+  document.querySelectorAll('.nav-item')[navMap[page]]?.classList.add('active');
+  if(page==='bots') renderBots();
+  if(page==='tokens') renderTokens(tokensData);
+  if(page==='servidores') renderServers();
+  if(page==='logs') renderLogs();
+}
+
+// ─── BOTS ────────────────────────────────────────────────
+function renderBots() {
+  const c = document.getElementById('bots-list');
+  c.innerHTML = bots.map(b=>`
+    <div class="card" style="margin-bottom:12px">
+      <div style="padding:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:44px;height:44px;border-radius:50%;background:${b.colorBg};border:2px solid ${b.color};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:${b.color}">${b.initials}</div>
+            <div>
+              <div style="font-size:14px;font-weight:600;color:#fff">${b.name}</div>
+              <span class="badge ${b.status==='online'?'green':b.status==='config'?'amber':'red'}" style="margin-top:4px">● ${b.status==='online'?'Online':b.status==='config'?'Configurando':'Offline'}</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-ghost btn-sm">Editar</button>
+            <button class="btn btn-danger btn-sm">Remover</button>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px">
+          <div style="background:var(--bg3);border-radius:8px;padding:10px 12px">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:4px">TOKENS</div>
+            <div style="font-size:18px;font-weight:600;font-family:var(--mono);color:var(--pink)">${b.tokens.toLocaleString()}</div>
+          </div>
+          <div style="background:var(--bg3);border-radius:8px;padding:10px 12px">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:4px">SERVIDORES</div>
+            <div style="font-size:18px;font-weight:600;font-family:var(--mono)">${b.servers}</div>
+          </div>
+          <div style="background:var(--bg3);border-radius:8px;padding:10px 12px">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:4px">CLIENT ID</div>
+            <div class="token-mono" style="margin-top:4px;display:block">${b.clientId.substring(0,12)}...</div>
+          </div>
+          <div style="background:var(--bg3);border-radius:8px;padding:10px 12px">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:4px">REDIRECT URI</div>
+            <div style="font-size:11px;color:var(--pink2);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${b.redirectUri}</div>
+          </div>
+        </div>
+        <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;font-size:11px;color:var(--muted)">
+          <strong style="color:var(--text)">🔗 URL OAuth2:</strong>
+          <span style="font-family:var(--mono);color:var(--pink2);word-break:break-all;font-size:10px">
+            https://discord.com/oauth2/authorize?client_id=${b.clientId}&redirect_uri=${encodeURIComponent(b.redirectUri)}&response_type=code&scope=identify%20guilds.join
+          </span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─── TOKENS ──────────────────────────────────────────────
+function renderTokens(data) {
+  const tb = document.getElementById('tokens-table');
+  tb.innerHTML = data.map(t=>`
+    <tr>
+      <td><div class="avatar-row"><div style="width:24px;height:24px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--muted)">${t.user[0]}</div>${t.user}</div></td>
+      <td><span class="token-mono">${t.id}</span></td>
+      <td><span class="token-mono">${t.token}</span></td>
+      <td><span class="badge blue">${t.bot}</span></td>
+      <td style="color:var(--muted);font-size:11px">${t.date}</td>
+      <td><span class="badge ${t.status==='valid'?'green':'red'}">${t.status==='valid'?'Válido':'Expirado'}</span></td>
+      <td><button class="btn btn-ghost btn-sm" onclick="moverToken('${t.id}')">Mover →</button></td>
+    </tr>
+  `).join('');
+}
+
+function filterTokens(q) {
+  const filtered = tokensData.filter(t=>t.user.toLowerCase().includes(q.toLowerCase())||t.id.includes(q));
+  renderTokens(filtered);
+}
+function filterByBot(bot) {
+  const filtered = bot ? tokensData.filter(t=>t.bot.toLowerCase().includes(bot.replace('bot','').trim())) : tokensData;
+  renderTokens(filtered);
+}
+function moverToken(id) {
+  showPage('mover');
+}
+
+// ─── SERVERS ─────────────────────────────────────────────
+function renderServers() {
+  const c = document.getElementById('servers-list');
+  c.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+    ${servers.map(s=>`
+      <div class="card">
+        <div style="padding:14px 16px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <div>
+              <div style="font-size:14px;font-weight:600;color:#fff;margin-bottom:4px">${s.name}</div>
+              <span class="badge ${s.type==='main'?'pink':'blue'}">${s.type==='main'?'Principal':'Extra'}</span>
+            </div>
+            <div style="display:flex;gap:6px">
+              <button class="btn btn-ghost btn-sm">Editar</button>
+              <button class="btn btn-danger btn-sm">✕</button>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+            <div style="background:var(--bg3);border-radius:6px;padding:8px 10px">
+              <div style="font-size:10px;color:var(--muted)">MEMBROS</div>
+              <div style="font-size:15px;font-weight:600;font-family:var(--mono)">${s.members.toLocaleString()}</div>
+            </div>
+            <div style="background:var(--bg3);border-radius:6px;padding:8px 10px">
+              <div style="font-size:10px;color:var(--muted)">TOKENS ENVIADOS</div>
+              <div style="font-size:15px;font-weight:600;font-family:var(--mono);color:var(--pink)">${s.tokens.toLocaleString()}</div>
+            </div>
+          </div>
+          <div style="font-size:11px;color:var(--muted)">
+            <div>🤖 Bot: <span style="color:var(--text)">${s.bot}</span></div>
+            <div style="margin-top:3px">🆔 Guild ID: <span style="font-family:var(--mono);font-size:10px;color:var(--dim)">${s.guildId}</span></div>
+          </div>
+        </div>
+      </div>
+    `).join('')}
+    </div>
+  `;
+}
+
+// ─── LOGS ────────────────────────────────────────────────
+function renderLogs() {
+  const c = document.getElementById('logs-full');
+  const typeColor = {success:'var(--green)',info:'var(--blue)',warning:'var(--amber)',error:'var(--red)'};
+  c.innerHTML = logsData.map((l,i)=>`
+    <div class="log-entry" ${i===logsData.length-1?'style="border:none"':''}>
+      <div class="log-dot" style="background:${typeColor[l.type]}"></div>
+      <div style="flex:1">
+        <div class="log-msg">${l.msg}</div>
+        <div class="log-time">${l.time}</div>
+      </div>
+      <span class="badge ${l.type==='success'?'green':l.type==='info'?'blue':l.type==='warning'?'amber':'red'}" style="font-size:10px;flex-shrink:0">${l.type}</span>
+    </div>
+  `).join('');
+}
+
+// ─── MODALS ──────────────────────────────────────────────
+function openAddBot() { document.getElementById('modal-add-bot').classList.add('open'); }
+function openAddServer() { document.getElementById('modal-add-server').classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.modal-overlay').forEach(m=>{
+  m.addEventListener('click',e=>{ if(e.target===m) m.classList.remove('open'); });
+});
+
+// Auto-generate OAuth2 URL
+['new-bot-cid','new-bot-redirect'].forEach(id=>{
+  document.getElementById(id)?.addEventListener('input',()=>{
+    const cid = document.getElementById('new-bot-cid').value;
+    const uri = document.getElementById('new-bot-redirect').value;
+    const el = document.getElementById('generated-url');
+    if(cid && uri) {
+      el.textContent = `https://discord.com/oauth2/authorize?client_id=${cid}&redirect_uri=${encodeURIComponent(uri)}&response_type=code&scope=identify%20guilds.join`;
+    } else {
+      el.textContent = 'Preencha o Client ID e Redirect URI para gerar a URL...';
+    }
+  });
+});
+
+function addBot() {
+  const name = document.getElementById('new-bot-name').value;
+  const cid = document.getElementById('new-bot-cid').value;
+  if(!name || !cid) { alert('Preencha pelo menos o nome e o Client ID!'); return; }
+  bots.push({
+    id:'bot'+Date.now(),name,initials:name.substring(0,2).toUpperCase(),
+    color:'#aaa',colorBg:'rgba(170,170,170,.1)',
+    clientId:cid,redirectUri:document.getElementById('new-bot-redirect').value,
+    guild:'',tokens:0,servers:0,status:'config'
+  });
+  closeModal('modal-add-bot');
+  renderBots();
+  document.getElementById('stat-bots').textContent = bots.length;
+}
+
+function addServer() {
+  const name = document.getElementById('new-srv-name').value;
+  const gid = document.getElementById('new-srv-guild').value;
+  if(!name || !gid) { alert('Preencha o nome e o Guild ID!'); return; }
+  servers.push({
+    id:'srv'+Date.now(),name,guildId:gid,
+    bot:document.getElementById('new-srv-bot').value,
+    type:document.getElementById('new-srv-type').value,
+    members:0,tokens:0
+  });
+  closeModal('modal-add-server');
+  renderServers();
+  document.getElementById('stat-guilds').textContent = servers.length;
+}
+
+// ─── MOVER SIM ───────────────────────────────────────────
+function simularMover() {
+  const card = document.getElementById('move-progress-card');
+  card.style.display = 'block';
+  let pct = 0; let ok = 0; let fail = 0; const total = 1618;
+  const interval = setInterval(()=>{
+    pct = Math.min(pct + Math.random()*3, 100);
+    ok = Math.floor(pct/100 * 1589);
+    fail = Math.floor(pct/100 * 29);
+    document.getElementById('move-bar').style.width = pct+'%';
+    document.getElementById('move-pct').textContent = Math.floor(pct)+'%';
+    document.getElementById('move-ok').textContent = ok.toLocaleString();
+    document.getElementById('move-fail').textContent = fail;
+    if(pct >= 100) {
+      clearInterval(interval);
+      document.getElementById('move-status-text').textContent = '✅ Concluído!';
+    }
+  }, 80);
+}
+
+// Init
+renderTokens(tokensData);
+</script>
+</body>
+</html>
