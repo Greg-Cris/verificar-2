@@ -61,6 +61,43 @@ async function buscarUm(user_id) {
   return typeof data === 'string' ? JSON.parse(data) : data;
 }
 
+// ─── HELPER: buscar TODOS os membros do servidor via paginação ─
+// Faz no máximo 1 chamada a cada 1000 membros (rate-limit safe).
+// Retorna um Set com os user_ids que já estão no servidor.
+async function buscarMembrosDoServidor(guild_id) {
+  const membrosSet = new Set();
+  let after = '0';
+
+  while (true) {
+    const url = `https://discord.com/api/guilds/${guild_id}/members?limit=1000&after=${after}`;
+    const resp = await fetch(url, {
+      headers: { 'Authorization': `Bot ${BOT_TOKEN}` },
+    });
+
+    if (resp.status === 403) throw new Error('Bot sem permissão no servidor (403)');
+    if (resp.status === 404) throw new Error('Servidor não encontrado (404)');
+    if (!resp.ok) throw new Error(`Discord API retornou HTTP ${resp.status}`);
+
+    const membros = await resp.json();
+    if (!Array.isArray(membros) || membros.length === 0) break;
+
+    for (const m of membros) {
+      membrosSet.add(String(m.user.id));
+    }
+
+    // Se retornou menos de 1000, chegamos ao fim
+    if (membros.length < 1000) break;
+
+    // Próxima página: after = último id retornado
+    after = membros[membros.length - 1].user.id;
+
+    // Pequena pausa para respeitar rate limit (1 req/s é seguro)
+    await new Promise(r => setTimeout(r, 500));
+  }
+
+  return membrosSet;
+}
+
 // ─── ROTA: bot consulta os logs ───────────────────────────────
 app.get('/api/logs', async (req, res) => {
   if (req.headers['x-api-secret'] !== API_SECRET)
@@ -133,6 +170,65 @@ app.post('/api/mover-todos', async (req, res) => {
   }
 });
 
+// ─── ROTA: contar disponíveis para um servidor ────────────────
+// Usa paginação para buscar todos os membros do servidor de uma vez,
+// depois compara localmente — sem uma chamada por usuário.
+app.get('/api/contar-disponiveis', async (req, res) => {
+  if (req.headers['x-api-secret'] !== API_SECRET)
+    return res.status(401).json({ error: 'Unauthorized' });
+
+  const { guild_id } = req.query;
+  if (!guild_id) return res.status(400).json({ error: 'guild_id obrigatorio' });
+
+  try {
+    const [logs, membrosSet] = await Promise.all([
+      buscarTodos(),
+      buscarMembrosDoServidor(guild_id),
+    ]);
+
+    const comToken      = logs.filter(e => e.access_token);
+    const jaNoServidor  = comToken.filter(e => membrosSet.has(String(e.user_id))).length;
+    const disponiveis   = comToken.filter(e => !membrosSet.has(String(e.user_id))).length;
+
+    res.json({
+      total:          logs.length,
+      com_token:      comToken.length,
+      sem_token:      logs.length - comToken.length,
+      ja_no_servidor: jaNoServidor,
+      disponiveis,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── ROTA: listar disponíveis para um servidor ────────────────
+// Mesma lógica: busca membros via paginação e filtra localmente.
+app.get('/api/listar-disponiveis', async (req, res) => {
+  if (req.headers['x-api-secret'] !== API_SECRET)
+    return res.status(401).json({ error: 'Unauthorized' });
+
+  const { guild_id, limit } = req.query;
+  if (!guild_id) return res.status(400).json({ error: 'guild_id obrigatorio' });
+
+  const limitNum = limit ? Math.min(parseInt(limit) || 9999, 9999) : 9999;
+
+  try {
+    const [logs, membrosSet] = await Promise.all([
+      buscarTodos(),
+      buscarMembrosDoServidor(guild_id),
+    ]);
+
+    const usuarios = logs
+      .filter(e => e.access_token && !membrosSet.has(String(e.user_id)))
+      .slice(0, limitNum);
+
+    res.json({ usuarios, total: usuarios.length });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ─── MESES ────────────────────────────────────────────────────
 const MESES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
 
@@ -146,7 +242,7 @@ app.get('/', async (req, res) => {
   if (!code) return res.send('OAuth2 Backend WHT - Online ✅');
 
   console.log('📥 Recebeu code OAuth2:', code.substring(0, 10) + '...');
-  
+
   if (!CLIENT_ID || !CLIENT_SECRET) {
     return res.status(400).send(`
       <h1>ERRO: Variáveis de ambiente FALTANDO!</h1>
@@ -170,7 +266,6 @@ app.get('/', async (req, res) => {
     const tokenRes  = await fetch('https://discord.com/api/oauth2/token', { method: 'POST', body: form });
     const tokenData = await tokenRes.json();
     console.log('🔑 Token response status:', tokenRes.status);
-    console.log('🔑 Token data:', JSON.stringify(tokenData));
 
     if (tokenData.error) {
       console.error('❌ Erro no token:', tokenData.error, tokenData.error_description);
@@ -182,7 +277,6 @@ app.get('/', async (req, res) => {
       headers: { authorization: `${tokenData.token_type} ${tokenData.access_token}` }
     });
     const user = await userRes.json();
-    
     console.log('👤 Usuário:', user.username, user.id);
 
     try {
@@ -199,32 +293,14 @@ app.get('/', async (req, res) => {
     // ─── ADICIONAR AO SERVIDOR PRINCIPAL ─────────────────────
     try {
       console.log('➕ Adicionando ao servidor principal...');
-      console.log('➕ GUILD_ID:', GUILD_ID);
-      console.log('➕ CARGO_ID:', CARGO_ID);
-      console.log('➕ USER_ID:', user.id);
-      console.log('➕ BOT_TOKEN prefixo:', BOT_TOKEN ? BOT_TOKEN.substring(0, 15) + '...' : 'VAZIO');
-      console.log('➕ ACCESS_TOKEN prefixo:', tokenData.access_token.substring(0, 20) + '...');
-
       const addResp = await fetch(`https://discord.com/api/guilds/${GUILD_ID}/members/${user.id}`, {
         method: 'PUT',
         headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ access_token: tokenData.access_token, roles: [CARGO_ID] }),
       });
-
       let addData;
       try { addData = await addResp.json(); } catch { addData = {}; }
-      console.log('➕ Add member status:', addResp.status);
-      console.log('➕ Add member response:', JSON.stringify(addData));
-
-      if (addResp.status === 401) {
-        console.error('❌ BOT_TOKEN inválido ou bot sem permissão no servidor!');
-      } else if (addResp.status === 403) {
-        console.error('❌ Bot sem permissão para adicionar membros (403 Forbidden)!');
-      } else if (addResp.status === 204) {
-        console.log('✅ Membro já estava no servidor, cargo pode não ter sido atribuído.');
-      } else if ([200, 201].includes(addResp.status)) {
-        console.log('✅ Membro adicionado com sucesso!');
-      }
+      console.log('➕ Add member status:', addResp.status, JSON.stringify(addData));
     } catch (err) {
       console.log('[Aviso] Falha ao adicionar ao servidor:', err.message);
     }
@@ -257,9 +333,6 @@ app.get('/', async (req, res) => {
 
     // ─── ENVIAR LOG NO CANAL ──────────────────────────────────
     try {
-      console.log('📨 Enviando mensagem no Discord...');
-      console.log('📨 CANAL_ID:', CANAL_ID);
-
       const msgResp = await fetch(`https://discord.com/api/channels/${CANAL_ID}/messages`, {
         method: 'POST',
         headers: { 'Authorization': `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
@@ -269,52 +342,18 @@ app.get('/', async (req, res) => {
             title: '✨ NOVO MEMBRO VERIFICADO ✨',
             description: `## ${user.username}`,
             fields: [
-              {
-                name: '🎉 Verificação',
-                value: `<@${user.id}> foi verificado(a) com sucesso!\nCargo recebido: <@&${CARGO_ID}>`,
-                inline: false
-              },
-              {
-                name: '🪪 ID do Usuário',
-                value: `\`${user.id}\``,
-                inline: true
-              },
-              {
-                name: '🎂 Idade da Conta',
-                value: `\`${idadeDias} dias\``,
-                inline: true
-              },
-              {
-                name: '📅 Conta Criada',
-                value: dataCriacao,
-                inline: true
-              },
-              {
-                name: '📥 Entrou em',
-                value: dataEntrada,
-                inline: true
-              }
+              { name: '🎉 Verificação', value: `<@${user.id}> foi verificado(a) com sucesso!\nCargo recebido: <@&${CARGO_ID}>`, inline: false },
+              { name: '🪪 ID do Usuário', value: `\`${user.id}\``, inline: true },
+              { name: '🎂 Idade da Conta', value: `\`${idadeDias} dias\``, inline: true },
+              { name: '📅 Conta Criada', value: dataCriacao, inline: true },
+              { name: '📥 Entrou em', value: dataEntrada, inline: true },
             ],
             thumbnail: { url: avatarURL },
-            footer: {
-              text: `WHT COMMUNITY 🍄 • Verificado • ${dataEntrada}`
-            }
+            footer: { text: `WHT COMMUNITY 🍄 • Verificado • ${dataEntrada}` },
           }]
         })
       });
-
-      let msgData;
-      try { msgData = await msgResp.json(); } catch { msgData = {}; }
       console.log('📨 Msg status:', msgResp.status);
-      console.log('📨 Msg response:', JSON.stringify(msgData));
-
-      if (msgResp.status === 401) {
-        console.error('❌ BOT_TOKEN inválido para enviar mensagem!');
-      } else if (msgResp.status === 403) {
-        console.error('❌ Bot sem permissão para enviar mensagem no canal!');
-      } else if (msgResp.status === 200) {
-        console.log('✅ Mensagem de log enviada com sucesso!');
-      }
     } catch (err) {
       console.log('[Aviso] Falha ao enviar mensagem:', err.message);
     }
@@ -373,8 +412,7 @@ app.get('/', async (req, res) => {
 </html>`);
 
   } catch (err) {
-    console.error('❌ ERRO GERAL:', err.message);
-    console.error('❌ STACK:', err.stack);
+    console.error('❌ ERRO GERAL:', err.message, err.stack);
     res.status(500).send('Erro ao processar verificação.');
   }
 });
