@@ -17,12 +17,10 @@
 }
 body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:13px;min-height:100vh;overflow-x:hidden}
 
-/* Layout */
 .shell{display:flex;min-height:100vh}
 .sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
 .main{flex:1;overflow-y:auto;padding:24px;max-width:calc(100vw - 220px)}
 
-/* Sidebar */
 .brand{padding:20px 16px 16px;border-bottom:1px solid var(--border)}
 .brand-logo{width:36px;height:36px;border-radius:50%;border:2px solid var(--pink);overflow:hidden;margin-bottom:10px}
 .brand-logo img{width:100%;height:100%;object-fit:cover}
@@ -41,12 +39,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:13
 .status-dot{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;margin-right:6px;box-shadow:0 0 6px var(--green)}
 .status-text{font-size:11px;color:var(--muted)}
 
-/* Header */
 .page-header{margin-bottom:20px}
 .page-title{font-size:20px;font-weight:600;color:#fff}
 .page-sub{font-size:12px;color:var(--muted);margin-top:3px}
 
-/* Cards */
 .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
 .stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px 16px}
 .stat-label{font-size:11px;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:6px}
@@ -55,7 +51,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:13
 .stat-card.pink{border-color:rgba(255,20,147,.3);background:rgba(255,20,147,.06)}
 .stat-card.pink .stat-value{color:var(--pink)}
 
-/* Tables */
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px}
 .card-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
 .card-title{font-size:13px;font-weight:600;color:#fff}
@@ -66,7 +61,6 @@ td{padding:11px 14px;border-bottom:1px solid rgba(42,43,61,.5);font-size:12px;co
 tr:last-child td{border-bottom:none}
 tr:hover td{background:rgba(255,255,255,.02)}
 
-/* Badges */
 .badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500}
 .badge.green{background:rgba(59,165,92,.15);color:#3dbe6c;border:1px solid rgba(59,165,92,.25)}
 .badge.red{background:rgba(237,66,69,.12);color:#f56264;border:1px solid rgba(237,66,69,.2)}
@@ -74,7 +68,6 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .badge.amber{background:rgba(250,168,26,.1);color:#fbb82a;border:1px solid rgba(250,168,26,.2)}
 .badge.pink{background:rgba(255,20,147,.1);color:var(--pink2);border:1px solid rgba(255,20,147,.25)}
 
-/* Buttons */
 .btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;border:none;transition:all .15s;font-family:var(--font)}
 .btn-primary{background:var(--pink);color:#fff}
 .btn-primary:hover{background:var(--pink2)}
@@ -84,7 +77,6 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .btn-danger:hover{background:rgba(237,66,69,.22)}
 .btn-sm{padding:4px 10px;font-size:11px}
 
-/* Forms */
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .form-group{display:flex;flex-direction:column;gap:5px}
 .form-label{font-size:11px;color:var(--muted);font-weight:500;letter-spacing:.3px}
@@ -93,19 +85,6 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .form-input::placeholder{color:var(--dim)}
 .form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237b7d9a'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
 
-/* Tabs */
-.tabs{display:flex;gap:4px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:4px;margin-bottom:16px;width:fit-content}
-.tab{padding:7px 16px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:500;color:var(--muted);border:none;background:none;font-family:var(--font);transition:all .15s}
-.tab.active{background:var(--bg3);color:#fff;border:1px solid var(--border)}
-
-/* Avatar */
-.avatar{width:28px;height:28px;border-radius:50%;background:var(--bg3);border:1.5px solid var(--border)}
-.avatar-row{display:flex;align-items:center;gap:8px}
-
-/* Token preview */
-.token-mono{font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--bg3);padding:2px 8px;border-radius:4px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block}
-
-/* Modal */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:100;opacity:0;pointer-events:none;transition:opacity .2s}
 .modal-overlay.open{opacity:1;pointer-events:all}
 .modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:24px;width:540px;max-width:95vw;transform:translateY(8px);transition:transform .2s}
@@ -114,30 +93,36 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .modal-sub{font-size:12px;color:var(--muted);margin-bottom:20px}
 .modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
 
-/* Divider */
 .divider{height:1px;background:var(--border);margin:16px 0}
-
-/* Progress bar */
 .progress-bar{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden}
-.progress-fill{height:100%;background:var(--pink);border-radius:2px;transition:width .5s}
+.progress-fill{height:100%;background:var(--pink);border-radius:2px;transition:width .3s}
 
-/* Log pill */
 .log-entry{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(42,43,61,.4)}
 .log-dot{width:7px;height:7px;border-radius:50%;margin-top:4px;flex-shrink:0}
 .log-time{font-size:10px;color:var(--dim);font-family:var(--mono);white-space:nowrap}
 .log-msg{font-size:12px;color:var(--text)}
 
-/* Scrollbar */
+.token-mono{font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--bg3);padding:2px 8px;border-radius:4px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block}
+.avatar-row{display:flex;align-items:center;gap:8px}
+
 ::-webkit-scrollbar{width:5px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 
-/* Pulse */
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 .pulse{animation:pulse 2s infinite}
 
-/* Edit modal */
-.modal-overlay.edit-open{opacity:1;pointer-events:all}
+/* Loading spinner */
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--pink);border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Empty state */
+.empty-state{padding:40px;text-align:center;color:var(--muted);font-size:12px}
+
+/* Alert */
+.alert{padding:10px 14px;border-radius:8px;font-size:12px;margin-bottom:12px}
+.alert.error{background:rgba(237,66,69,.1);border:1px solid rgba(237,66,69,.2);color:#f56264}
+.alert.success{background:rgba(59,165,92,.1);border:1px solid rgba(59,165,92,.2);color:#3dbe6c}
 </style>
 </head>
 <body>
@@ -159,10 +144,6 @@ tr:hover td{background:rgba(255,255,255,.02)}
       <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M1 2a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1H2a1 1 0 01-1-1V2zm8 0a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1V2zM1 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H2a1 1 0 01-1-1v-4zm8-3a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1V7z"/></svg>
       Dashboard
     </button>
-    <button class="nav-item" onclick="showPage('bots')">
-      <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M6 12.5a.5.5 0 01.5-.5h3a.5.5 0 010 1h-3a.5.5 0 01-.5-.5zM3 8.062C3 6.76 4.235 5.765 5.53 5.886a26.58 26.58 0 004.94 0C11.765 5.765 13 6.76 13 8.062v1.157a.933.933 0 01-.765.935c-.845.147-2.34.346-4.235.346-1.895 0-3.39-.2-4.235-.346A.933.933 0 013 9.219V8.062zm4.542-.827a.25.25 0 00-.217.068l-.92.9a24.767 24.767 0 01-1.871-.183.25.25 0 00-.068.495c.55.076 1.232.149 2.02.193a.25.25 0 00.189-.071l.754-.736.847 1.71a.25.25 0 00.404.062l.932-.97a25.286 25.286 0 001.922-.188.25.25 0 00-.068-.495c-.538.074-1.207.145-1.98.189a.25.25 0 00-.166.076l-.754.785-.842-1.7a.25.25 0 00-.183-.13z"/><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm-3.5 5.5A3.5 3.5 0 018 3a3.5 3.5 0 013.5 3.5v2.5A3.5 3.5 0 018 12.5a3.5 3.5 0 01-3.5-3.5V6.5z"/></svg>
-      Bots OAuth2
-    </button>
     <button class="nav-item" onclick="showPage('tokens')">
       <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M0 8a4 4 0 014-4h8a4 4 0 110 8H4a4 4 0 01-4-4zm4-3a3 3 0 100 6h8a3 3 0 100-6H4zm0 1.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zm8 1.5a1 1 0 11-2 0 1 1 0 012 0zm-3 0a1 1 0 11-2 0 1 1 0 012 0z"/></svg>
       Tokens
@@ -177,15 +158,11 @@ tr:hover td{background:rgba(255,255,255,.02)}
       <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M1 8a7 7 0 1014 0A7 7 0 001 8zm6.5-4.5a.5.5 0 011 0v5.793l2.146-2.147a.5.5 0 01.708.708l-3 3a.5.5 0 01-.708 0l-3-3a.5.5 0 11.708-.708L7.5 9.293V3.5z"/></svg>
       Mover Membros
     </button>
-    <button class="nav-item" onclick="showPage('logs')">
-      <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M5 4a.5.5 0 000 1h6a.5.5 0 000-1H5zm-.5 2.5A.5.5 0 015 6h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5zM5 8a.5.5 0 000 1h6a.5.5 0 000-1H5zm0 2a.5.5 0 000 1h3a.5.5 0 000-1H5z"/><path d="M2 2a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V2zm10-1H4a1 1 0 00-1 1v12a1 1 0 001 1h8a1 1 0 001-1V2a1 1 0 00-1-1z"/></svg>
-      Logs
-    </button>
   </nav>
 
   <div class="sidebar-footer">
     <span class="status-dot pulse"></span>
-    <span class="status-text">Sistema online</span>
+    <span class="status-text" id="sys-status">Carregando...</span>
   </div>
 </div>
 
@@ -194,102 +171,76 @@ tr:hover td{background:rgba(255,255,255,.02)}
 
 <!-- DASHBOARD -->
 <div id="page-dashboard">
-  <div class="page-header">
-    <div class="page-title">Dashboard</div>
-    <div class="page-sub">Visão geral do sistema WHT OAuth2</div>
+  <div class="page-header" style="display:flex;align-items:center;justify-content:space-between">
+    <div>
+      <div class="page-title">Dashboard</div>
+      <div class="page-sub">Visão geral do sistema WHT OAuth2</div>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="loadStats()">↻ Atualizar</button>
   </div>
 
   <div class="stat-grid">
     <div class="stat-card pink">
-      <div class="stat-label">
-        <svg width="12" height="12" viewBox="0 0 16 16" fill="var(--pink)"><path d="M0 8a4 4 0 014-4h8a4 4 0 110 8H4a4 4 0 01-4-4z"/></svg>
-        Total de Tokens
-      </div>
-      <div class="stat-value" id="stat-tokens">1.847</div>
-      <div class="stat-change" style="color:var(--green)">↑ +23 hoje</div>
+      <div class="stat-label">🔑 Total de Tokens</div>
+      <div class="stat-value" id="stat-tokens"><span class="spinner"></span></div>
+      <div class="stat-change" style="color:var(--muted)" id="stat-tokens-sub">—</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">🤖 Bots Ativos</div>
-      <div class="stat-value" id="stat-bots">3</div>
-      <div class="stat-change" style="color:var(--muted)">2 principais · 1 extra</div>
+      <div class="stat-label">✅ Com Token Válido</div>
+      <div class="stat-value" id="stat-valid"><span class="spinner"></span></div>
+      <div class="stat-change" style="color:var(--muted)" id="stat-valid-sub">—</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">🌐 Servidores</div>
-      <div class="stat-value" id="stat-guilds">7</div>
-      <div class="stat-change" style="color:var(--muted)">4 principais · 3 extras</div>
+      <div class="stat-label">🌐 Servidores Extras</div>
+      <div class="stat-value" id="stat-guilds"><span class="spinner"></span></div>
+      <div class="stat-change" style="color:var(--muted)">cadastrados no sistema</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">✅ Verificados Hoje</div>
-      <div class="stat-value" id="stat-today">23</div>
-      <div class="stat-change" style="color:var(--green)">↑ +8% vs ontem</div>
+      <div class="stat-label">✨ Verificados Hoje</div>
+      <div class="stat-value" id="stat-today"><span class="spinner"></span></div>
+      <div class="stat-change" style="color:var(--green)" id="stat-today-sub">últimas 24h</div>
     </div>
   </div>
 
   <div class="card">
     <div class="card-head">
-      <div class="card-title">Bots OAuth2 Ativos</div>
-      <button class="btn btn-primary btn-sm" onclick="showPage('bots');openAddBot()">+ Adicionar Bot</button>
+      <div class="card-title">Membros Recentes</div>
+      <button class="btn btn-ghost btn-sm" onclick="showPage('tokens')">Ver todos →</button>
     </div>
-    <table>
-      <thead><tr><th>Bot</th><th>Client ID</th><th>Tokens Coletados</th><th>Servidores</th><th>Status</th><th></th></tr></thead>
-      <tbody id="bots-dash-table"></tbody>
-    </table>
-  </div>
-
-  <div class="card">
-    <div class="card-head">
-      <div class="card-title">Atividade Recente</div>
-      <button class="btn btn-ghost btn-sm" onclick="showPage('logs')">Ver todos os logs</button>
-    </div>
-    <div id="recent-activity">
-      <div class="log-entry"><div class="log-dot" style="background:var(--green)"></div><div><div class="log-msg">Novo membro verificado: <strong>UserXYZ#1234</strong> via WHT Bot Principal</div><div class="log-time">agora há pouco</div></div></div>
-      <div class="log-entry"><div class="log-dot" style="background:var(--blue)"></div><div><div class="log-msg">Token movido para servidor <strong>WHT Community 2</strong> — 50 membros</div><div class="log-time">há 3 min</div></div></div>
-      <div class="log-entry"><div class="log-dot" style="background:var(--pink)"></div><div><div class="log-msg">Bot <strong>WHT Extra</strong> adicionado ao sistema</div><div class="log-time">há 12 min</div></div></div>
-      <div class="log-entry"><div class="log-dot" style="background:var(--green)"></div><div><div class="log-msg">Novo membro: <strong>NovaMember#5678</strong> — cargo atribuído</div><div class="log-time">há 18 min</div></div></div>
-      <div class="log-entry" style="border:none"><div class="log-dot" style="background:var(--amber)"></div><div><div class="log-msg">Servidor extra <strong>WHT Events</strong> adicionado à lista</div><div class="log-time">há 35 min</div></div></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Usuário</th><th>ID Discord</th><th>Verificado em</th><th>Status</th></tr></thead>
+        <tbody id="dash-recent-table"><tr><td colspan="4" class="empty-state"><span class="spinner"></span> Carregando...</td></tr></tbody>
+      </table>
     </div>
   </div>
-</div>
-
-<!-- BOTS PAGE -->
-<div id="page-bots" style="display:none">
-  <div class="page-header" style="display:flex;align-items:center;justify-content:space-between">
-    <div><div class="page-title">Bots OAuth2</div><div class="page-sub">Gerencie todos os seus bots Discord</div></div>
-    <button class="btn btn-primary" onclick="openAddBot()">+ Adicionar Bot</button>
-  </div>
-  <div id="bots-list"></div>
 </div>
 
 <!-- TOKENS PAGE -->
 <div id="page-tokens" style="display:none">
   <div class="page-header" style="display:flex;align-items:center;justify-content:space-between">
-    <div><div class="page-title">Tokens OAuth2</div><div class="page-sub">Todos os tokens coletados</div></div>
-    <div style="display:flex;gap:8px">
-      <input class="form-input" style="width:200px" placeholder="Buscar por usuário..." id="search-input" oninput="debounceFilter(this.value)"/>
-      <select class="form-input form-select" style="width:140px" onchange="filterByBot(this.value)">
-        <option value="">Todos os bots</option>
-        <option value="WHT Principal">WHT Principal</option>
-        <option value="WHT Backup">WHT Backup</option>
-        <option value="WHT Extra">WHT Extra</option>
-      </select>
+    <div><div class="page-title">Tokens OAuth2</div><div class="page-sub">Todos os usuários verificados</div></div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <input class="form-input" style="width:200px" placeholder="Buscar por usuário..." id="search-input" oninput="filterTokens(this.value)"/>
+      <button class="btn btn-ghost btn-sm" onclick="loadTokens()">↻</button>
     </div>
   </div>
 
   <div class="stat-grid" style="grid-template-columns:repeat(3,1fr)">
-    <div class="stat-card pink"><div class="stat-label">Total de Tokens</div><div class="stat-value">1.847</div></div>
-    <div class="stat-card"><div class="stat-label">Tokens Válidos</div><div class="stat-value" style="color:var(--green)">1.821</div></div>
-    <div class="stat-card"><div class="stat-label">Expirados/Inválidos</div><div class="stat-value" style="color:var(--red)">26</div></div>
+    <div class="stat-card pink"><div class="stat-label">Total</div><div class="stat-value" id="tok-total">—</div></div>
+    <div class="stat-card"><div class="stat-label">Com Token</div><div class="stat-value" style="color:var(--green)" id="tok-valid">—</div></div>
+    <div class="stat-card"><div class="stat-label">Sem Token</div><div class="stat-value" style="color:var(--red)" id="tok-invalid">—</div></div>
   </div>
 
   <div class="card">
     <div class="card-head">
-      <div class="card-title">Lista de Tokens</div>
-      <span class="badge pink">1.847 total</span>
+      <div class="card-title">Lista de Usuários</div>
+      <span class="badge pink" id="tok-badge">carregando...</span>
     </div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Usuário</th><th>ID Discord</th><th>Token (parcial)</th><th>Bot</th><th>Coletado em</th><th>Status</th><th>Ações</th></tr></thead>
-        <tbody id="tokens-table"></tbody>
+        <thead><tr><th>Usuário</th><th>ID Discord</th><th>Verificado em</th><th>Token</th></tr></thead>
+        <tbody id="tokens-table"><tr><td colspan="4" class="empty-state"><span class="spinner"></span> Carregando...</td></tr></tbody>
       </table>
     </div>
   </div>
@@ -298,496 +249,242 @@ tr:hover td{background:rgba(255,255,255,.02)}
 <!-- SERVIDORES PAGE -->
 <div id="page-servidores" style="display:none">
   <div class="page-header" style="display:flex;align-items:center;justify-content:space-between">
-    <div><div class="page-title">Servidores</div><div class="page-sub">Servidores onde os tokens são enviados</div></div>
+    <div><div class="page-title">Servidores Extras</div><div class="page-sub">Servidores onde os tokens são enviados automaticamente</div></div>
     <button class="btn btn-primary" onclick="openAddServer()">+ Adicionar Servidor</button>
   </div>
-  <div id="servers-list"></div>
+  <div id="servers-list"><div class="empty-state"><span class="spinner"></span> Carregando...</div></div>
 </div>
 
 <!-- MOVER PAGE -->
 <div id="page-mover" style="display:none">
   <div class="page-header">
     <div class="page-title">Mover Membros</div>
-    <div class="page-sub">Envie tokens para servidores Discord</div>
+    <div class="page-sub">Envie todos os tokens para um servidor Discord</div>
   </div>
 
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
-    <div class="card">
-      <div class="card-head"><div class="card-title">Mover Todos</div></div>
-      <div style="padding:16px">
-        <div class="form-group" style="margin-bottom:12px">
-          <label class="form-label">Servidor de Destino</label>
-          <select class="form-input form-select" id="move-all-server">
-            <option>WHT Community</option>
-            <option>WHT Community 2</option>
-            <option>WHT Events</option>
-            <option>WHT VIP</option>
-          </select>
-        </div>
-        <div style="background:var(--bg3);border-radius:8px;padding:12px;margin-bottom:12px;font-size:12px;color:var(--muted)">
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>Tokens disponíveis:</span><span style="color:var(--text);font-family:var(--mono)">1.821</span></div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>Já no servidor:</span><span style="color:var(--text);font-family:var(--mono)">203</span></div>
-          <div style="display:flex;justify-content:space-between"><span>Para mover:</span><span style="color:var(--pink);font-family:var(--mono);font-weight:600">1.618</span></div>
-        </div>
-        <button class="btn btn-primary" style="width:100%" onclick="iniciarMover()">Mover Todos →</button>
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-head"><div class="card-title">Mover Todos os Tokens</div></div>
+    <div style="padding:16px">
+      <div id="mover-alert"></div>
+      <div class="form-group" style="margin-bottom:12px">
+        <label class="form-label">Guild ID do Servidor de Destino</label>
+        <input class="form-input" placeholder="Ex: 1234567890123456789" id="move-guild-id"/>
       </div>
-    </div>
-    <div class="card">
-      <div class="card-head"><div class="card-title">Mover por Bot</div></div>
-      <div style="padding:16px">
-        <div class="form-group" style="margin-bottom:12px">
-          <label class="form-label">Selecionar Bot</label>
-          <select class="form-input form-select" id="move-bot-select">
-            <option>WHT Bot Principal (1.203 tokens)</option>
-            <option>WHT Bot Backup (644 tokens)</option>
-          </select>
+      <div style="background:var(--bg3);border-radius:8px;padding:12px;margin-bottom:12px;font-size:12px;color:var(--muted)">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span>Tokens disponíveis:</span>
+          <span style="color:var(--text);font-family:var(--mono)" id="mover-count">—</span>
         </div>
-        <div class="form-group" style="margin-bottom:12px">
-          <label class="form-label">Servidor de Destino</label>
-          <select class="form-input form-select">
-            <option>WHT Community</option>
-            <option>WHT Community 2</option>
-          </select>
+        <div style="display:flex;justify-content:space-between">
+          <span>⚠️ Esta ação moverá TODOS os usuários para o servidor informado</span>
         </div>
-        <button class="btn btn-ghost" style="width:100%" onclick="iniciarMover()">Mover Selecionados →</button>
       </div>
+      <button class="btn btn-primary" style="width:100%" onclick="iniciarMover()" id="btn-mover">Mover Todos →</button>
     </div>
   </div>
 
   <div class="card" id="move-progress-card" style="display:none">
     <div class="card-head">
-      <div class="card-title">Progresso</div>
-      <button class="btn btn-danger btn-sm" id="btn-cancelar" onclick="cancelarMover()">✕ Cancelar</button>
+      <div class="card-title">Resultado</div>
     </div>
     <div style="padding:16px">
-      <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px">
-        <span id="move-status-text">Movendo membros...</span>
-        <span id="move-pct" style="font-family:var(--mono);color:var(--pink)">0%</span>
-      </div>
-      <div class="progress-bar"><div class="progress-fill" id="move-bar" style="width:0%"></div></div>
-      <div style="display:flex;gap:16px;margin-top:12px;font-size:12px;color:var(--muted)">
-        <span>✅ Sucesso: <span id="move-ok" style="color:var(--green);font-family:var(--mono)">0</span></span>
-        <span>❌ Falhou: <span id="move-fail" style="color:var(--red);font-family:var(--mono)">0</span></span>
+      <div style="display:flex;gap:24px;font-size:13px">
+        <div>✅ Sucesso: <span id="move-ok" style="color:var(--green);font-family:var(--mono);font-weight:600">0</span></div>
+        <div>❌ Falhou: <span id="move-fail" style="color:var(--red);font-family:var(--mono);font-weight:600">0</span></div>
+        <div>📦 Total: <span id="move-total" style="font-family:var(--mono)">0</span></div>
       </div>
     </div>
-  </div>
-</div>
-
-<!-- LOGS PAGE -->
-<div id="page-logs" style="display:none">
-  <div class="page-header" style="display:flex;align-items:center;justify-content:space-between">
-    <div><div class="page-title">Logs do Sistema</div><div class="page-sub">Histórico completo de atividades</div></div>
-    <button class="btn btn-ghost btn-sm" onclick="exportarCSV()">Exportar CSV</button>
-  </div>
-  <div class="card">
-    <div id="logs-full"></div>
   </div>
 </div>
 
 </div><!-- /main -->
 </div><!-- /shell -->
 
-<!-- MODAL: Add Bot -->
-<div class="modal-overlay" id="modal-add-bot">
-  <div class="modal">
-    <div class="modal-title">Cadastrar Novo Bot OAuth2</div>
-    <div class="modal-sub">Adicione as credenciais do bot Discord no portal de desenvolvedores</div>
-
-    <div class="form-grid">
-      <div class="form-group">
-        <label class="form-label">Nome do Bot</label>
-        <input class="form-input" placeholder="Ex: WHT Bot 2" id="new-bot-name"/>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Client ID</label>
-        <input class="form-input" placeholder="1234567890123456789" id="new-bot-cid"/>
-      </div>
-    </div>
-    <div class="form-group" style="margin-top:12px">
-      <label class="form-label">Client Secret</label>
-      <input class="form-input" type="password" placeholder="••••••••••••••••••••••••••••••••" id="new-bot-secret"/>
-    </div>
-    <div class="form-group" style="margin-top:12px">
-      <label class="form-label">Redirect URI</label>
-      <input class="form-input" placeholder="https://meusite.vercel.app/" id="new-bot-redirect"/>
-    </div>
-    <div class="form-grid" style="margin-top:12px">
-      <div class="form-group">
-        <label class="form-label">Bot Token</label>
-        <input class="form-input" type="password" placeholder="Bot token do bot" id="new-bot-token"/>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Guild ID (Servidor Principal)</label>
-        <input class="form-input" placeholder="1234567890123456789" id="new-bot-guild"/>
-      </div>
-    </div>
-    <div class="form-grid" style="margin-top:12px">
-      <div class="form-group">
-        <label class="form-label">Cargo ID</label>
-        <input class="form-input" placeholder="ID do cargo a atribuir" id="new-bot-role"/>
-      </div>
-      <div class="form-group">
-        <label class="form-label">API Secret</label>
-        <!-- CORRIGIDO: type=password para mascarar o secret -->
-        <input class="form-input" type="password" placeholder="wht-secret-2025" id="new-bot-apisecret"/>
-      </div>
-    </div>
-
-    <div class="divider"></div>
-    <div style="background:var(--bg3);border-radius:8px;padding:12px;font-size:12px;color:var(--muted)">
-      <strong style="color:var(--text)">🔗 URL OAuth2 gerada automaticamente:</strong><br/>
-      <span id="generated-url" style="font-family:var(--mono);font-size:11px;color:var(--pink2);word-break:break-all">
-        Preencha o Client ID e Redirect URI para gerar a URL...
-      </span>
-    </div>
-
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('modal-add-bot')">Cancelar</button>
-      <button class="btn btn-primary" onclick="addBot()">Cadastrar Bot</button>
-    </div>
-  </div>
-</div>
-
 <!-- MODAL: Add Server -->
 <div class="modal-overlay" id="modal-add-server">
   <div class="modal">
     <div class="modal-title">Adicionar Servidor Extra</div>
-    <div class="modal-sub">Tokens serão enviados automaticamente para este servidor</div>
-    <div class="form-grid">
-      <div class="form-group">
-        <label class="form-label">Nome do Servidor</label>
-        <input class="form-input" placeholder="Ex: WHT Community 3" id="new-srv-name"/>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Guild ID</label>
-        <input class="form-input" placeholder="1234567890123456789" id="new-srv-guild"/>
-      </div>
-    </div>
-    <div class="form-group" style="margin-top:12px">
-      <label class="form-label">Bot Responsável</label>
-      <select class="form-input form-select" id="new-srv-bot">
-        <option>WHT Bot Principal</option>
-        <option>WHT Bot Backup</option>
-        <option>WHT Bot Extra</option>
-      </select>
-    </div>
-    <div class="form-group" style="margin-top:12px">
-      <label class="form-label">Tipo</label>
-      <select class="form-input form-select" id="new-srv-type">
-        <option value="main">Principal (OAuth2 redireciona aqui)</option>
-        <option value="extra">Extra (envia automaticamente após verificação)</option>
-      </select>
+    <div class="modal-sub">Tokens serão enviados automaticamente para este servidor após verificação</div>
+    <div id="add-server-alert"></div>
+    <div class="form-group">
+      <label class="form-label">Guild ID do Servidor</label>
+      <input class="form-input" placeholder="Ex: 1234567890123456789" id="new-srv-guild"/>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modal-add-server')">Cancelar</button>
-      <button class="btn btn-primary" onclick="addServer()">Adicionar</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL: Editar Bot -->
-<div class="modal-overlay" id="modal-edit-bot">
-  <div class="modal">
-    <div class="modal-title">Editar Bot</div>
-    <div class="modal-sub">Altere as informações do bot</div>
-    <input type="hidden" id="edit-bot-id"/>
-    <div class="form-grid">
-      <div class="form-group">
-        <label class="form-label">Nome do Bot</label>
-        <input class="form-input" id="edit-bot-name"/>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Status</label>
-        <select class="form-input form-select" id="edit-bot-status">
-          <option value="online">Online</option>
-          <option value="config">Configurando</option>
-          <option value="offline">Offline</option>
-        </select>
-      </div>
-    </div>
-    <div class="form-group" style="margin-top:12px">
-      <label class="form-label">Redirect URI</label>
-      <input class="form-input" id="edit-bot-redirect"/>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('modal-edit-bot')">Cancelar</button>
-      <button class="btn btn-primary" onclick="salvarEdicaoBot()">Salvar</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL: Editar Servidor -->
-<div class="modal-overlay" id="modal-edit-server">
-  <div class="modal">
-    <div class="modal-title">Editar Servidor</div>
-    <div class="modal-sub">Altere as informações do servidor</div>
-    <input type="hidden" id="edit-srv-id"/>
-    <div class="form-grid">
-      <div class="form-group">
-        <label class="form-label">Nome do Servidor</label>
-        <input class="form-input" id="edit-srv-name"/>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Guild ID</label>
-        <input class="form-input" id="edit-srv-guild"/>
-      </div>
-    </div>
-    <div class="form-group" style="margin-top:12px">
-      <label class="form-label">Tipo</label>
-      <select class="form-input form-select" id="edit-srv-type">
-        <option value="main">Principal</option>
-        <option value="extra">Extra</option>
-      </select>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('modal-edit-server')">Cancelar</button>
-      <button class="btn btn-primary" onclick="salvarEdicaoServer()">Salvar</button>
+      <button class="btn btn-primary" id="btn-add-srv" onclick="addServer()">Adicionar</button>
     </div>
   </div>
 </div>
 
 <script>
-// ─── DATA ────────────────────────────────────────────────
-const bots = [
-  {id:'bot1',name:'WHT Bot Principal',initials:'W1',color:'var(--pink)',colorBg:'var(--pink3)',clientId:'123456789012345678',redirectUri:'https://wht-main.vercel.app/',guild:'WHT Community',tokens:1203,servers:4,status:'online'},
-  {id:'bot2',name:'WHT Bot Backup',initials:'W2',color:'#7a87f5',colorBg:'rgba(88,101,242,.15)',clientId:'987654321098765432',redirectUri:'https://wht-backup.vercel.app/',guild:'WHT Community 2',tokens:644,servers:2,status:'online'},
-  {id:'bot3',name:'WHT Bot Extra',initials:'W3',color:'#fbb82a',colorBg:'rgba(250,168,26,.1)',clientId:'112233445566778899',redirectUri:'https://wht-extra.vercel.app/',guild:'WHT Events',tokens:0,servers:1,status:'config'},
-];
-
-const servers = [
-  {id:'srv1',name:'WHT Community',guildId:'1498452626357096489',bot:'WHT Principal',type:'main',members:5820,tokens:1203},
-  {id:'srv2',name:'WHT Community 2',guildId:'2234567890123456789',bot:'WHT Backup',type:'main',members:2100,tokens:644},
-  {id:'srv3',name:'WHT Events',guildId:'3345678901234567890',bot:'WHT Extra',type:'extra',members:890,tokens:0},
-  {id:'srv4',name:'WHT VIP',guildId:'4456789012345678901',bot:'WHT Principal',type:'extra',members:320,tokens:1203},
-];
-
-const tokensData = [
-  {user:'WolfAlpha#0001',id:'111222333444',token:'MTExMjIy...QWE',bot:'WHT Principal',date:'03/05/2025 14:22',status:'valid'},
-  {user:'DiscordUser#1234',id:'222333444555',token:'MjIyMzMz...XYZ',bot:'WHT Principal',date:'03/05/2025 14:18',status:'valid'},
-  {user:'NovaMember#5678',id:'333444555666',token:'MzMzNDQ0...ABC',bot:'WHT Backup',date:'03/05/2025 14:05',status:'valid'},
-  {user:'GamerPro#9999',id:'444555666777',token:'NDQ0NTU1...DEF',bot:'WHT Principal',date:'03/05/2025 13:55',status:'valid'},
-  {user:'CoolDude#0420',id:'555666777888',token:'NTU1Njj6...GHI',bot:'WHT Backup',date:'03/05/2025 13:40',status:'expired'},
-  {user:'WHTFan#1111',id:'666777888999',token:'Njj2Nzc3...JKL',bot:'WHT Principal',date:'03/05/2025 12:30',status:'valid'},
-];
-
-const logsData = [
-  {type:'success',msg:'Novo membro verificado: WolfAlpha#0001 via WHT Bot Principal → cargo atribuído',time:'03/05/2025 14:22:05'},
-  {type:'info',msg:'Batch mover: 50 tokens enviados para WHT Community 2 — 48 sucesso, 2 falha',time:'03/05/2025 14:15:33'},
-  {type:'success',msg:'Bot WHT Extra cadastrado no sistema com sucesso',time:'03/05/2025 14:10:01'},
-  {type:'success',msg:'Novo membro verificado: NovaMember#5678 via WHT Bot Backup',time:'03/05/2025 14:05:17'},
-  {type:'warning',msg:'Token de CoolDude#0420 expirado — não foi possível mover',time:'03/05/2025 13:40:55'},
-  {type:'info',msg:'Servidor WHT VIP adicionado como servidor extra',time:'03/05/2025 13:30:22'},
-  {type:'success',msg:'Novo membro verificado: GamerPro#9999 via WHT Bot Principal',time:'03/05/2025 13:28:44'},
-  {type:'info',msg:'API Secret atualizado para WHT Bot Principal',time:'03/05/2025 13:00:11'},
-  {type:'success',msg:'Novo membro verificado: WHTFan#1111 via WHT Bot Principal',time:'03/05/2025 12:30:05'},
-  {type:'error',msg:'Falha ao adicionar DiscordUser#0000 ao servidor — bot sem permissão',time:'03/05/2025 11:50:30'},
-];
-
-// ─── ESC para fechar modal ────────────────────────────────
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
-  }
-});
-
-// ─── PAGES ───────────────────────────────────────────────
-function showPage(page) {
-  document.querySelectorAll('[id^="page-"]').forEach(p => p.style.display = 'none');
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('page-' + page).style.display = 'block';
-  const navMap = {dashboard:0,bots:1,tokens:2,servidores:3,mover:4,logs:5};
-  document.querySelectorAll('.nav-item')[navMap[page]]?.classList.add('active');
-  if (page === 'bots') renderBots();
-  if (page === 'tokens') renderTokens(tokensData);
-  if (page === 'servidores') renderServers();
-  if (page === 'logs') renderLogs();
-  if (page === 'dashboard') renderDashBots();
-}
-
-// ─── SAFE TEXT (XSS prevention) ──────────────────────────
+// ─── HELPERS ─────────────────────────────────────────────
 function esc(str) {
   const d = document.createElement('div');
-  d.textContent = String(str);
+  d.textContent = String(str ?? '');
   return d.innerHTML;
 }
 
-// ─── DASHBOARD BOTS TABLE ────────────────────────────────
-function renderDashBots() {
-  const tb = document.getElementById('bots-dash-table');
-  tb.innerHTML = bots.map(b => `
+function fmtTs(ts) {
+  if (!ts) return '—';
+  const d = new Date(ts * 1000);
+  return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+}
+
+function getPass() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('pass') || '';
+}
+
+// ─── API ─────────────────────────────────────────────────
+const PASS = getPass();
+
+async function apiFetch(path, opts = {}) {
+  const sep = path.includes('?') ? '&' : '?';
+  const url = `${path}${sep}pass=${encodeURIComponent(PASS)}`;
+  const res = await fetch(url, opts);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+// ─── STATE ───────────────────────────────────────────────
+let statsData = null;
+let servidoresData = [];
+let allTokens = [];
+
+// ─── LOAD STATS ──────────────────────────────────────────
+async function loadStats() {
+  try {
+    const data = await apiFetch('/api/admin/stats');
+    statsData = data;
+    allTokens = data.usuarios || [];
+
+    // Dashboard stats
+    document.getElementById('stat-tokens').textContent = data.total_tokens.toLocaleString();
+    document.getElementById('stat-tokens-sub').textContent = `${data.com_token} com token`;
+    document.getElementById('stat-valid').textContent = data.com_token.toLocaleString();
+    document.getElementById('stat-valid-sub').textContent = `${data.sem_token} sem token`;
+    document.getElementById('stat-guilds').textContent = data.servidores_extras.toLocaleString();
+    document.getElementById('stat-today').textContent = data.verificados_hoje.toLocaleString();
+
+    // Tokens page stats
+    document.getElementById('tok-total').textContent = data.total_tokens.toLocaleString();
+    document.getElementById('tok-valid').textContent = data.com_token.toLocaleString();
+    document.getElementById('tok-invalid').textContent = data.sem_token.toLocaleString();
+    document.getElementById('tok-badge').textContent = `${data.total_tokens} total`;
+
+    // Mover count
+    document.getElementById('mover-count').textContent = data.com_token.toLocaleString();
+
+    // Render tables
+    renderDashRecent(allTokens.slice(-5).reverse());
+    renderTokensTable(allTokens);
+
+    document.getElementById('sys-status').textContent = 'Sistema online';
+  } catch (err) {
+    document.getElementById('sys-status').textContent = 'Erro ao carregar';
+    console.error(err);
+  }
+}
+
+// ─── DASHBOARD RECENTES ──────────────────────────────────
+function renderDashRecent(users) {
+  const tb = document.getElementById('dash-recent-table');
+  if (!users || users.length === 0) {
+    tb.innerHTML = '<tr><td colspan="4" class="empty-state">Nenhum usuário encontrado</td></tr>';
+    return;
+  }
+  tb.innerHTML = users.map(u => `
     <tr>
       <td><div class="avatar-row">
-        <div style="width:28px;height:28px;border-radius:50%;background:${b.colorBg};border:1.5px solid ${b.color};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:${b.color}">${esc(b.initials)}</div>
-        <span>${esc(b.name)}</span>
+        ${u.avatar
+          ? `<img src="https://cdn.discordapp.com/avatars/${esc(u.user_id)}/${esc(u.avatar)}.png?size=32" style="width:24px;height:24px;border-radius:50%;border:1px solid var(--border)" onerror="this.style.display='none'">`
+          : `<div style="width:24px;height:24px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--muted)">${esc((u.username||'?')[0]).toUpperCase()}</div>`
+        }
+        <span>${esc(u.username || 'Desconhecido')}</span>
       </div></td>
-      <td><span class="token-mono">${esc(b.clientId.substring(0,12))}...</span></td>
-      <td><span style="font-family:var(--mono);color:var(--pink)">${b.tokens.toLocaleString()}</span></td>
-      <td>${b.servers} servidores</td>
-      <td><span class="badge ${b.status==='online'?'green':b.status==='config'?'amber':'red'}">● ${b.status==='online'?'Online':b.status==='config'?'Configurando':'Offline'}</span></td>
-      <td><button class="btn btn-ghost btn-sm" onclick="showPage('bots')">Ver</button></td>
+      <td><span class="token-mono">${esc(u.user_id)}</span></td>
+      <td style="color:var(--muted);font-size:11px">${fmtTs(u.ts)}</td>
+      <td><span class="badge ${u.tem_token ? 'green' : 'red'}">${u.tem_token ? '✅ Com token' : '❌ Sem token'}</span></td>
     </tr>
   `).join('');
 }
 
-// ─── BOTS ────────────────────────────────────────────────
-function renderBots() {
-  const c = document.getElementById('bots-list');
-  c.innerHTML = bots.map(b => `
-    <div class="card" style="margin-bottom:12px">
-      <div style="padding:16px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-          <div style="display:flex;align-items:center;gap:12px">
-            <div style="width:44px;height:44px;border-radius:50%;background:${b.colorBg};border:2px solid ${b.color};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:${b.color}">${esc(b.initials)}</div>
-            <div>
-              <div style="font-size:14px;font-weight:600;color:#fff">${esc(b.name)}</div>
-              <span class="badge ${b.status==='online'?'green':b.status==='config'?'amber':'red'}" style="margin-top:4px">● ${b.status==='online'?'Online':b.status==='config'?'Configurando':'Offline'}</span>
-            </div>
-          </div>
-          <div style="display:flex;gap:8px">
-            <button class="btn btn-ghost btn-sm" onclick="abrirEdicaoBot('${esc(b.id)}')">Editar</button>
-            <button class="btn btn-danger btn-sm" onclick="removerBot('${esc(b.id)}')">Remover</button>
-          </div>
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px">
-          <div style="background:var(--bg3);border-radius:8px;padding:10px 12px">
-            <div style="font-size:10px;color:var(--muted);margin-bottom:4px">TOKENS</div>
-            <div style="font-size:18px;font-weight:600;font-family:var(--mono);color:var(--pink)">${b.tokens.toLocaleString()}</div>
-          </div>
-          <div style="background:var(--bg3);border-radius:8px;padding:10px 12px">
-            <div style="font-size:10px;color:var(--muted);margin-bottom:4px">SERVIDORES</div>
-            <div style="font-size:18px;font-weight:600;font-family:var(--mono)">${b.servers}</div>
-          </div>
-          <div style="background:var(--bg3);border-radius:8px;padding:10px 12px">
-            <div style="font-size:10px;color:var(--muted);margin-bottom:4px">CLIENT ID</div>
-            <div class="token-mono" style="margin-top:4px;display:block">${esc(b.clientId.substring(0,12))}...</div>
-          </div>
-          <div style="background:var(--bg3);border-radius:8px;padding:10px 12px">
-            <div style="font-size:10px;color:var(--muted);margin-bottom:4px">REDIRECT URI</div>
-            <div style="font-size:11px;color:var(--pink2);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(b.redirectUri)}</div>
-          </div>
-        </div>
-        <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;font-size:11px;color:var(--muted)">
-          <strong style="color:var(--text)">🔗 URL OAuth2:</strong>
-          <span style="font-family:var(--mono);color:var(--pink2);word-break:break-all;font-size:10px">
-            https://discord.com/oauth2/authorize?client_id=${esc(b.clientId)}&redirect_uri=${encodeURIComponent(b.redirectUri)}&response_type=code&scope=identify%20guilds.join
-          </span>
-        </div>
-      </div>
-    </div>
-  `).join('');
-}
-
-// Editar bot
-function abrirEdicaoBot(id) {
-  const b = bots.find(x => x.id === id);
-  if (!b) return;
-  document.getElementById('edit-bot-id').value = b.id;
-  document.getElementById('edit-bot-name').value = b.name;
-  document.getElementById('edit-bot-redirect').value = b.redirectUri;
-  document.getElementById('edit-bot-status').value = b.status;
-  document.getElementById('modal-edit-bot').classList.add('open');
-}
-
-function salvarEdicaoBot() {
-  const id = document.getElementById('edit-bot-id').value;
-  const b = bots.find(x => x.id === id);
-  if (!b) return;
-  b.name = document.getElementById('edit-bot-name').value;
-  b.redirectUri = document.getElementById('edit-bot-redirect').value;
-  b.status = document.getElementById('edit-bot-status').value;
-  closeModal('modal-edit-bot');
-  renderBots();
-}
-
-// Remover bot
-function removerBot(id) {
-  if (!confirm('Tem certeza que deseja remover este bot?')) return;
-  const idx = bots.findIndex(x => x.id === id);
-  if (idx !== -1) bots.splice(idx, 1);
-  renderBots();
-  document.getElementById('stat-bots').textContent = bots.length;
-}
-
-// ─── TOKENS ──────────────────────────────────────────────
-let filterBotAtual = '';
-
-// CORRIGIDO: debounce pra não travar com lista grande
-let debounceTimer;
-function debounceFilter(q) {
-  clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(() => filterTokens(q), 300);
-}
-
-function filterTokens(q) {
-  const ql = q.toLowerCase();
-  const filtered = tokensData.filter(t =>
-    t.user.toLowerCase().includes(ql) || t.id.includes(q)
-  ).filter(t => !filterBotAtual || t.bot === filterBotAtual);
-  renderTokens(filtered);
-}
-
-// CORRIGIDO: comparação direta por nome do bot
-function filterByBot(bot) {
-  filterBotAtual = bot;
-  const q = document.getElementById('search-input')?.value || '';
-  filterTokens(q);
-}
-
-function renderTokens(data) {
+// ─── TOKENS TABLE ────────────────────────────────────────
+function renderTokensTable(users) {
   const tb = document.getElementById('tokens-table');
-  tb.innerHTML = data.map(t => `
+  if (!users || users.length === 0) {
+    tb.innerHTML = '<tr><td colspan="4" class="empty-state">Nenhum usuário encontrado</td></tr>';
+    return;
+  }
+  // Sort by ts desc
+  const sorted = [...users].sort((a,b) => (b.ts||0) - (a.ts||0));
+  tb.innerHTML = sorted.map(u => `
     <tr>
       <td><div class="avatar-row">
-        <div style="width:24px;height:24px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--muted)">${esc(t.user[0])}</div>
-        ${esc(t.user)}
+        ${u.avatar
+          ? `<img src="https://cdn.discordapp.com/avatars/${esc(u.user_id)}/${esc(u.avatar)}.png?size=32" style="width:24px;height:24px;border-radius:50%;border:1px solid var(--border)" onerror="this.style.display='none'">`
+          : `<div style="width:24px;height:24px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--muted)">${esc((u.username||'?')[0]).toUpperCase()}</div>`
+        }
+        <span>${esc(u.username || 'Desconhecido')}</span>
       </div></td>
-      <td><span class="token-mono">${esc(t.id)}</span></td>
-      <td><span class="token-mono">${esc(t.token)}</span></td>
-      <td><span class="badge blue">${esc(t.bot)}</span></td>
-      <td style="color:var(--muted);font-size:11px">${esc(t.date)}</td>
-      <td><span class="badge ${t.status==='valid'?'green':'red'}">${t.status==='valid'?'Válido':'Expirado'}</span></td>
-      <td><button class="btn btn-ghost btn-sm" onclick="moverToken(${esc(t.id)})">Mover →</button></td>
+      <td><span class="token-mono">${esc(u.user_id)}</span></td>
+      <td style="color:var(--muted);font-size:11px">${fmtTs(u.ts)}</td>
+      <td><span class="badge ${u.tem_token ? 'green' : 'red'}">${u.tem_token ? 'Válido' : 'Sem token'}</span></td>
     </tr>
   `).join('');
 }
 
-// CORRIGIDO: passa o ID corretamente pra página de mover
-function moverToken(id) {
-  showPage('mover');
-  // Aqui você pode pré-selecionar o usuário na página de mover quando integrar com API
+let filterTimer;
+function filterTokens(q) {
+  clearTimeout(filterTimer);
+  filterTimer = setTimeout(() => {
+    const ql = q.toLowerCase();
+    const filtered = allTokens.filter(u =>
+      (u.username || '').toLowerCase().includes(ql) ||
+      (u.user_id || '').includes(q)
+    );
+    renderTokensTable(filtered);
+  }, 250);
 }
 
-// ─── SERVERS ─────────────────────────────────────────────
+function loadTokens() {
+  loadStats();
+}
+
+// ─── SERVIDORES ──────────────────────────────────────────
+async function loadServidores() {
+  const c = document.getElementById('servers-list');
+  c.innerHTML = '<div class="empty-state"><span class="spinner"></span> Carregando...</div>';
+  try {
+    const data = await apiFetch('/api/admin/servidores');
+    servidoresData = data.servidores || [];
+    renderServers();
+  } catch (err) {
+    c.innerHTML = `<div class="empty-state" style="color:var(--red)">Erro ao carregar servidores: ${esc(err.message)}</div>`;
+  }
+}
+
 function renderServers() {
   const c = document.getElementById('servers-list');
+  if (servidoresData.length === 0) {
+    c.innerHTML = '<div class="empty-state">Nenhum servidor extra cadastrado.<br/>Clique em "+ Adicionar Servidor" para começar.</div>';
+    return;
+  }
   c.innerHTML = `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-    ${servers.map(s => `
+    ${servidoresData.map((gid, i) => `
       <div class="card">
         <div style="padding:14px 16px">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
             <div>
-              <div style="font-size:14px;font-weight:600;color:#fff;margin-bottom:4px">${esc(s.name)}</div>
-              <span class="badge ${s.type==='main'?'pink':'blue'}">${s.type==='main'?'Principal':'Extra'}</span>
+              <div style="font-size:13px;font-weight:600;color:#fff;margin-bottom:4px">Servidor Extra ${i + 1}</div>
+              <span class="badge blue">Extra</span>
             </div>
-            <div style="display:flex;gap:6px">
-              <button class="btn btn-ghost btn-sm" onclick="abrirEdicaoServer('${esc(s.id)}')">Editar</button>
-              <button class="btn btn-danger btn-sm" onclick="removerServer('${esc(s.id)}')">✕</button>
-            </div>
+            <button class="btn btn-danger btn-sm" onclick="removerServer('${esc(gid)}')">✕ Remover</button>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
-            <div style="background:var(--bg3);border-radius:6px;padding:8px 10px">
-              <div style="font-size:10px;color:var(--muted)">MEMBROS</div>
-              <div style="font-size:15px;font-weight:600;font-family:var(--mono)">${s.members.toLocaleString()}</div>
-            </div>
-            <div style="background:var(--bg3);border-radius:6px;padding:8px 10px">
-              <div style="font-size:10px;color:var(--muted)">TOKENS ENVIADOS</div>
-              <div style="font-size:15px;font-weight:600;font-family:var(--mono);color:var(--pink)">${s.tokens.toLocaleString()}</div>
-            </div>
-          </div>
-          <div style="font-size:11px;color:var(--muted)">
-            <div>🤖 Bot: <span style="color:var(--text)">${esc(s.bot)}</span></div>
-            <div style="margin-top:3px">🆔 Guild ID: <span style="font-family:var(--mono);font-size:10px;color:var(--dim)">${esc(s.guildId)}</span></div>
+          <div style="background:var(--bg3);border-radius:6px;padding:8px 10px;font-size:11px;color:var(--muted)">
+            🆔 Guild ID: <span style="font-family:var(--mono);color:var(--text)">${esc(gid)}</span>
           </div>
         </div>
       </div>
@@ -796,183 +493,118 @@ function renderServers() {
   `;
 }
 
-function abrirEdicaoServer(id) {
-  const s = servers.find(x => x.id === id);
-  if (!s) return;
-  document.getElementById('edit-srv-id').value = s.id;
-  document.getElementById('edit-srv-name').value = s.name;
-  document.getElementById('edit-srv-guild').value = s.guildId;
-  document.getElementById('edit-srv-type').value = s.type;
-  document.getElementById('modal-edit-server').classList.add('open');
+async function addServer() {
+  const gid = document.getElementById('new-srv-guild').value.trim();
+  const alertEl = document.getElementById('add-server-alert');
+  const btn = document.getElementById('btn-add-srv');
+
+  if (!gid || !/^\d{17,20}$/.test(gid)) {
+    alertEl.innerHTML = '<div class="alert error">Guild ID inválido (deve ter 17-20 dígitos)</div>';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Adicionando...';
+
+  try {
+    await apiFetch('/api/admin/servidores', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({guild_id: gid})
+    });
+    document.getElementById('new-srv-guild').value = '';
+    alertEl.innerHTML = '';
+    closeModal('modal-add-server');
+    loadServidores();
+    // Update stat
+    const cur = parseInt(document.getElementById('stat-guilds').textContent) || 0;
+    document.getElementById('stat-guilds').textContent = (cur + 1).toString();
+  } catch (err) {
+    alertEl.innerHTML = `<div class="alert error">Erro: ${esc(err.message)}</div>`;
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'Adicionar';
+  }
 }
 
-function salvarEdicaoServer() {
-  const id = document.getElementById('edit-srv-id').value;
-  const s = servers.find(x => x.id === id);
-  if (!s) return;
-  s.name = document.getElementById('edit-srv-name').value;
-  s.guildId = document.getElementById('edit-srv-guild').value;
-  s.type = document.getElementById('edit-srv-type').value;
-  closeModal('modal-edit-server');
-  renderServers();
+async function removerServer(gid) {
+  if (!confirm(`Remover servidor ${gid}?`)) return;
+  try {
+    await apiFetch(`/api/admin/servidores/${gid}`, {method: 'DELETE'});
+    loadServidores();
+  } catch (err) {
+    alert('Erro ao remover: ' + err.message);
+  }
 }
 
-function removerServer(id) {
-  if (!confirm('Tem certeza que deseja remover este servidor?')) return;
-  const idx = servers.findIndex(x => x.id === id);
-  if (idx !== -1) servers.splice(idx, 1);
-  renderServers();
-  document.getElementById('stat-guilds').textContent = servers.length;
+// ─── MOVER ───────────────────────────────────────────────
+async function iniciarMover() {
+  const gid = document.getElementById('move-guild-id').value.trim();
+  const alertEl = document.getElementById('mover-alert');
+  const btn = document.getElementById('btn-mover');
+  const card = document.getElementById('move-progress-card');
+
+  if (!gid || !/^\d{17,20}$/.test(gid)) {
+    alertEl.innerHTML = '<div class="alert error">Guild ID inválido (deve ter 17-20 dígitos)</div>';
+    return;
+  }
+
+  if (!confirm(`Mover TODOS os tokens para o servidor ${gid}? Esta ação não pode ser desfeita.`)) return;
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Movendo...';
+  alertEl.innerHTML = '';
+  card.style.display = 'none';
+
+  try {
+    const result = await apiFetch('/api/admin/mover-todos', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({guild_id: gid})
+    });
+
+    document.getElementById('move-ok').textContent = (result.ok || 0).toLocaleString();
+    document.getElementById('move-fail').textContent = (result.falhou || 0).toLocaleString();
+    document.getElementById('move-total').textContent = (result.total || 0).toLocaleString();
+    card.style.display = 'block';
+    alertEl.innerHTML = `<div class="alert success">✅ Operação concluída! ${result.ok} movidos com sucesso.</div>`;
+  } catch (err) {
+    alertEl.innerHTML = `<div class="alert error">Erro ao mover: ${esc(err.message)}</div>`;
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'Mover Todos →';
+  }
 }
 
-// ─── LOGS ────────────────────────────────────────────────
-function renderLogs() {
-  const c = document.getElementById('logs-full');
-  const typeColor = {success:'var(--green)',info:'var(--blue)',warning:'var(--amber)',error:'var(--red)'};
-  c.innerHTML = logsData.map((l, i) => `
-    <div class="log-entry" ${i===logsData.length-1?'style="border:none"':''}>
-      <div class="log-dot" style="background:${typeColor[l.type]}"></div>
-      <div style="flex:1">
-        <div class="log-msg">${esc(l.msg)}</div>
-        <div class="log-time">${esc(l.time)}</div>
-      </div>
-      <span class="badge ${l.type==='success'?'green':l.type==='info'?'blue':l.type==='warning'?'amber':'red'}" style="font-size:10px;flex-shrink:0">${l.type}</span>
-    </div>
-  `).join('');
-}
-
-// Exportar CSV
-function exportarCSV() {
-  const header = 'Tipo,Mensagem,Hora\n';
-  const rows = logsData.map(l => `"${l.type}","${l.msg.replace(/"/g,'""')}","${l.time}"`).join('\n');
-  const blob = new Blob([header + rows], {type:'text/csv;charset=utf-8;'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'logs_wht.csv'; a.click();
-  URL.revokeObjectURL(url);
+// ─── PAGES ───────────────────────────────────────────────
+function showPage(page) {
+  document.querySelectorAll('[id^="page-"]').forEach(p => p.style.display = 'none');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).style.display = 'block';
+  const navMap = {dashboard:0,tokens:1,servidores:2,mover:3};
+  document.querySelectorAll('.nav-item')[navMap[page]]?.classList.add('active');
+  if (page === 'servidores') loadServidores();
 }
 
 // ─── MODALS ──────────────────────────────────────────────
-function openAddBot() { document.getElementById('modal-add-bot').classList.add('open'); }
-function openAddServer() { document.getElementById('modal-add-server').classList.add('open'); }
+function openAddServer() {
+  document.getElementById('add-server-alert').innerHTML = '';
+  document.getElementById('new-srv-guild').value = '';
+  document.getElementById('modal-add-server').classList.add('open');
+}
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
 document.querySelectorAll('.modal-overlay').forEach(m => {
   m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
 });
-
-// Auto-generate OAuth2 URL
-['new-bot-cid','new-bot-redirect'].forEach(id => {
-  document.getElementById(id)?.addEventListener('input', () => {
-    const cid = document.getElementById('new-bot-cid').value;
-    const uri = document.getElementById('new-bot-redirect').value;
-    const el = document.getElementById('generated-url');
-    if (cid && uri) {
-      el.textContent = `https://discord.com/oauth2/authorize?client_id=${cid}&redirect_uri=${encodeURIComponent(uri)}&response_type=code&scope=identify%20guilds.join`;
-    } else {
-      el.textContent = 'Preencha o Client ID e Redirect URI para gerar a URL...';
-    }
-  });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
 });
 
-// CORRIGIDO: limpa campos após salvar
-function addBot() {
-  const name = document.getElementById('new-bot-name').value.trim();
-  const cid = document.getElementById('new-bot-cid').value.trim();
-  if (!name || !cid) { alert('Preencha pelo menos o nome e o Client ID!'); return; }
-  bots.push({
-    id: 'bot' + Date.now(),
-    name,
-    initials: name.substring(0,2).toUpperCase(),
-    color: '#aaa',
-    colorBg: 'rgba(170,170,170,.1)',
-    clientId: cid,
-    redirectUri: document.getElementById('new-bot-redirect').value.trim(),
-    guild: '',
-    tokens: 0,
-    servers: 0,
-    status: 'config'
-  });
-  // Limpar campos
-  ['new-bot-name','new-bot-cid','new-bot-secret','new-bot-redirect','new-bot-token','new-bot-guild','new-bot-role','new-bot-apisecret'].forEach(id => {
-    document.getElementById(id).value = '';
-  });
-  document.getElementById('generated-url').textContent = 'Preencha o Client ID e Redirect URI para gerar a URL...';
-  closeModal('modal-add-bot');
-  renderBots();
-  document.getElementById('stat-bots').textContent = bots.length;
-}
-
-// CORRIGIDO: limpa campos após salvar
-function addServer() {
-  const name = document.getElementById('new-srv-name').value.trim();
-  const gid = document.getElementById('new-srv-guild').value.trim();
-  if (!name || !gid) { alert('Preencha o nome e o Guild ID!'); return; }
-  servers.push({
-    id: 'srv' + Date.now(),
-    name,
-    guildId: gid,
-    bot: document.getElementById('new-srv-bot').value,
-    type: document.getElementById('new-srv-type').value,
-    members: 0,
-    tokens: 0
-  });
-  ['new-srv-name','new-srv-guild'].forEach(id => {
-    document.getElementById(id).value = '';
-  });
-  closeModal('modal-add-server');
-  renderServers();
-  document.getElementById('stat-guilds').textContent = servers.length;
-}
-
-// ─── MOVER ───────────────────────────────────────────────
-let moveInterval = null;
-
-function iniciarMover() {
-  const card = document.getElementById('move-progress-card');
-  card.style.display = 'block';
-  document.getElementById('btn-cancelar').style.display = 'inline-flex';
-  document.getElementById('move-status-text').textContent = 'Movendo membros...';
-
-  // Resetar
-  document.getElementById('move-bar').style.width = '0%';
-  document.getElementById('move-pct').textContent = '0%';
-  document.getElementById('move-ok').textContent = '0';
-  document.getElementById('move-fail').textContent = '0';
-
-  if (moveInterval) clearInterval(moveInterval);
-
-  let pct = 0;
-  const total = 1618;
-  moveInterval = setInterval(() => {
-    pct = Math.min(pct + Math.random() * 3, 100);
-    const ok = Math.floor(pct / 100 * 1589);
-    const fail = Math.floor(pct / 100 * 29);
-    document.getElementById('move-bar').style.width = pct + '%';
-    document.getElementById('move-pct').textContent = Math.floor(pct) + '%';
-    document.getElementById('move-ok').textContent = ok.toLocaleString();
-    document.getElementById('move-fail').textContent = fail;
-    if (pct >= 100) {
-      clearInterval(moveInterval);
-      moveInterval = null;
-      document.getElementById('move-status-text').textContent = '✅ Concluído!';
-      document.getElementById('btn-cancelar').style.display = 'none';
-    }
-  }, 80);
-}
-
-function cancelarMover() {
-  if (moveInterval) {
-    clearInterval(moveInterval);
-    moveInterval = null;
-  }
-  document.getElementById('move-status-text').textContent = '⛔ Cancelado pelo usuário';
-  document.getElementById('btn-cancelar').style.display = 'none';
-}
-
 // ─── INIT ────────────────────────────────────────────────
-renderDashBots();
-renderTokens(tokensData);
+loadStats();
+// Auto-refresh every 30s
+setInterval(loadStats, 30000);
 </script>
 </body>
 </html>
