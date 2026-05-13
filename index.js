@@ -581,7 +581,7 @@ h1{font-size:22px;font-weight:700;color:var(--cor);margin-bottom:6px}
   <div class="name">Olá, ${user.username}!</div>
   <div class="divider"></div>
   <div class="countdown">Redirecionando em <span id="t">3</span>s...</div>
-  <a class="btn" href="https://discord.gg/6a4WVc8DG">Abrir Discord</a>
+  <a class="btn" href="https://discord.com/channels/1476341311035408495/1476341311425478758">Abrir Discord</a>
   <div class="footer">${botCfg.name} • OAuth2</div>
 </div>
 <script>
@@ -596,7 +596,7 @@ for(let i=0;i<18;i++){
   pts.appendChild(p);
 }
 let n=3;const el=document.getElementById('t');
-setInterval(()=>{n--;el.textContent=n;if(n<=0)window.location.href='https://discord.gg/6a4WVc8DG';},1000);
+setInterval(()=>{n--;el.textContent=n;if(n<=0)window.location.href='https://discord.com/channels/1476341311035408495/1476341311425478758';},1000);
 </script>
 </body></html>`);
 
