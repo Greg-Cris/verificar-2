@@ -127,6 +127,9 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .color-row{display:flex;align-items:center;gap:10px}
 .color-preview{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);flex-shrink:0;cursor:pointer}
 
+/* Invite hint */
+.field-hint{font-size:10px;color:var(--dim);margin-top:3px}
+
 ::-webkit-scrollbar{width:5px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
@@ -225,7 +228,6 @@ tr:hover td{background:rgba(255,255,255,.02)}
     </div>
   </div>
 
-  <!-- Bots resumo no dashboard -->
   <div class="card" style="margin-bottom:16px">
     <div class="card-head">
       <div class="card-title">Bots Ativos</div>
@@ -338,9 +340,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
   </div>
 
   <div class="card" id="move-progress-card" style="display:none">
-    <div class="card-head">
-      <div class="card-title">Resultado</div>
-    </div>
+    <div class="card-head"><div class="card-title">Resultado</div></div>
     <div style="padding:16px">
       <div style="display:flex;gap:24px;font-size:13px">
         <div>✅ Sucesso: <span id="move-ok" style="color:var(--green);font-family:var(--mono);font-weight:600">0</span></div>
@@ -392,6 +392,14 @@ tr:hover td{background:rgba(255,255,255,.02)}
         <label class="form-label">Cargo ID (opcional)</label>
         <input class="form-input" placeholder="ID do cargo a atribuir" id="bot-cargo-id"/>
       </div>
+
+      <!-- ✅ CAMPO NOVO: Discord Invite -->
+      <div class="form-group" style="grid-column:1/-1">
+        <label class="form-label">🔗 Link de Invite do Discord</label>
+        <input class="form-input" placeholder="https://discord.gg/seu-servidor" id="bot-discord-invite"/>
+        <div class="field-hint">Após verificação, o usuário será redirecionado para este link. Cada bot deve ter o link do seu próprio servidor.</div>
+      </div>
+
       <div class="form-group">
         <label class="form-label">Cor (hex)</label>
         <div class="color-row">
@@ -499,7 +507,6 @@ async function loadStats() {
     renderDashRecent(allTokens.slice(-5).reverse());
     renderTokensTable(allTokens);
 
-    // Bots resumo no dashboard
     if (data.bots) renderDashBots(data.bots);
 
     document.getElementById('sys-status').textContent = 'Sistema online';
@@ -629,6 +636,12 @@ function renderBots() {
           <span class="bot-info-value">${esc(b.guild_id||'—')}</span>
         </div>
         <div class="bot-info-row">
+          <span class="bot-info-label">🔗 Invite</span>
+          <span class="bot-info-value" style="color:${b.discord_invite ? 'var(--green)' : 'var(--red)'}">
+            ${b.discord_invite ? esc(b.discord_invite) : '⚠️ Não definido'}
+          </span>
+        </div>
+        <div class="bot-info-row">
           <span class="bot-info-label">🎫 Tokens</span>
           <span style="color:var(--pink);font-family:var(--mono);font-size:13px;font-weight:600">${(b.tokens||0).toLocaleString()}</span>
         </div>
@@ -685,6 +698,7 @@ function openAddBot() {
   document.getElementById('bot-token').value = '';
   document.getElementById('bot-guild-id').value = '';
   document.getElementById('bot-cargo-id').value = '';
+  document.getElementById('bot-discord-invite').value = '';  // ✅ NOVO
   document.getElementById('bot-cor').value = '#ff1493';
   document.getElementById('bot-cor-picker').value = '#ff1493';
   document.getElementById('bot-imagem-url').value = '';
@@ -706,6 +720,7 @@ function openEditBot(id) {
   document.getElementById('bot-token').value = '';
   document.getElementById('bot-guild-id').value = bot.guild_id || '';
   document.getElementById('bot-cargo-id').value = bot.cargo_id || '';
+  document.getElementById('bot-discord-invite').value = bot.discord_invite || '';  // ✅ NOVO
   const cor = bot.cor || '#ff1493';
   document.getElementById('bot-cor').value = cor;
   document.getElementById('bot-cor-picker').value = cor;
@@ -720,19 +735,19 @@ async function saveBot() {
   const btn = document.getElementById('btn-save-bot');
 
   const payload = {
-    name:         document.getElementById('bot-name').value.trim(),
-    client_id:    document.getElementById('bot-client-id').value.trim(),
-    client_secret:document.getElementById('bot-client-secret').value.trim(),
-    redirect_uri: document.getElementById('bot-redirect-uri').value.trim(),
-    bot_token:    document.getElementById('bot-token').value.trim(),
-    guild_id:     document.getElementById('bot-guild-id').value.trim(),
-    cargo_id:     document.getElementById('bot-cargo-id').value.trim(),
-    cor:          document.getElementById('bot-cor').value.trim() || '#ff1493',
-    imagem_url:   document.getElementById('bot-imagem-url').value.trim(),
+    name:           document.getElementById('bot-name').value.trim(),
+    client_id:      document.getElementById('bot-client-id').value.trim(),
+    client_secret:  document.getElementById('bot-client-secret').value.trim(),
+    redirect_uri:   document.getElementById('bot-redirect-uri').value.trim(),
+    bot_token:      document.getElementById('bot-token').value.trim(),
+    guild_id:       document.getElementById('bot-guild-id').value.trim(),
+    cargo_id:       document.getElementById('bot-cargo-id').value.trim(),
+    discord_invite: document.getElementById('bot-discord-invite').value.trim(),  // ✅ NOVO
+    cor:            document.getElementById('bot-cor').value.trim() || '#ff1493',
+    imagem_url:     document.getElementById('bot-imagem-url').value.trim(),
   };
 
-  // Validação básica
-  const requiredNew = ['name','client_id','client_secret','redirect_uri','bot_token','guild_id'];
+  const requiredNew  = ['name','client_id','client_secret','redirect_uri','bot_token','guild_id'];
   const requiredEdit = ['name','client_id','redirect_uri','guild_id'];
   const required = editId ? requiredEdit : requiredNew;
 
@@ -743,10 +758,9 @@ async function saveBot() {
     }
   }
 
-  // Remove campos vazios na edição (não sobrescreve secrets)
   if (editId) {
     if (!payload.client_secret) delete payload.client_secret;
-    if (!payload.bot_token) delete payload.bot_token;
+    if (!payload.bot_token)     delete payload.bot_token;
   }
 
   btn.disabled = true;
