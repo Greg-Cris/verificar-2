@@ -596,7 +596,7 @@ for(let i=0;i<18;i++){
   pts.appendChild(p);
 }
 let n=3;const el=document.getElementById('t');
-setInterval(()=>{n--;el.textContent=n;if(n<=0)window.location.href='https://discord.com/channels/@me';},1000);
+setInterval(()=>{n--;el.textContent=n;if(n<=0)window.location.href='https://discord.gg/6a4WVc8DG';},1000);
 </script>
 </body></html>`);
 
