@@ -64,13 +64,14 @@ function getEnvBots() {
     if (!clientId) continue;
     bots[`bot${i}`] = {
       id:            `bot${i}`,
-      name:          process.env[`${prefix}NAME`]          || `Bot ${i}`,
+      name:          process.env[`${prefix}NAME`]           || `Bot ${i}`,
       client_id:     clientId,
-      client_secret: process.env[`${prefix}CLIENT_SECRET`] || '',
-      redirect_uri:  process.env[`${prefix}REDIRECT_URI`]  || '',
-      bot_token:     process.env[`${prefix}BOT_TOKEN`]     || '',
-      guild_id:      process.env[`${prefix}GUILD_ID`]      || '',
-      cargo_id:      process.env[`${prefix}CARGO_ID`]      || '',
+      client_secret: process.env[`${prefix}CLIENT_SECRET`]  || '',
+      redirect_uri:  process.env[`${prefix}REDIRECT_URI`]   || '',
+      bot_token:     process.env[`${prefix}BOT_TOKEN`]      || '',
+      guild_id:      process.env[`${prefix}GUILD_ID`]       || '',
+      cargo_id:      process.env[`${prefix}CARGO_ID`]       || '',
+      discord_invite: process.env[`${prefix}DISCORD_INVITE`] || '',
       source:        'env',
     };
   }
@@ -193,6 +194,7 @@ app.get('/api/admin/bots', adminAuth, async (req, res) => {
     const result = Object.values(bots).map(b => ({
       id: b.id, name: b.name, client_id: b.client_id,
       guild_id: b.guild_id, redirect_uri: b.redirect_uri,
+      discord_invite: b.discord_invite || '',
       tokens: logs.filter(e => e.bot_id === b.id).length,
       source: b.source || 'env',
       cor: b.cor || null,
@@ -206,7 +208,7 @@ app.get('/api/admin/bots', adminAuth, async (req, res) => {
 // ─── API: cadastrar bot ───────────────────────────────────────
 app.post('/api/admin/bots', adminAuth, async (req, res) => {
   try {
-    const { name, client_id, client_secret, redirect_uri, bot_token, guild_id, cargo_id, cor, imagem_url } = req.body;
+    const { name, client_id, client_secret, redirect_uri, bot_token, guild_id, cargo_id, cor, imagem_url, discord_invite } = req.body;
     if (!name || !client_id || !client_secret || !redirect_uri || !bot_token || !guild_id) {
       return res.status(400).json({ error: 'Campos obrigatórios faltando' });
     }
@@ -232,10 +234,11 @@ app.post('/api/admin/bots', adminAuth, async (req, res) => {
     const newBot = {
       id: newId, name, client_id, client_secret,
       redirect_uri, bot_token, guild_id,
-      cargo_id:   cargo_id   || '',
-      cor:        corFinal,
-      imagem_url: imagem_url || '',
-      source:     'redis',
+      cargo_id:       cargo_id       || '',
+      discord_invite: discord_invite || '',
+      cor:            corFinal,
+      imagem_url:     imagem_url     || '',
+      source:         'redis',
     };
 
     list.push(newBot);
@@ -254,7 +257,7 @@ app.put('/api/admin/bots/:id', adminAuth, async (req, res) => {
     const idx  = list.findIndex(b => b.id === id);
     if (idx === -1) return res.status(404).json({ error: 'Bot não encontrado' });
 
-    const allowed = ['name','client_id','client_secret','redirect_uri','bot_token','guild_id','cargo_id','cor','imagem_url'];
+    const allowed = ['name','client_id','client_secret','redirect_uri','bot_token','guild_id','cargo_id','cor','imagem_url','discord_invite'];
     for (const key of allowed) {
       if (req.body[key] !== undefined) list[idx][key] = req.body[key];
     }
@@ -360,6 +363,15 @@ function hexToRgb(hex) {
   const g = parseInt(clean.slice(2, 4), 16);
   const b = parseInt(clean.slice(4, 6), 16);
   return `${r},${g},${b}`;
+}
+
+// ─── HELPER: URL de redirect do Discord ──────────────────────
+// Prioridade: discord_invite > link do guild_id
+function getDiscordRedirectUrl(botCfg) {
+  if (botCfg.discord_invite && botCfg.discord_invite.trim() !== '') {
+    return botCfg.discord_invite.trim();
+  }
+  return `https://discord.com/channels/${botCfg.guild_id}`;
 }
 
 // ─── PÁGINA DE VERIFICAÇÃO PERSONALIZADA ─────────────────────
@@ -531,9 +543,14 @@ async function handleOAuth2(req, res, botCfg) {
       }
     } catch (err) { console.log('[Aviso] Extras:', err.message); }
 
-    const cor    = botCfg.cor || '#ff1493';
-    const corRgb = hexToRgb(cor);
-    const imgUrl = botCfg.imagem_url || 'https://i.imgur.com/G37BiaD.gif';
+    const cor           = botCfg.cor || '#ff1493';
+    const corRgb        = hexToRgb(cor);
+    const imgUrl        = botCfg.imagem_url || 'https://i.imgur.com/G37BiaD.gif';
+    // ✅ CORRIGIDO: URL de redirect dinâmica por bot
+    const discordUrl    = getDiscordRedirectUrl(botCfg);
+    const discordDeepLink = botCfg.discord_invite && botCfg.discord_invite.trim()
+      ? botCfg.discord_invite.trim()
+      : `discord://discord.com/channels/${botCfg.guild_id}`;
 
     res.send(`<!DOCTYPE html>
 <html lang="pt-BR"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
@@ -581,9 +598,10 @@ for(let i=0;i<18;i++){
   p.style.width=p.style.height=(1+Math.random()*2)+'px';
   pts.appendChild(p);
 }
+// ✅ CORRIGIDO: cada bot redireciona para o seu próprio servidor
 function abrirDiscord(){
-  window.location.href='discord://discord.com/channels/1476341311035408495/1476341311425478758';
-  setTimeout(()=>{window.location.href='https://discord.gg/6a4WVc8DG';},1500);
+  window.location.href='${discordDeepLink}';
+  setTimeout(()=>{window.location.href='${discordUrl}';},1500);
 }
 let n=3;const el=document.getElementById('t');
 setInterval(()=>{n--;el.textContent=n;if(n<=0)abrirDiscord();},1000);
@@ -620,15 +638,16 @@ app.get('/', async (req, res) => {
   const code = req.query.code;
   if (!code) return res.send('OAuth2 Backend WHT - Online ✅ | Admin: /admin');
   const legacyCfg = {
-    id:            'bot1',
-    name:          'WHT Bot Principal',
-    client_id:     process.env.CLIENT_ID     || process.env.BOT1_CLIENT_ID,
-    client_secret: process.env.CLIENT_SECRET || process.env.BOT1_CLIENT_SECRET,
-    redirect_uri:  process.env.REDIRECT_URI  || process.env.BOT1_REDIRECT_URI,
-    bot_token:     process.env.BOT_TOKEN     || process.env.BOT1_BOT_TOKEN,
-    guild_id:      process.env.GUILD_ID      || process.env.BOT1_GUILD_ID,
-    cargo_id:      process.env.CARGO_ID      || process.env.BOT1_CARGO_ID,
-    cor:           '#ff1493',
+    id:             'bot1',
+    name:           'WHT Bot Principal',
+    client_id:      process.env.CLIENT_ID     || process.env.BOT1_CLIENT_ID,
+    client_secret:  process.env.CLIENT_SECRET || process.env.BOT1_CLIENT_SECRET,
+    redirect_uri:   process.env.REDIRECT_URI  || process.env.BOT1_REDIRECT_URI,
+    bot_token:      process.env.BOT_TOKEN     || process.env.BOT1_BOT_TOKEN,
+    guild_id:       process.env.GUILD_ID      || process.env.BOT1_GUILD_ID,
+    cargo_id:       process.env.CARGO_ID      || process.env.BOT1_CARGO_ID,
+    discord_invite: process.env.BOT1_DISCORD_INVITE || '',
+    cor:            '#ff1493',
   };
   await handleOAuth2(req, res, legacyCfg);
 });
