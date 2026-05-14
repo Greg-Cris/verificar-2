@@ -396,8 +396,15 @@ tr:hover td{background:rgba(255,255,255,.02)}
       <!-- ✅ CAMPO NOVO: Discord Invite -->
       <div class="form-group" style="grid-column:1/-1">
         <label class="form-label">🔗 Link de Invite do Discord</label>
-        <input class="form-input" placeholder="https://discord.gg/seu-servidor" id="bot-discord-invite"/>
-        <div class="field-hint">Após verificação, o usuário será redirecionado para este link. Cada bot deve ter o link do seu próprio servidor.</div>
+        <input class="form-input" placeholder="https://discord.gg/seu-servidor ou https://discord.com/channels/..." id="bot-discord-invite"/>
+        <div class="field-hint">Após verificação, o usuário será redirecionado para este link. Links discord.com/channels/ são convertidos automaticamente.</div>
+      </div>
+
+      <!-- ✅ CAMPO NOVO: Canal de Logs -->
+      <div class="form-group" style="grid-column:1/-1">
+        <label class="form-label">📋 Canal de Logs (ID)</label>
+        <input class="form-input" placeholder="Ex: 1234567890123456789" id="bot-canal-logs"/>
+        <div class="field-hint">ID do canal onde serão enviadas as notificações quando o membro clicar em "Abrir Discord". Se vazio, usa o canal padrão do sistema.</div>
       </div>
 
       <div class="form-group">
@@ -642,6 +649,12 @@ function renderBots() {
           </span>
         </div>
         <div class="bot-info-row">
+          <span class="bot-info-label">📋 Canal Logs</span>
+          <span class="bot-info-value" style="color:${b.canal_logs ? 'var(--green)' : 'var(--muted)'}">
+            ${b.canal_logs ? esc(b.canal_logs) : '— padrão do sistema'}
+          </span>
+        </div>
+        <div class="bot-info-row">
           <span class="bot-info-label">🎫 Tokens</span>
           <span style="color:var(--pink);font-family:var(--mono);font-size:13px;font-weight:600">${(b.tokens||0).toLocaleString()}</span>
         </div>
@@ -699,6 +712,7 @@ function openAddBot() {
   document.getElementById('bot-guild-id').value = '';
   document.getElementById('bot-cargo-id').value = '';
   document.getElementById('bot-discord-invite').value = '';  // ✅ NOVO
+  document.getElementById('bot-canal-logs').value = '';
   document.getElementById('bot-cor').value = '#ff1493';
   document.getElementById('bot-cor-picker').value = '#ff1493';
   document.getElementById('bot-imagem-url').value = '';
@@ -715,12 +729,13 @@ function openEditBot(id) {
   document.getElementById('bot-edit-id').value = id;
   document.getElementById('bot-name').value = bot.name || '';
   document.getElementById('bot-client-id').value = bot.client_id || '';
-  document.getElementById('bot-client-secret').value = '';
+  document.getElementById('bot-client-secret').value = bot.client_secret || '';
   document.getElementById('bot-redirect-uri').value = bot.redirect_uri || '';
-  document.getElementById('bot-token').value = '';
+  document.getElementById('bot-token').value = bot.bot_token || '';
   document.getElementById('bot-guild-id').value = bot.guild_id || '';
   document.getElementById('bot-cargo-id').value = bot.cargo_id || '';
   document.getElementById('bot-discord-invite').value = bot.discord_invite || '';  // ✅ NOVO
+  document.getElementById('bot-canal-logs').value = bot.canal_logs || '';
   const cor = bot.cor || '#ff1493';
   document.getElementById('bot-cor').value = cor;
   document.getElementById('bot-cor-picker').value = cor;
@@ -743,6 +758,7 @@ async function saveBot() {
     guild_id:       document.getElementById('bot-guild-id').value.trim(),
     cargo_id:       document.getElementById('bot-cargo-id').value.trim(),
     discord_invite: document.getElementById('bot-discord-invite').value.trim(),  // ✅ NOVO
+    canal_logs:     document.getElementById('bot-canal-logs').value.trim(),
     cor:            document.getElementById('bot-cor').value.trim() || '#ff1493',
     imagem_url:     document.getElementById('bot-imagem-url').value.trim(),
   };
@@ -758,6 +774,7 @@ async function saveBot() {
     }
   }
 
+  // Na edição, só remove se realmente estiver vazio
   if (editId) {
     if (!payload.client_secret) delete payload.client_secret;
     if (!payload.bot_token)     delete payload.bot_token;
