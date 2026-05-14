@@ -701,7 +701,7 @@ app.post('/api/log-click', async (req, res) => {
       body: JSON.stringify({
         embeds: [{
           color: corInt,
-          title: '🖱️ MEMBRO ABRIU O DISCORD',
+          title: '✅ MEMBRO VERIFICADO',
           fields: [
             { name: '👤 Usuário', value: `**${username}**`, inline: true },
             { name: '🪪 ID', value: `\`${user_id}\``, inline: true },
@@ -709,7 +709,7 @@ app.post('/api/log-click', async (req, res) => {
             { name: '📅 Data e Hora', value: fmtData(agora), inline: false },
           ],
           thumbnail: { url: avatarURL },
-          footer: { text: `WHT COMMUNITY • ${botCfg.name}` },
+          footer: { text: botCfg.name },
         }]
       })
     });
