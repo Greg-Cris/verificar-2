@@ -571,7 +571,7 @@ body{background:#080a0f;color:#e8e9f3;font-family:'Sora',sans-serif;min-height:1
 h1{font-size:22px;font-weight:700;color:var(--cor);margin-bottom:6px}
 .name{font-size:16px;color:rgba(232,233,243,0.8);margin-bottom:20px}
 .divider{height:1px;background:rgba(${corRgb},0.15);margin:16px 0}
-.countdown{font-size:13px;color:var(--cor);font-weight:600;margin-bottom:16px}
+
 .btn{display:inline-flex;align-items:center;gap:8px;background:var(--cor);color:#fff;padding:12px 24px;border-radius:12px;text-decoration:none;font-size:14px;font-weight:600;cursor:pointer;border:none;box-shadow:0 4px 20px rgba(${corRgb},0.4)}
 .footer{color:rgba(232,233,243,0.25);font-size:11px;margin-top:20px}
 </style></head>
@@ -583,7 +583,7 @@ h1{font-size:22px;font-weight:700;color:var(--cor);margin-bottom:6px}
   <h1>Verificado! ✅</h1>
   <div class="name">Olá, ${user.username}!</div>
   <div class="divider"></div>
-  <div class="countdown">Redirecionando em <span id="t">3</span>s...</div>
+
   <button class="btn" onclick="abrirDiscord()">Abrir Discord</button>
   <div class="footer">${botCfg.name} • OAuth2</div>
 </div>
@@ -603,8 +603,8 @@ function abrirDiscord(){
   window.location.href='${discordDeepLink}';
   setTimeout(()=>{window.location.href='${discordUrl}';},1500);
 }
-let n=3;const el=document.getElementById('t');
-setInterval(()=>{n--;el.textContent=n;if(n<=0)abrirDiscord();},1000);
+
+
 </script>
 </body></html>`);
 
