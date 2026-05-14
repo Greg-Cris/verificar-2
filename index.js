@@ -721,8 +721,6 @@ app.post('/api/log-click', async (req, res) => {
 });
 
 // ─── API EXTERNA ──────────────────────────────────────────────
-app.get('/api/logs',
-// ─── API EXTERNA ──────────────────────────────────────────────
 app.get('/api/logs', async (req, res) => {
   if (req.headers['x-api-secret'] !== API_SECRET) return res.status(401).json({ error: 'Unauthorized' });
   try {
