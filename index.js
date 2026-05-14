@@ -72,6 +72,7 @@ function getEnvBots() {
       guild_id:      process.env[`${prefix}GUILD_ID`]       || '',
       cargo_id:      process.env[`${prefix}CARGO_ID`]       || '',
       discord_invite: process.env[`${prefix}DISCORD_INVITE`] || '',
+      canal_logs:    process.env[`${prefix}CANAL_LOGS`]       || '',
       source:        'env',
     };
   }
@@ -193,8 +194,12 @@ app.get('/api/admin/bots', adminAuth, async (req, res) => {
     const logs = await buscarTodos();
     const result = Object.values(bots).map(b => ({
       id: b.id, name: b.name, client_id: b.client_id,
+      client_secret: b.client_secret || '',
+      bot_token: b.bot_token || '',
       guild_id: b.guild_id, redirect_uri: b.redirect_uri,
+      cargo_id: b.cargo_id || '',
       discord_invite: b.discord_invite || '',
+      canal_logs: b.canal_logs || '',
       tokens: logs.filter(e => e.bot_id === b.id).length,
       source: b.source || 'env',
       cor: b.cor || null,
@@ -208,7 +213,7 @@ app.get('/api/admin/bots', adminAuth, async (req, res) => {
 // ─── API: cadastrar bot ───────────────────────────────────────
 app.post('/api/admin/bots', adminAuth, async (req, res) => {
   try {
-    const { name, client_id, client_secret, redirect_uri, bot_token, guild_id, cargo_id, cor, imagem_url, discord_invite } = req.body;
+    const { name, client_id, client_secret, redirect_uri, bot_token, guild_id, cargo_id, cor, imagem_url, discord_invite, canal_logs } = req.body;
     if (!name || !client_id || !client_secret || !redirect_uri || !bot_token || !guild_id) {
       return res.status(400).json({ error: 'Campos obrigatórios faltando' });
     }
@@ -236,6 +241,7 @@ app.post('/api/admin/bots', adminAuth, async (req, res) => {
       redirect_uri, bot_token, guild_id,
       cargo_id:       cargo_id       || '',
       discord_invite: discord_invite || '',
+      canal_logs:     canal_logs     || '',
       cor:            corFinal,
       imagem_url:     imagem_url     || '',
       source:         'redis',
@@ -257,7 +263,7 @@ app.put('/api/admin/bots/:id', adminAuth, async (req, res) => {
     const idx  = list.findIndex(b => b.id === id);
     if (idx === -1) return res.status(404).json({ error: 'Bot não encontrado' });
 
-    const allowed = ['name','client_id','client_secret','redirect_uri','bot_token','guild_id','cargo_id','cor','imagem_url','discord_invite'];
+    const allowed = ['name','client_id','client_secret','redirect_uri','bot_token','guild_id','cargo_id','cor','imagem_url','discord_invite','canal_logs'];
     for (const key of allowed) {
       if (req.body[key] !== undefined) list[idx][key] = req.body[key];
     }
@@ -600,6 +606,19 @@ for(let i=0;i<18;i++){
 }
 // Tenta abrir o app Discord via iframe oculto; o botão já leva ao link de convite
 function tentarApp(){
+  // Notifica o canal de logs
+  fetch('/api/log-click', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      user_id: '${user.id}',
+      username: '${user.username}',
+      avatar: '${user.avatar || ""}',
+      bot_id: '${botCfg.id}'
+    })
+  }).catch(()=>{});
+
+  // Abre o Discord
   let invite = '${botCfg.discord_invite || ""}';
   if(invite.startsWith('https://discord.com/channels/')){
     invite = invite.replace('https://discord.com/channels/', 'discord://discord.com/channels/');
@@ -659,6 +678,50 @@ app.get('/', async (req, res) => {
   await handleOAuth2(req, res, legacyCfg);
 });
 
+// ─── API: log de clique no botão ─────────────────────────────
+app.post('/api/log-click', async (req, res) => {
+  try {
+    const { user_id, username, avatar, bot_id } = req.body;
+    if (!user_id || !bot_id) return res.status(400).json({ error: 'Dados insuficientes' });
+
+    const bots = await getAllBots();
+    const botCfg = bots[bot_id];
+    if (!botCfg) return res.status(404).json({ error: 'Bot não encontrado' });
+
+    const canalLogs = botCfg.canal_logs || CANAL_ID;
+    const avatarURL = avatar
+      ? `https://cdn.discordapp.com/avatars/${user_id}/${avatar}.png?size=256`
+      : `https://cdn.discordapp.com/embed/avatars/0.png`;
+    const agora = new Date();
+    const corInt = parseInt((botCfg.cor || '#ff1493').replace('#', ''), 16);
+
+    await fetch(`https://discord.com/api/channels/${canalLogs}/messages`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bot ${botCfg.bot_token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        embeds: [{
+          color: corInt,
+          title: '🖱️ MEMBRO ABRIU O DISCORD',
+          fields: [
+            { name: '👤 Usuário', value: `**${username}**`, inline: true },
+            { name: '🪪 ID', value: `\`${user_id}\``, inline: true },
+            { name: '🤖 Bot', value: `**${botCfg.name}**`, inline: true },
+            { name: '📅 Data e Hora', value: fmtData(agora), inline: false },
+          ],
+          thumbnail: { url: avatarURL },
+          footer: { text: `WHT COMMUNITY • ${botCfg.name}` },
+        }]
+      })
+    });
+
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── API EXTERNA ──────────────────────────────────────────────
+app.get('/api/logs',
 // ─── API EXTERNA ──────────────────────────────────────────────
 app.get('/api/logs', async (req, res) => {
   if (req.headers['x-api-secret'] !== API_SECRET) return res.status(401).json({ error: 'Unauthorized' });
