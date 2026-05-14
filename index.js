@@ -584,7 +584,7 @@ h1{font-size:22px;font-weight:700;color:var(--cor);margin-bottom:6px}
   <div class="name">Olá, ${user.username}!</div>
   <div class="divider"></div>
 
-  <button class="btn" onclick="abrirDiscord()">Abrir Discord</button>
+  <button class="btn" onclick="tentarApp()">Abrir Discord</button>
   <div class="footer">${botCfg.name} • OAuth2</div>
 </div>
 <script>
@@ -598,10 +598,9 @@ for(let i=0;i<18;i++){
   p.style.width=p.style.height=(1+Math.random()*2)+'px';
   pts.appendChild(p);
 }
-// ✅ CORRIGIDO: cada bot redireciona para o seu próprio servidor
-function abrirDiscord(){
+// Tenta abrir o app Discord via iframe oculto; o botão já leva ao link de convite
+function tentarApp(){
   window.location.href='${discordDeepLink}';
-  setTimeout(()=>{window.location.href='${discordUrl}';},1500);
 }
 
 
