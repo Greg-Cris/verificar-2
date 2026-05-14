@@ -701,12 +701,11 @@ app.post('/api/log-click', async (req, res) => {
       body: JSON.stringify({
         embeds: [{
           color: corInt,
-          title: '✅ MEMBRO VERIFICADO',
+          title: '✅ Membro Verificado',
           fields: [
-            { name: '👤 Usuário', value: `**${username}**`, inline: true },
-            { name: '🪪 ID', value: `\`${user_id}\``, inline: true },
-            { name: '🤖 Bot', value: `**${botCfg.name}**`, inline: true },
-            { name: '📅 Data e Hora', value: fmtData(agora), inline: false },
+            { name: 'Membro:', value: `<@${user_id}>`, inline: false },
+            { name: 'ID Discord:', value: `${user_id}`, inline: false },
+            { name: 'Data e Hora:', value: fmtData(agora), inline: false },
           ],
           thumbnail: { url: avatarURL },
           footer: { text: botCfg.name },
