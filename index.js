@@ -600,7 +600,10 @@ for(let i=0;i<18;i++){
 }
 // Tenta abrir o app Discord via iframe oculto; o botão já leva ao link de convite
 function tentarApp(){
-  const invite = '${botCfg.discord_invite || ""}';
+  let invite = '${botCfg.discord_invite || ""}';
+  if(invite.startsWith('https://discord.com/channels/')){
+    invite = invite.replace('https://discord.com/channels/', 'discord://discord.com/channels/');
+  }
   if(invite.startsWith('discord://')){
     window.location.href = invite;
   } else {
