@@ -580,7 +580,6 @@ h1{font-size:22px;font-weight:700;color:var(--cor);margin-bottom:6px}
 
 .btn{display:inline-flex;align-items:center;gap:8px;background:var(--cor);color:#fff;padding:12px 24px;border-radius:12px;text-decoration:none;font-size:14px;font-weight:600;cursor:pointer;border:none;box-shadow:0 4px 20px rgba(${corRgb},0.4)}
 .footer{color:rgba(232,233,243,0.25);font-size:11px;margin-top:20px}
-@keyframes bounce{0%{transform:translateY(0)}100%{transform:translateY(8px)}}
 </style></head>
 <body><div class="bg"></div>
 <div class="particles" id="pts"></div>
@@ -624,80 +623,11 @@ function tentarApp(){
   if(invite.startsWith('https://discord.com/channels/')){
     invite = invite.replace('https://discord.com/channels/', 'discord://discord.com/channels/');
   }
-  const deepLink = invite.startsWith('discord://') ? invite : 'discord://discord.com/channels/${botCfg.guild_id}';
-  window.location.href = deepLink;
-
-  // Loading rapido depois tela verificado
-  setTimeout(()=>{
-    document.body.style.transition = 'opacity 0.3s';
-    document.body.style.opacity = '0';
-    setTimeout(()=>{
-      const COR = '${cor}';
-      const RGB = '${corRgb}';
-      const DL  = deepLink;
-      const css = [
-        '*{margin:0;padding:0;box-sizing:border-box}',
-        'body{background:#080a0f;font-family:Sora,sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:32px;padding:20px;overflow:hidden;transition:opacity 0.4s}',
-        '.bg{position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 80% 60% at 50% 20%,rgba('+RGB+',0.28) 0%,transparent 65%)}',
-        '.wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:28px}',
-        '.popup-zone{position:relative;display:flex;align-items:center;justify-content:center;margin:36px 42px}',
-        '.fake-popup{background:#fff;border-radius:12px;padding:22px 26px;width:320px;box-shadow:0 0 50px rgba('+RGB+',0.55),0 0 100px rgba('+RGB+',0.2)}',
-        '.fp-title{font-size:14px;font-weight:700;color:#111;margin-bottom:5px}',
-        '.fp-sub{font-size:11px;color:#555;margin-bottom:10px}',
-        '.fp-chk{display:flex;align-items:center;gap:6px;font-size:10px;color:#555;margin-bottom:14px}',
-        '.fp-btns{display:flex;gap:8px;justify-content:flex-end}',
-        '.fp-cancel{padding:7px 16px;border-radius:6px;border:1px solid #ccc;background:#fff;font-size:12px;color:#333}',
-        '.fp-open{padding:7px 16px;border-radius:6px;border:none;background:#0057d8;font-size:12px;font-weight:700;color:#fff}',
-        '.arr{position:absolute;font-size:26px;color:'+COR+';filter:drop-shadow(0 0 10px '+COR+');animation:ap 0.7s ease-in-out infinite alternate}',
-        '@keyframes ap{0%{opacity:0.4;transform:scale(0.85)}100%{opacity:1;transform:scale(1.1)}}',
-        '.check-circle{width:70px;height:70px;border-radius:50%;border:3px solid '+COR+';display:flex;align-items:center;justify-content:center;box-shadow:0 0 30px rgba('+RGB+',0.6);animation:cp 2s ease-in-out infinite}',
-        '@keyframes cp{0%,100%{box-shadow:0 0 30px rgba('+RGB+',0.5)}50%{box-shadow:0 0 60px rgba('+RGB+',0.9)}}',
-        '.v-title{font-size:28px;font-weight:800;color:#fff;text-align:center}',
-        '.v-title span{color:'+COR+'}',
-        '.cta{display:flex;align-items:center;gap:12px;background:rgba('+RGB+',0.1);border:1.5px solid rgba('+RGB+',0.35);border-radius:14px;padding:14px 22px}',
-        '.cta-text{font-size:14px;font-weight:600;color:#fff}',
-        '.cta-text span{color:'+COR+'}',
-        '.fade-in{animation:fi 0.5s ease forwards}',
-        '@keyframes fi{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}'
-      ].join('');
-
-      const body =
-        '<div class="bg"></div>' +
-        '<div class="wrap fade-in">' +
-          '<div class="popup-zone">' +
-            '<div class="arr" style="top:-36px;left:10px">&#8599;</div>' +
-            '<div class="arr" style="top:-36px;left:50%;margin-left:-13px">&#8593;</div>' +
-            '<div class="arr" style="top:-36px;right:10px">&#8598;</div>' +
-            '<div class="arr" style="top:50%;margin-top:-13px;left:-42px">&#8594;</div>' +
-            '<div class="arr" style="top:50%;margin-top:-13px;right:-42px">&#8592;</div>' +
-            '<div class="arr" style="bottom:-36px;left:10px">&#8600;</div>' +
-            '<div class="arr" style="bottom:-36px;left:50%;margin-left:-13px">&#8595;</div>' +
-            '<div class="arr" style="bottom:-36px;right:10px">&#8601;</div>' +
-            '<div class="fake-popup">' +
-              '<div class="fp-title">Este site est&#225; tentando abrir o Discord.</div>' +
-              '<div class="fp-sub">verificar-2.vercel.app deseja abrir este aplicativo.</div>' +
-              '<div class="fp-chk"><input type="checkbox" disabled/> Sempre permitir abrir links desse tipo</div>' +
-              '<div class="fp-btns"><div class="fp-cancel">Cancelar</div><div class="fp-open">Abrir</div></div>' +
-            '</div>' +
-          '</div>' +
-          '<div style="display:flex;flex-direction:column;align-items:center;gap:14px">' +
-            '<div class="check-circle">' +
-              '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="'+COR+'" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' +
-            '</div>' +
-            '<div class="v-title">Voc&#234; j&#225; est&#225; <span>verificado!</span></div>' +
-            '<div class="cta">' +
-              '<div style="font-size:20px">&#128433;&#65039;</div>' +
-              '<div class="cta-text">Clique no bot&#227;o <span>Abrir</span> para continuar.</div>' +
-            '</div>' +
-          '</div>' +
-        '</div>';
-
-      document.head.innerHTML = '<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet"><style>' + css + '</style>';
-      document.body.innerHTML = body;
-      document.body.style.opacity = '1';
-    }, 350);
-  }, 300);
-  }, 300);
+  if(invite.startsWith('discord://')){
+    window.location.href = invite;
+  } else {
+    window.location.href = 'discord://discord.com/channels/${botCfg.guild_id}';
+  }
 }
 
 
@@ -770,7 +700,7 @@ app.post('/api/log-click', async (req, res) => {
       headers: { 'Authorization': `Bot ${botCfg.bot_token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         embeds: [{
-          color: 0x57F287,
+          color: corInt,
           title: '✅ Membro Verificado',
           fields: [
             { name: 'Membro:', value: `<@${user_id}>`, inline: false },
