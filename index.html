@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>WHT Admin — Painel de Controle</title>
+<link rel="icon" href="https://i.imgur.com/G37BiaD.gif"/>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Sora:wght@400;500;600&display=swap');
 
@@ -18,7 +20,7 @@
 body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:13px;min-height:100vh;overflow-x:hidden}
 
 .shell{display:flex;min-height:100vh}
-.sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh}
 .main{flex:1;overflow-y:auto;padding:24px;max-width:calc(100vw - 220px)}
 
 .brand{padding:20px 16px 16px;border-bottom:1px solid var(--border)}
@@ -29,9 +31,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:13
 
 .nav{padding:12px 8px;flex:1}
 .nav-label{font-size:10px;color:var(--dim);letter-spacing:1px;text-transform:uppercase;padding:0 8px;margin:8px 0 4px}
-.nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;color:var(--muted);font-size:12.5px;font-weight:500;transition:all .15s;margin-bottom:2px;border:none;background:none;width:100%;text-align:left}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;color:var(--muted);font-size:12.5px;font-weight:500;transition:all .15s;margin-bottom:2px;border:1px solid transparent;background:none;width:100%;text-align:left}
 .nav-item:hover{background:var(--bg3);color:var(--text)}
-.nav-item.active{background:var(--pink3);color:var(--pink);border:1px solid rgba(255,20,147,.2)}
+.nav-item.active{background:var(--pink3);color:var(--pink);border-color:rgba(255,20,147,.2)}
 .nav-icon{width:16px;height:16px;flex-shrink:0;opacity:.7}
 .nav-item.active .nav-icon{opacity:1}
 
@@ -107,7 +109,6 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .token-mono{font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--bg3);padding:2px 8px;border-radius:4px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block}
 .avatar-row{display:flex;align-items:center;gap:8px}
 
-/* Bot cards */
 .bots-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
 .bot-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:border-color .2s}
 .bot-card:hover{border-color:var(--border2)}
@@ -123,11 +124,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .oauth-url-label{font-size:10px;color:var(--dim);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
 .oauth-url-input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--muted);font-size:10px;font-family:var(--mono);outline:none;cursor:text}
 
-/* Color picker row */
 .color-row{display:flex;align-items:center;gap:10px}
-.color-preview{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);flex-shrink:0;cursor:pointer}
-
-/* Invite hint */
 .field-hint{font-size:10px;color:var(--dim);margin-top:3px}
 
 ::-webkit-scrollbar{width:5px}
@@ -162,25 +159,25 @@ tr:hover td{background:rgba(255,255,255,.02)}
 
   <nav class="nav">
     <div class="nav-label">Geral</div>
-    <button class="nav-item active" onclick="showPage('dashboard')">
+    <button class="nav-item active" data-page="dashboard" onclick="showPage('dashboard')">
       <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M1 2a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1H2a1 1 0 01-1-1V2zm8 0a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1V2zM1 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H2a1 1 0 01-1-1v-4zm8-3a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1V7z"/></svg>
       Dashboard
     </button>
-    <button class="nav-item" onclick="showPage('tokens')">
+    <button class="nav-item" data-page="tokens" onclick="showPage('tokens')">
       <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M0 8a4 4 0 014-4h8a4 4 0 110 8H4a4 4 0 01-4-4zm4-3a3 3 0 100 6h8a3 3 0 100-6H4zm0 1.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zm8 1.5a1 1 0 11-2 0 1 1 0 012 0zm-3 0a1 1 0 11-2 0 1 1 0 012 0z"/></svg>
       Tokens
     </button>
-    <button class="nav-item" onclick="showPage('bots')">
+    <button class="nav-item" data-page="bots" onclick="showPage('bots')">
       <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M6 12.5a.5.5 0 01.5-.5h3a.5.5 0 010 1h-3a.5.5 0 01-.5-.5zM3 8.062C3 6.76 4.235 5.765 5.53 5.886a26.58 26.58 0 004.94 0C11.765 5.765 13 6.76 13 8.062v1.157a.933.933 0 01-.765.935c-.845.147-2.34.346-4.235.346-1.895 0-3.39-.2-4.235-.346A.933.933 0 013 9.219V8.062zm4.542-.827a.25.25 0 00-.217.068l-.92.9a24.767 24.767 0 01-1.871-.183.25.25 0 00-.068.495c.55.076 1.232.149 2.02.193a.25.25 0 00.189-.071l.754-.736.847 1.71a.25.25 0 00.404.062l.932-.97a25.286 25.286 0 001.922-.188.25.25 0 00-.068-.495c-.538.074-1.207.145-1.98.189a.25.25 0 00-.166.076l-.754.785-.842-1.7a.25.25 0 00-.183-.13z"/><path d="M8 1a2.5 2.5 0 01.025 4.999C9.5 6.042 11 7.1 11 8.5V9h1a1 1 0 010 2H4a1 1 0 110-2h1v-.5c0-1.4 1.5-2.458 2.975-2.501A2.5 2.5 0 018 1zm0 1a1.5 1.5 0 100 3 1.5 1.5 0 000-3z"/></svg>
       Bots
     </button>
-    <button class="nav-item" onclick="showPage('servidores')">
+    <button class="nav-item" data-page="servidores" onclick="showPage('servidores')">
       <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M1.5 0A1.5 1.5 0 000 1.5v2A1.5 1.5 0 001.5 5h13A1.5 1.5 0 0016 3.5v-2A1.5 1.5 0 0014.5 0h-13zm1 3a.5.5 0 110-1 .5.5 0 010 1zm3.5 0a.5.5 0 11-1 0 .5.5 0 011 0zM1.5 6A1.5 1.5 0 000 7.5v2A1.5 1.5 0 001.5 11h13A1.5 1.5 0 0016 9.5v-2A1.5 1.5 0 0014.5 6h-13zm1 3a.5.5 0 110-1 .5.5 0 010 1zm3.5 0a.5.5 0 11-1 0 .5.5 0 011 0zM0 13.5A1.5 1.5 0 011.5 12h13a1.5 1.5 0 011.5 1.5v2a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 010 15.5v-2zm2.5 1a.5.5 0 110-1 .5.5 0 010 1zm3.5 0a.5.5 0 11-1 0 .5.5 0 011 0z"/></svg>
       Servidores
     </button>
 
     <div class="nav-label">Ações</div>
-    <button class="nav-item" onclick="showPage('mover')">
+    <button class="nav-item" data-page="mover" onclick="showPage('mover')">
       <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M1 8a7 7 0 1014 0A7 7 0 001 8zm6.5-4.5a.5.5 0 011 0v5.793l2.146-2.147a.5.5 0 01.708.708l-3 3a.5.5 0 01-.708 0l-3-3a.5.5 0 11.708-.708L7.5 9.293V3.5z"/></svg>
       Mover Membros
     </button>
@@ -261,7 +258,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <div><div class="page-title">Tokens OAuth2</div><div class="page-sub">Todos os usuários verificados</div></div>
     <div style="display:flex;gap:8px;align-items:center">
       <input class="form-input" style="width:200px" placeholder="Buscar por usuário..." id="search-input" oninput="filterTokens(this.value)"/>
-      <button class="btn btn-ghost btn-sm" onclick="loadTokens()">↻</button>
+      <button class="btn btn-ghost btn-sm" onclick="loadStats()">↻</button>
     </div>
   </div>
 
@@ -393,14 +390,12 @@ tr:hover td{background:rgba(255,255,255,.02)}
         <input class="form-input" placeholder="ID do cargo a atribuir" id="bot-cargo-id"/>
       </div>
 
-      <!-- ✅ CAMPO NOVO: Discord Invite -->
       <div class="form-group" style="grid-column:1/-1">
         <label class="form-label">🔗 Link de Invite do Discord</label>
         <input class="form-input" placeholder="https://discord.gg/seu-servidor ou https://discord.com/channels/..." id="bot-discord-invite"/>
         <div class="field-hint">Após verificação, o usuário será redirecionado para este link. Links discord.com/channels/ são convertidos automaticamente.</div>
       </div>
 
-      <!-- ✅ CAMPO NOVO: Canal de Logs -->
       <div class="form-group" style="grid-column:1/-1">
         <label class="form-label">📋 Canal de Logs (ID)</label>
         <input class="form-input" placeholder="Ex: 1234567890123456789" id="bot-canal-logs"/>
@@ -489,6 +484,8 @@ let statsData = null;
 let servidoresData = [];
 let allTokens = [];
 let allBots = [];
+let currentPage = 'dashboard';
+let autoRefreshInterval = null;
 
 // ─── LOAD STATS ──────────────────────────────────────────
 async function loadStats() {
@@ -600,8 +597,6 @@ function filterTokens(q) {
   }, 250);
 }
 
-function loadTokens() { loadStats(); }
-
 // ─── BOTS ────────────────────────────────────────────────
 async function loadBots() {
   const c = document.getElementById('bots-list');
@@ -622,17 +617,23 @@ function renderBots() {
     c.innerHTML = '<div class="empty-state">Nenhum bot cadastrado.<br/>Clique em "+ Novo Bot" para começar.</div>';
     return;
   }
-  c.innerHTML = `<div class="bots-grid">${allBots.map(b => `
+  c.innerHTML = `<div class="bots-grid">${allBots.map(b => {
+    // FIX: usar data-id em vez de interpolar ID direto no onclick
+    const safeName = esc(b.name);
+    const safeId = esc(b.id);
+    const safeOauth = esc(b.oauth_url || '');
+    const safeCor = esc(b.cor || '#ff1493');
+    return `
     <div class="bot-card">
       <div class="bot-card-header">
-        <div class="bot-color-dot" style="background:${esc(b.cor||'#ff1493')}"></div>
-        <div class="bot-card-name">${esc(b.name)}</div>
+        <div class="bot-color-dot" style="background:${safeCor}"></div>
+        <div class="bot-card-name">${safeName}</div>
         <span class="badge ${b.source==='redis'?'blue':'amber'} btn-sm">${b.source==='redis'?'Painel':'ENV'}</span>
       </div>
       <div class="bot-card-body">
         <div class="bot-info-row">
           <span class="bot-info-label">🆔 ID</span>
-          <span class="bot-info-value">${esc(b.id)}</span>
+          <span class="bot-info-value">${safeId}</span>
         </div>
         <div class="bot-info-row">
           <span class="bot-info-label">🔑 Client ID</span>
@@ -661,17 +662,17 @@ function renderBots() {
       </div>
       <div class="oauth-url-wrap">
         <div class="oauth-url-label">URL OAuth2</div>
-        <input class="oauth-url-input" readonly value="${esc(b.oauth_url)}" onclick="this.select()" title="Clique para selecionar"/>
+        <input class="oauth-url-input" readonly value="${safeOauth}" onclick="this.select()" title="Clique para selecionar"/>
       </div>
       <div class="bot-card-footer">
-        <button class="btn btn-success btn-sm" onclick="copyOAuth('${esc(b.oauth_url)}')">📋 Copiar URL</button>
+        <button class="btn btn-success btn-sm" data-oauth="${safeOauth}" onclick="copyOAuth(this.dataset.oauth)">📋 Copiar URL</button>
         ${b.source==='redis' ? `
-          <button class="btn btn-ghost btn-sm" onclick="openEditBot('${esc(b.id)}')">✏️ Editar</button>
-          <button class="btn btn-danger btn-sm" onclick="deleteBot('${esc(b.id)}','${esc(b.name)}')">✕ Remover</button>
+          <button class="btn btn-ghost btn-sm" data-id="${safeId}" onclick="openEditBot(this.dataset.id)">✏️ Editar</button>
+          <button class="btn btn-danger btn-sm" data-id="${safeId}" data-name="${safeName}" onclick="deleteBot(this.dataset.id, this.dataset.name)">✕ Remover</button>
         ` : `<span style="font-size:11px;color:var(--dim)">Configurado via ENV</span>`}
       </div>
-    </div>
-  `).join('')}</div>`;
+    </div>`;
+  }).join('')}</div>`;
 }
 
 function copyOAuth(url) {
@@ -704,18 +705,12 @@ function openAddBot() {
   document.getElementById('modal-bot-sub').textContent = 'Preencha os dados do bot Discord para OAuth2';
   document.getElementById('modal-bot-alert').innerHTML = '';
   document.getElementById('bot-edit-id').value = '';
-  document.getElementById('bot-name').value = '';
-  document.getElementById('bot-client-id').value = '';
-  document.getElementById('bot-client-secret').value = '';
-  document.getElementById('bot-redirect-uri').value = '';
-  document.getElementById('bot-token').value = '';
-  document.getElementById('bot-guild-id').value = '';
-  document.getElementById('bot-cargo-id').value = '';
-  document.getElementById('bot-discord-invite').value = '';  // ✅ NOVO
-  document.getElementById('bot-canal-logs').value = '';
+  ['bot-name','bot-client-id','bot-client-secret','bot-redirect-uri','bot-token',
+   'bot-guild-id','bot-cargo-id','bot-discord-invite','bot-canal-logs','bot-imagem-url'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
   document.getElementById('bot-cor').value = '#ff1493';
   document.getElementById('bot-cor-picker').value = '#ff1493';
-  document.getElementById('bot-imagem-url').value = '';
   document.getElementById('btn-save-bot').textContent = 'Salvar Bot';
   document.getElementById('modal-bot').classList.add('open');
 }
@@ -734,7 +729,7 @@ function openEditBot(id) {
   document.getElementById('bot-token').value = bot.bot_token || '';
   document.getElementById('bot-guild-id').value = bot.guild_id || '';
   document.getElementById('bot-cargo-id').value = bot.cargo_id || '';
-  document.getElementById('bot-discord-invite').value = bot.discord_invite || '';  // ✅ NOVO
+  document.getElementById('bot-discord-invite').value = bot.discord_invite || '';
   document.getElementById('bot-canal-logs').value = bot.canal_logs || '';
   const cor = bot.cor || '#ff1493';
   document.getElementById('bot-cor').value = cor;
@@ -757,7 +752,7 @@ async function saveBot() {
     bot_token:      document.getElementById('bot-token').value.trim(),
     guild_id:       document.getElementById('bot-guild-id').value.trim(),
     cargo_id:       document.getElementById('bot-cargo-id').value.trim(),
-    discord_invite: document.getElementById('bot-discord-invite').value.trim(),  // ✅ NOVO
+    discord_invite: document.getElementById('bot-discord-invite').value.trim(),
     canal_logs:     document.getElementById('bot-canal-logs').value.trim(),
     cor:            document.getElementById('bot-cor').value.trim() || '#ff1493',
     imagem_url:     document.getElementById('bot-imagem-url').value.trim(),
@@ -774,7 +769,6 @@ async function saveBot() {
     }
   }
 
-  // Na edição, só remove se realmente estiver vazio
   if (editId) {
     if (!payload.client_secret) delete payload.client_secret;
     if (!payload.bot_token)     delete payload.bot_token;
@@ -850,7 +844,7 @@ function renderServers() {
               <div style="font-size:13px;font-weight:600;color:#fff;margin-bottom:4px">Servidor Extra ${i + 1}</div>
               <span class="badge blue">Extra</span>
             </div>
-            <button class="btn btn-danger btn-sm" onclick="removerServer('${esc(gid)}')">✕ Remover</button>
+            <button class="btn btn-danger btn-sm" data-gid="${esc(gid)}" onclick="removerServer(this.dataset.gid)">✕ Remover</button>
           </div>
           <div style="background:var(--bg3);border-radius:6px;padding:8px 10px;font-size:11px;color:var(--muted)">
             🆔 Guild ID: <span style="font-family:var(--mono);color:var(--text)">${esc(gid)}</span>
@@ -949,15 +943,29 @@ async function iniciarMover() {
 }
 
 // ─── PAGES ───────────────────────────────────────────────
+// FIX: usar data-page para encontrar o nav-item correto, não índice fixo
 function showPage(page) {
   document.querySelectorAll('[id^="page-"]').forEach(p => p.style.display = 'none');
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('page-' + page).style.display = 'block';
-  const navMap = {dashboard:0, tokens:1, bots:2, servidores:3, mover:4};
-  document.querySelectorAll('.nav-item')[navMap[page]]?.classList.add('active');
+
+  const pageEl = document.getElementById('page-' + page);
+  if (pageEl) {
+    pageEl.style.display = 'block';
+    // Rola o main para o topo ao trocar de página
+    document.getElementById('main-content').scrollTop = 0;
+  }
+
+  const navBtn = document.querySelector(`.nav-item[data-page="${page}"]`);
+  if (navBtn) navBtn.classList.add('active');
+
+  currentPage = page;
+
   if (page === 'servidores') loadServidores();
   if (page === 'bots') loadBots();
-  if (page === 'mover' && allBots.length === 0) loadBots();
+  if (page === 'mover') {
+    if (allBots.length === 0) loadBots();
+    else populateBotsSelect();
+  }
 }
 
 // ─── MODALS ──────────────────────────────────────────────
@@ -966,18 +974,28 @@ function openAddServer() {
   document.getElementById('new-srv-guild').value = '';
   document.getElementById('modal-add-server').classList.add('open');
 }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
 
 document.querySelectorAll('.modal-overlay').forEach(m => {
   m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
 });
+
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
 });
 
 // ─── INIT ────────────────────────────────────────────────
 loadStats();
-setInterval(loadStats, 30000);
+
+// FIX: auto-refresh só roda quando está no dashboard ou na página de tokens
+autoRefreshInterval = setInterval(() => {
+  if (currentPage === 'dashboard' || currentPage === 'tokens') {
+    loadStats();
+  }
+}, 30000);
 </script>
 </body>
 </html>
