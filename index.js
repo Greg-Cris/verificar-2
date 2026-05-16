@@ -496,23 +496,17 @@ body{background:#06060a;color:#fff;font-family:'Sora',sans-serif;min-height:100v
 </div>
 <script>
 const pts=document.getElementById('pts');
-for(let i=0;i<22;i++){
+for(let i=0;i<45;i++){
   const p=document.createElement('div');p.className='pt';
   const sz=1.2+Math.random()*2.5;
   p.style.cssText='left:'+Math.random()*100+'%;width:'+sz+'px;height:'+sz+'px;animation-duration:'+(7+Math.random()*12)+'s;animation-delay:'+Math.random()*10+'s';
   pts.appendChild(p);
-}
-for(let i=0;i<45;i++){
-  const s=document.createElement('div');
-  s.style.cssText='position:absolute;border-radius:50%;background:#fff;left:'+Math.random()*100+'%;top:'+Math.random()*100+'%;width:'+(1+Math.random()*1.5)+'px;height:'+(1+Math.random()*1.5)+'px;opacity:'+(Math.random()*.18)+';animation:tw '+(2+Math.random()*4)+'s ease-in-out '+(Math.random()*3)+'s infinite alternate';
-  pts.appendChild(s);
 }
 function abrirDiscord(){
   fetch('/api/log-click',{
     method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({user_id:'${user.id}',username:'${user.username}',avatar:'${user.avatar || ""}',bot_id:'${botCfg.id}'})
   }).catch(()=>{});
-  // Vai para tela de loading + setas
   const params=new URLSearchParams({
     bot:'${botCfg.id}',
     uid:'${user.id}',
@@ -530,7 +524,7 @@ function abrirDiscord(){
 </html>`;
 }
 
-// ─── TELA 3: Loading + Setas (popup abre automaticamente) ─────
+// ─── TELA 3: Loading + Setas ──────────────────────────────────
 function buildSetasPage(p) {
   const cor    = p.cor    || '#ff1493';
   const corRgb = hexToRgb(cor);
@@ -543,14 +537,13 @@ function buildSetasPage(p) {
     ? `https://cdn.discordapp.com/avatars/${p.uid}/${p.avatar}.png?size=256`
     : `https://cdn.discordapp.com/embed/avatars/0.png`;
 
-  // Monta deeplink
   let deepLink;
   if (invite.startsWith('https://discord.com/channels/')) {
     deepLink = invite.replace('https://discord.com/channels/', 'discord://discord.com/channels/');
   } else if (invite.startsWith('discord://')) {
     deepLink = invite;
   } else if (invite.match(/^https?:\/\/discord\.gg\//)) {
-    deepLink = invite; // invite normal — browser abre direto
+    deepLink = invite;
   } else {
     deepLink = `discord://discord.com/channels/${guild}`;
   }
@@ -583,59 +576,189 @@ body{background:#06060a;font-family:'Sora',sans-serif;min-height:100vh;overflow:
 .load-lbl{font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:rgba(${corRgb},.65);animation:blink .9s ease-in-out infinite alternate}
 
 /* ══ MAIN ══ */
-#scr-main{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;opacity:0;transition:opacity .7s ease}
+#scr-main{
+  position:fixed;inset:0;
+  display:flex;flex-direction:column;align-items:center;
+  opacity:0;transition:opacity .7s ease;
+}
 #scr-main.show{opacity:1}
-.bg-ray{position:fixed;bottom:-80px;left:50%;transform:translateX(-50%);width:110vw;height:70vh;background:radial-gradient(ellipse 55% 60% at 50% 90%,rgba(${corRgb},.52) 0%,rgba(${corRgb},.18) 35%,transparent 70%);pointer-events:none;animation:ray-b 3s ease-in-out infinite alternate}
-@keyframes ray-b{from{opacity:.7;transform:translateX(-50%) scaleY(.92)}to{opacity:1;transform:translateX(-50%) scaleY(1.05)}}
+
+/* ── GLOW atrás do popup (topo) ── */
+.popup-glow-zone{
+  position:absolute;
+  top:0;left:0;right:0;
+  height:280px;
+  pointer-events:none;
+  z-index:0;
+  overflow:hidden;
+}
+/* raio principal — concentrado no centro-topo */
+.popup-glow-zone::before{
+  content:'';
+  position:absolute;
+  top:-80px;
+  left:50%;
+  transform:translateX(-50%);
+  width:720px;
+  height:420px;
+  background:radial-gradient(
+    ellipse 52% 58% at 50% 12%,
+    rgba(${corRgb},.62) 0%,
+    rgba(${corRgb},.28) 28%,
+    rgba(${corRgb},.09) 58%,
+    transparent 78%
+  );
+  animation:glow-pulse 2.2s ease-in-out infinite alternate;
+}
+/* halo suave mais largo */
+.popup-glow-zone::after{
+  content:'';
+  position:absolute;
+  top:-30px;
+  left:50%;
+  transform:translateX(-50%);
+  width:1000px;
+  height:350px;
+  background:radial-gradient(
+    ellipse 68% 52% at 50% 6%,
+    rgba(${corRgb},.22) 0%,
+    rgba(${corRgb},.07) 48%,
+    transparent 72%
+  );
+  animation:glow-pulse 2.8s ease-in-out infinite alternate;
+  animation-delay:.5s;
+}
+@keyframes glow-pulse{
+  from{opacity:.72;transform:translateX(-50%) scaleY(.93)}
+  to{opacity:1;transform:translateX(-50%) scaleY(1.07)}
+}
+
+/* fundo inferior */
+.bg-bottom{
+  position:fixed;bottom:-80px;left:50%;transform:translateX(-50%);
+  width:110vw;height:40vh;
+  background:radial-gradient(ellipse 55% 55% at 50% 90%,rgba(${corRgb},.16) 0%,rgba(${corRgb},.05) 50%,transparent 72%);
+  pointer-events:none;
+}
+
+/* partículas */
 #pts2{position:fixed;inset:0;pointer-events:none;overflow:hidden}
 .pt2{position:absolute;border-radius:50%;background:var(--c);animation:rise2 linear infinite;opacity:0}
 @keyframes rise2{0%{transform:translateY(100vh) scale(0);opacity:0}8%{opacity:.9}92%{opacity:.2}100%{transform:translateY(-60px) scale(1.4);opacity:0}}
 
-/* topo avatar */
-.top-bar{display:flex;flex-direction:column;align-items:center;gap:8px;padding-top:24px;z-index:2;position:relative}
-.av-img{width:58px;height:58px;border-radius:50%;border:2.5px solid var(--c);object-fit:cover;box-shadow:0 0 22px rgba(${corRgb},.5)}
-.welcome{font-size:13px;font-weight:600;color:rgba(255,255,255,.75)}
+/* ── topo: avatar ── */
+.top-bar{
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  padding-top:18px;z-index:2;position:relative;
+}
+.av-img{
+  width:50px;height:50px;border-radius:50%;
+  border:2.5px solid var(--c);object-fit:cover;
+  box-shadow:0 0 20px rgba(${corRgb},.55);
+}
+.welcome{font-size:12px;font-weight:600;color:rgba(255,255,255,.65)}
 
-/* setas */
-.arrow-zone{width:100%;flex:0 0 38vh;position:relative;display:flex;align-items:flex-end;justify-content:center;padding-bottom:10px}
-.arrows-row{display:flex;align-items:flex-end;justify-content:center;width:100%;max-width:600px;padding:0 20px;position:relative}
-.click-pill{position:absolute;top:-36px;left:50%;transform:translateX(-50%);background:rgba(${corRgb},.12);border:1px solid rgba(${corRgb},.4);border-radius:99px;padding:5px 20px;font-size:11.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(${corRgb},.95);white-space:nowrap;box-shadow:0 0 24px rgba(${corRgb},.2);animation:pill-glow 1.4s ease-in-out infinite alternate}
-@keyframes pill-glow{from{box-shadow:0 0 10px rgba(${corRgb},.1);opacity:.8}to{box-shadow:0 0 30px rgba(${corRgb},.5);opacity:1}}
-.arr{display:flex;flex-direction:column;align-items:center;flex:1;max-width:68px;animation:arr-float ease-in-out infinite alternate}
-.arr-tip{width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:12px solid var(--c);filter:drop-shadow(0 0 6px var(--c));margin-bottom:2px;flex-shrink:0}
-.arr-line{width:2px;background:linear-gradient(to top,var(--c),rgba(${corRgb},.05));border-radius:99px;box-shadow:0 0 8px rgba(${corRgb},.5)}
-.h1{height:48px}.h2{height:68px}.h3{height:92px}.h4{height:118px}
-.d0{animation-duration:1s;animation-delay:0s}
-.d1{animation-duration:.95s;animation-delay:.07s}
-.d2{animation-duration:1.05s;animation-delay:.14s}
-.d3{animation-duration:.9s;animation-delay:.05s}
-.d4{animation-duration:1s;animation-delay:.11s}
-.d5{animation-duration:1.1s;animation-delay:.03s}
-.d6{animation-duration:.95s;animation-delay:.17s}
-.d7{animation-duration:1s;animation-delay:.09s}
-@keyframes arr-float{from{transform:translateY(4px);opacity:.5;filter:drop-shadow(0 0 4px var(--c))}to{transform:translateY(-7px);opacity:1;filter:drop-shadow(0 0 16px var(--c))}}
+/* ── setas ── coladas logo abaixo do popup ── */
+.arrow-zone{
+  width:100%;
+  margin-top:8px;
+  position:relative;
+  display:flex;flex-direction:column;align-items:center;
+  z-index:2;
+}
+.click-pill{
+  background:rgba(${corRgb},.14);
+  border:1px solid rgba(${corRgb},.5);
+  border-radius:99px;
+  padding:5px 24px;
+  font-size:11.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(${corRgb},.98);white-space:nowrap;
+  box-shadow:0 0 30px rgba(${corRgb},.28);
+  animation:pill-glow 1.4s ease-in-out infinite alternate;
+  margin-bottom:6px;
+}
+@keyframes pill-glow{
+  from{box-shadow:0 0 12px rgba(${corRgb},.12);opacity:.82}
+  to{box-shadow:0 0 36px rgba(${corRgb},.6);opacity:1}
+}
+.arrows-row{
+  display:flex;align-items:flex-end;justify-content:center;
+  width:100%;max-width:540px;padding:0 20px;
+}
+.arr{display:flex;flex-direction:column;align-items:center;flex:1;max-width:58px;animation:arr-float ease-in-out infinite alternate}
+.arr-tip{
+  width:0;height:0;
+  border-left:7px solid transparent;border-right:7px solid transparent;
+  border-bottom:13px solid var(--c);
+  filter:drop-shadow(0 0 8px var(--c));
+  margin-bottom:2px;flex-shrink:0;
+}
+.arr-line{width:2px;background:linear-gradient(to top,var(--c),rgba(${corRgb},.04));border-radius:99px;box-shadow:0 0 8px rgba(${corRgb},.5)}
+/* alturas: arco — centro mais alto, bordas mais baixas */
+.h1{height:22px}.h2{height:38px}.h3{height:56px}.h4{height:72px}.h5{height:86px}
+.d0{animation-duration:1.0s;animation-delay:0.00s}
+.d1{animation-duration:0.95s;animation-delay:0.07s}
+.d2{animation-duration:1.05s;animation-delay:0.14s}
+.d3{animation-duration:0.90s;animation-delay:0.05s}
+.d4{animation-duration:1.00s;animation-delay:0.11s}
+.d5{animation-duration:1.10s;animation-delay:0.03s}
+.d6{animation-duration:0.95s;animation-delay:0.17s}
+.d7{animation-duration:1.00s;animation-delay:0.09s}
+.d8{animation-duration:1.05s;animation-delay:0.13s}
+@keyframes arr-float{
+  from{transform:translateY(6px);opacity:.42;filter:drop-shadow(0 0 3px var(--c))}
+  to{transform:translateY(-9px);opacity:1;filter:drop-shadow(0 0 20px var(--c))}
+}
 
-/* centro */
-.center-zone{display:flex;flex-direction:column;align-items:center;gap:18px;flex:1;justify-content:center;padding:0 20px;position:relative;z-index:2;width:100%;max-width:640px}
-.verified-row{display:flex;align-items:center;gap:18px;flex-wrap:wrap;justify-content:center}
-.check-ring{width:72px;height:72px;border-radius:50%;border:2.5px solid var(--c);background:rgba(${corRgb},.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;animation:check-glow 2s ease-in-out infinite}
-@keyframes check-glow{0%,100%{box-shadow:0 0 20px rgba(${corRgb},.4),0 0 60px rgba(${corRgb},.15)}50%{box-shadow:0 0 40px rgba(${corRgb},.8),0 0 90px rgba(${corRgb},.3)}}
-.check-ring svg{width:36px;height:36px;stroke:var(--c);fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 10px var(--c))}
-.verified-txt{font-size:clamp(26px,5vw,40px);font-weight:800;letter-spacing:-.02em;text-align:center}
+/* ── verificado + instrução ── */
+.center-zone{
+  display:flex;flex-direction:column;align-items:center;gap:16px;
+  flex:1;justify-content:center;
+  padding:0 20px;position:relative;z-index:2;
+  width:100%;max-width:620px;
+  margin-top:12px;
+}
+.verified-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap;justify-content:center}
+.check-ring{
+  width:68px;height:68px;border-radius:50%;
+  border:2.5px solid var(--c);
+  background:rgba(${corRgb},.1);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  animation:check-glow 2s ease-in-out infinite;
+}
+@keyframes check-glow{
+  0%,100%{box-shadow:0 0 20px rgba(${corRgb},.4),0 0 60px rgba(${corRgb},.12)}
+  50%{box-shadow:0 0 42px rgba(${corRgb},.82),0 0 90px rgba(${corRgb},.28)}
+}
+.check-ring svg{width:34px;height:34px;stroke:var(--c);fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 10px var(--c))}
+.verified-txt{font-size:clamp(24px,5vw,38px);font-weight:800;letter-spacing:-.02em;text-align:center}
 .verified-txt span{color:var(--c);filter:drop-shadow(0 0 14px var(--c))}
-.instr-card{display:flex;align-items:center;gap:14px;background:rgba(${corRgb},.07);border:1.5px solid rgba(${corRgb},.22);border-radius:18px;padding:16px 24px;max-width:500px;width:100%;position:relative;overflow:hidden}
+.instr-card{
+  display:flex;align-items:center;gap:14px;
+  background:rgba(${corRgb},.07);
+  border:1.5px solid rgba(${corRgb},.22);
+  border-radius:18px;padding:14px 22px;
+  max-width:480px;width:100%;
+  position:relative;overflow:hidden;
+}
 .instr-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(${corRgb},.6),transparent)}
-.cursor-box{width:44px;height:44px;border-radius:12px;background:rgba(${corRgb},.14);border:1.5px solid rgba(${corRgb},.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;animation:cursor-rock .8s ease-in-out infinite alternate}
+.cursor-box{
+  width:42px;height:42px;border-radius:12px;
+  background:rgba(${corRgb},.14);border:1.5px solid rgba(${corRgb},.3);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  animation:cursor-rock .8s ease-in-out infinite alternate;
+}
 @keyframes cursor-rock{from{transform:scale(.92) rotate(-4deg)}to{transform:scale(1.08) rotate(4deg)}}
-.cursor-box svg{width:24px;height:24px;stroke:var(--c);fill:none;stroke-width:2;filter:drop-shadow(0 0 6px var(--c))}
-.instr-txt{font-size:15px;font-weight:600;color:rgba(232,233,243,.9);line-height:1.4}
+.cursor-box svg{width:22px;height:22px;stroke:var(--c);fill:none;stroke-width:2;filter:drop-shadow(0 0 6px var(--c))}
+.instr-txt{font-size:14px;font-weight:600;color:rgba(232,233,243,.9);line-height:1.4}
 .instr-txt b{color:var(--c);text-shadow:0 0 10px var(--c);font-weight:700}
-.footer-txt{font-size:11px;color:rgba(255,255,255,.18);letter-spacing:.08em;text-transform:uppercase;padding-bottom:16px;z-index:2}
+.footer-txt{font-size:11px;color:rgba(255,255,255,.14);letter-spacing:.08em;text-transform:uppercase;padding-bottom:14px;z-index:2}
 
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes breath{from{transform:scale(.85);opacity:.6}to{transform:scale(1.1);opacity:1}}
 @keyframes pulse-out{0%{transform:scale(.7);opacity:.7}100%{transform:scale(1.6);opacity:0}}
 @keyframes blink{from{opacity:.3}to{opacity:1}}
+@keyframes tw{from{opacity:.03}to{opacity:.3}}
 </style>
 </head>
 <body>
@@ -658,28 +781,35 @@ body{background:#06060a;font-family:'Sora',sans-serif;min-height:100vh;overflow:
 
 <!-- ══ MAIN ══ -->
 <div id="scr-main">
-  <div class="bg-ray"></div>
+
+  <!-- glow atrás do popup -->
+  <div class="popup-glow-zone"></div>
+  <div class="bg-bottom"></div>
   <div id="pts2"></div>
 
+  <!-- avatar -->
   <div class="top-bar">
     <img class="av-img" src="${avatarURL}" alt="" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
     <div class="welcome">Olá, ${nome}! 👋</div>
   </div>
 
+  <!-- setas encostadas no popup -->
   <div class="arrow-zone">
+    <div class="click-pill">▲ Clique em "Abrir" no popup acima ▲</div>
     <div class="arrows-row">
-      <div class="click-pill">▲ Clique em "Abrir" no popup acima ▲</div>
       <div class="arr d0"><div class="arr-tip"></div><div class="arr-line h1"></div></div>
       <div class="arr d1"><div class="arr-tip"></div><div class="arr-line h2"></div></div>
       <div class="arr d2"><div class="arr-tip"></div><div class="arr-line h3"></div></div>
       <div class="arr d3"><div class="arr-tip"></div><div class="arr-line h4"></div></div>
-      <div class="arr d4"><div class="arr-tip"></div><div class="arr-line h4"></div></div>
-      <div class="arr d5"><div class="arr-tip"></div><div class="arr-line h3"></div></div>
-      <div class="arr d6"><div class="arr-tip"></div><div class="arr-line h2"></div></div>
-      <div class="arr d7"><div class="arr-tip"></div><div class="arr-line h1"></div></div>
+      <div class="arr d4"><div class="arr-tip"></div><div class="arr-line h5"></div></div>
+      <div class="arr d5"><div class="arr-tip"></div><div class="arr-line h4"></div></div>
+      <div class="arr d6"><div class="arr-tip"></div><div class="arr-line h3"></div></div>
+      <div class="arr d7"><div class="arr-tip"></div><div class="arr-line h2"></div></div>
+      <div class="arr d8"><div class="arr-tip"></div><div class="arr-line h1"></div></div>
     </div>
   </div>
 
+  <!-- verificado -->
   <div class="center-zone">
     <div class="verified-row">
       <div class="check-ring">
@@ -720,7 +850,6 @@ function reveal(){
     requestAnimationFrame(()=>requestAnimationFrame(()=>{
       main.classList.add('show');
       spawnPts();
-      // ✅ Dispara deeplink → browser mostra popup "Abrir Discord?" automaticamente
       setTimeout(()=>{ window.location.href='${deepLink}'; },700);
     }));
   },520);
@@ -728,7 +857,7 @@ function reveal(){
 
 function spawnPts(){
   const w=document.getElementById('pts2');
-  for(let i=0;i<24;i++){
+  for(let i=0;i<22;i++){
     const p=document.createElement('div');p.className='pt2';
     const sz=1.2+Math.random()*2.5;
     p.style.cssText='left:'+Math.random()*100+'%;width:'+sz+'px;height:'+sz+'px;animation-duration:'+(8+Math.random()*14)+'s;animation-delay:'+Math.random()*12+'s';
@@ -741,7 +870,6 @@ function spawnPts(){
   }
 }
 <\/script>
-<style>@keyframes tw{from{opacity:.03}to{opacity:.3}}<\/style>
 </body>
 </html>`;
 }
@@ -857,7 +985,6 @@ async function handleOAuth2(req, res, botCfg) {
       }
     } catch (err) { console.log('[Aviso] Extras:', err.message); }
 
-    // ✅ Retorna TELA 2 — "Verificado! + botão Abrir Discord"
     res.send(buildSuccessPage(botCfg, user, avatarURL));
 
   } catch (err) {
